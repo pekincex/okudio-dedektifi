@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Okudio — Okuma Dedektifi</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #FAFAF8;
+            --surface: #FFFFFF;
+            --surface-alt: #F5F3EF;
+            --border: #E8E4DD;
+            --text: #1A1915;
+            --text-secondary: #6B6560;
+            --accent: #2563EB;
+            --accent-soft: #EFF6FF;
+            --success: #059669;
+            --success-bg: #ECFDF5;
+            --warning: #D97706;
+            --warning-bg: #FFFBEB;
+            --danger: #DC2626;
+            --danger-bg: #FEF2F2;
+            --info: #7C3AED;
+            --info-bg: #F5F3FF;
+            --radius: 12px;
+            --shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
+            --shadow-lg: 0 4px 6px rgba(0,0,0,0.04), 0 10px 30px rgba(0,0,0,0.06);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* ── HEADER ── */
+        header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 20px 0;
+        }
+        header .inner {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .logo-icon {
+            width: 40px; height: 40px;
+            background: var(--accent);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; color: white;
+        }
+        header h1 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 22px;
+            font-weight: 400;
+            letter-spacing: -0.3px;
+        }
+        header h1 span { color: var(--accent); }
+        .header-badge {
+            margin-left: auto;
+            font-size: 11px;
+            padding: 4px 10px;
+            background: var(--surface-alt);
+            border-radius: 20px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* ── MAIN ── */
+        main {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 32px 24px 80px;
+        }
+
+        /* ── UPLOAD CARD ── */
+        .upload-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 32px;
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+        }
+        .upload-card h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 20px;
+            font-weight: 400;
+            margin-bottom: 20px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        @media (max-width: 640px) {
+            .form-grid { grid-template-columns: 1fr; }
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Dropzone */
+        .dropzone {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 32px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--surface-alt);
+        }
+        .dropzone:hover, .dropzone.dragover {
+            border-color: var(--accent);
+            background: var(--accent-soft);
+        }
+        .dropzone.has-file {
+            border-color: var(--success);
+            background: var(--success-bg);
+            border-style: solid;
+        }
+        .dropzone-icon { font-size: 32px; margin-bottom: 8px; }
+        .dropzone-text { font-size: 14px; color: var(--text-secondary); }
+        .dropzone-text strong { color: var(--accent); }
+        .dropzone-filename {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--success);
+        }
+        .dropzone input { display: none; }
+
+        /* Textarea */
+        textarea {
+            width: 100%;
+            height: 160px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 16px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            line-height: 1.7;
+            resize: vertical;
+            color: var(--text);
+            background: var(--surface-alt);
+            transition: border-color 0.2s;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: white;
+        }
+        textarea::placeholder { color: #B0AAA2; }
+
+        /* Button */
+        .btn-analyze {
+            margin-top: 24px;
+            width: 100%;
+            padding: 16px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.2px;
+        }
+        .btn-analyze:hover:not(:disabled) {
+            background: #1D4ED8;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+        .btn-analyze:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* ── LOADING ── */
+        .loading-overlay {
+            display: none;
+            margin-top: 24px;
+        }
+        .loading-overlay.active { display: block; }
+        .loading-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 40px 32px;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+        .spinner {
+            width: 48px; height: 48px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-step {
+            font-size: 15px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+        }
+        .loading-step strong { color: var(--text); }
+
+        /* ── ERROR ── */
+        .error-box {
+            display: none;
+            background: var(--danger-bg);
+            border: 1px solid #FECACA;
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            margin-top: 16px;
+            color: var(--danger);
+            font-size: 14px;
+        }
+
+        /* ── RESULTS ── */
+        .results { display: none; margin-top: 24px; }
+        .results.visible { display: block; }
+
+        .result-section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+        .result-section-header {
+            padding: 18px 24px;
+            font-weight: 600;
+            font-size: 15px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .result-section-body { padding: 20px 24px; }
+
+        /* Score Cards */
+        .score-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+        @media (max-width: 640px) {
+            .score-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        .score-card {
+            text-align: center;
+            padding: 20px 12px;
+            border-radius: var(--radius);
+            background: var(--surface-alt);
+        }
+        .score-value {
+            font-family: 'DM Serif Display', serif;
+            font-size: 36px;
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+        .score-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .score-green .score-value { color: var(--success); }
+        .score-yellow .score-value { color: var(--warning); }
+        .score-red .score-value { color: var(--danger); }
+        .score-blue .score-value { color: var(--accent); }
+
+        /* Level Badge */
+        .level-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 13px;
+            margin-top: 12px;
+        }
+        .level-baslangic { background: var(--danger-bg); color: var(--danger); }
+        .level-gelisen { background: var(--warning-bg); color: var(--warning); }
+        .level-yeterli { background: var(--success-bg); color: var(--success); }
+        .level-ileri { background: var(--info-bg); color: var(--info); }
+
+        /* Text Comparison */
+        .text-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        @media (max-width: 640px) {
+            .text-comparison { grid-template-columns: 1fr; }
+        }
+        .text-box {
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+        .text-box-ref { background: var(--surface-alt); }
+        .text-box-stt { background: var(--accent-soft); }
+        .text-box-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        /* Word Table */
+        .word-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .word-table th {
+            text-align: left;
+            padding: 10px 12px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            border-bottom: 2px solid var(--border);
+            font-weight: 600;
+        }
+        .word-table td {
+            padding: 9px 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        .word-table tr:last-child td { border-bottom: none; }
+        .status-dogru { color: var(--success); font-weight: 600; }
+        .status-yanlis { color: var(--danger); font-weight: 600; }
+        .status-atlandi { color: var(--warning); font-weight: 600; }
+        .status-eklendi { color: var(--info); font-weight: 600; }
+
+        /* Insight Lists */
+        .insight-list {
+            list-style: none;
+            padding: 0;
+        }
+        .insight-list li {
+            padding: 8px 0 8px 28px;
+            position: relative;
+            font-size: 14px;
+            line-height: 1.6;
+            border-bottom: 1px solid var(--border);
+        }
+        .insight-list li:last-child { border-bottom: none; }
+        .insight-list li::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 15px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        .insight-list.green li::before { background: var(--success); }
+        .insight-list.orange li::before { background: var(--warning); }
+        .insight-list.blue li::before { background: var(--accent); }
+
+        /* Summary Paragraphs */
+        .summary-text {
+            font-size: 14px;
+            line-height: 1.8;
+            color: var(--text);
+            padding: 4px 0;
+        }
+        .summary-text + .summary-text { margin-top: 12px; }
+        .summary-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            margin-bottom: 4px;
+        }
+
+        /* Prozodi Details */
+        .prozodi-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+        @media (max-width: 640px) {
+            .prozodi-grid { grid-template-columns: 1fr; }
+        }
+        .prozodi-item {
+            padding: 16px;
+            background: var(--surface-alt);
+            border-radius: 8px;
+        }
+        .prozodi-item-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .prozodi-item-value {
+            font-family: 'DM Serif Display', serif;
+            font-size: 22px;
+        }
+        .prozodi-item-note {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* Keyword chips */
+        .keyword-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .chip {
+            display: inline-block;
+            padding: 6px 14px;
+            background: var(--danger-bg);
+            color: var(--danger);
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        /* PDF Button */
+        .btn-pdf {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            background: var(--text);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 20px;
+        }
+        .btn-pdf:hover:not(:disabled) {
+            background: #374151;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+        .btn-pdf:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-pdf svg { width: 18px; height: 18px; }
+
+        .results-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        .results-title {
+            font-family: 'DM Serif Display', serif;
+            font-size: 22px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="inner">
+            <div class="logo-icon">📖</div>
+            <h1>Okudio <span>Okuma Dedektifi</span></h1>
+            <div class="header-badge">Whisper + Parselmouth + Claude</div>
+        </div>
+    </header>
+
+    <main>
+        <!-- UPLOAD FORM -->
+        <div class="upload-card">
+            <h2>Sesli Okuma Analizi</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Ses Kaydı</label>
+                    <div class="dropzone" id="dropzone">
+                        <div class="dropzone-icon">🎙️</div>
+                        <div class="dropzone-text">
+                            <strong>Dosya seçin</strong> veya sürükleyip bırakın<br>
+                            WAV, MP3, M4A, WEBM, BIN
+                        </div>
+                        <div class="dropzone-filename" id="filename" style="display:none"></div>
+                        <input type="file" id="audioFile" accept="audio/*,.bin,.webm">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Referans Metin</label>
+                    <textarea id="referansMetin" placeholder="Çocuğun okuması gereken metni buraya yapıştırın..."></textarea>
+                </div>
+            </div>
+            <button class="btn-analyze" id="btnAnalyze" disabled>Analizi Başlat</button>
+            <div class="error-box" id="errorBox"></div>
+        </div>
+
+        <!-- LOADING -->
+        <div class="loading-overlay" id="loading">
+            <div class="loading-card">
+                <div class="spinner"></div>
+                <div class="loading-step" id="loadingStep">
+                    <strong>Katman 1:</strong> Whisper ses analizi yapılıyor...
+                </div>
+            </div>
+        </div>
+
+        <!-- RESULTS -->
+        <div class="results" id="results">
+
+            <!-- RESULTS HEADER WITH PDF BUTTON -->
+            <div class="results-header">
+                <div class="results-title">Analiz Sonuclari</div>
+                <button class="btn-pdf" id="btnPdf" onclick="pdfIndir()">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
+                    </svg>
+                    PDF Rapor Indir
+                </button>
+            </div>
+
+            <!-- SKOR KARTLARI -->
+            <div class="result-section">
+                <div class="result-section-header">📊 Performans Özeti</div>
+                <div class="result-section-body">
+                    <div class="score-grid" id="scoreGrid"></div>
+                    <div style="text-align:center">
+                        <div class="level-badge" id="levelBadge"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- METİN KARŞILAŞTIRMA -->
+            <div class="result-section">
+                <div class="result-section-header">🔍 Metin Karşılaştırma</div>
+                <div class="result-section-body">
+                    <div class="text-comparison" id="textComparison"></div>
+                </div>
+            </div>
+
+            <!-- PEDAGOJİK DEĞERLENDİRME -->
+            <div class="result-section">
+                <div class="result-section-header">📝 Pedagojik Değerlendirme</div>
+                <div class="result-section-body" id="pedagogikDegerlendirme"></div>
+            </div>
+
+            <!-- PROZODİ DETAY -->
+            <div class="result-section">
+                <div class="result-section-header">🎵 Prozodi & Akustik Veriler</div>
+                <div class="result-section-body">
+                    <div class="prozodi-grid" id="prozodiGrid"></div>
+                </div>
+            </div>
+
+            <!-- KELİME BAZLI ANALİZ -->
+            <div class="result-section">
+                <div class="result-section-header">🔤 Kelime Bazlı Analiz</div>
+                <div class="result-section-body" style="padding:0; overflow-x:auto;">
+                    <table class="word-table" id="wordTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Hedef Kelime</th>
+                                <th>Çocuğun Okuduğu</th>
+                                <th>Durum</th>
+                                <th>Not</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- GÜÇLÜ YÖNLER & GELİŞİM -->
+            <div class="result-section">
+                <div class="result-section-header">💪 Güçlü Yönler</div>
+                <div class="result-section-body">
+                    <ul class="insight-list green" id="gucluYonler"></ul>
+                </div>
+            </div>
+
+            <div class="result-section">
+                <div class="result-section-header">🎯 Gelişim Alanları</div>
+                <div class="result-section-body">
+                    <ul class="insight-list orange" id="gelisimAlanlari"></ul>
+                </div>
+            </div>
+
+            <div class="result-section">
+                <div class="result-section-header">💡 Öğretmen / Veli Önerileri</div>
+                <div class="result-section-body">
+                    <ul class="insight-list blue" id="oneriler"></ul>
+                </div>
+            </div>
+
+            <!-- ZORLANILAN KELİMELER -->
+            <div class="result-section">
+                <div class="result-section-header">⚠️ Zorlanılan Kelimeler</div>
+                <div class="result-section-body">
+                    <div class="keyword-chips" id="zorlanilanKelimeler"></div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('audioFile');
+        const filenameEl = document.getElementById('filename');
+        const btn = document.getElementById('btnAnalyze');
+        const textarea = document.getElementById('referansMetin');
+        const loading = document.getElementById('loading');
+        const loadingStep = document.getElementById('loadingStep');
+        const errorBox = document.getElementById('errorBox');
+        const resultsDiv = document.getElementById('results');
+
+        let selectedFile = null;
+        let lastAnalysisData = null; // Store results for PDF download
+
+        // ── File Selection ──
+        dropzone.addEventListener('click', () => fileInput.click());
+        dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('dragover'); });
+        dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+        dropzone.addEventListener('drop', e => {
+            e.preventDefault();
+            dropzone.classList.remove('dragover');
+            if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+        });
+        fileInput.addEventListener('change', () => { if (fileInput.files.length) handleFile(fileInput.files[0]); });
+
+        function handleFile(file) {
+            selectedFile = file;
+            dropzone.classList.add('has-file');
+            dropzone.querySelector('.dropzone-icon').textContent = '✅';
+            dropzone.querySelector('.dropzone-text').style.display = 'none';
+            filenameEl.style.display = 'block';
+            filenameEl.textContent = file.name + ' (' + (file.size / 1024 / 1024).toFixed(1) + ' MB)';
+            checkReady();
+        }
+
+        textarea.addEventListener('input', checkReady);
+        function checkReady() {
+            btn.disabled = !(selectedFile && textarea.value.trim());
+        }
+
+        // ── Analysis ──
+        btn.addEventListener('click', async () => {
+            errorBox.style.display = 'none';
+            resultsDiv.classList.remove('visible');
+            loading.classList.add('active');
+            btn.disabled = true;
+
+            // Simulate step progress
+            const steps = [
+                { text: '<strong>Katman 1:</strong> Whisper — ses kaydı analiz ediliyor...', delay: 0 },
+                { text: '<strong>Katman 2:</strong> Parselmouth — prozodi ölçülüyor...', delay: 5000 },
+                { text: '<strong>Katman 3:</strong> Claude — pedagojik rapor üretiliyor...', delay: 10000 },
+            ];
+            steps.forEach(s => setTimeout(() => { loadingStep.innerHTML = s.text; }, s.delay));
+
+            const formData = new FormData();
+            formData.append('ses_dosyasi', selectedFile);
+            formData.append('referans_metin', textarea.value.trim());
+
+            try {
+                const resp = await fetch('/analiz', { method: 'POST', body: formData });
+                const data = await resp.json();
+
+                loading.classList.remove('active');
+
+                if (data.hata) {
+                    errorBox.textContent = data.hata;
+                    errorBox.style.display = 'block';
+                    btn.disabled = false;
+                    return;
+                }
+
+                renderResults(data);
+                lastAnalysisData = data;
+                lastAnalysisData.referans_metin = textarea.value.trim();
+                resultsDiv.classList.add('visible');
+                resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            } catch (err) {
+                loading.classList.remove('active');
+                errorBox.textContent = 'Bağlantı hatası: ' + err.message;
+                errorBox.style.display = 'block';
+            }
+            btn.disabled = false;
+        });
+
+        // ── Render ──
+        function renderResults(data) {
+            const r = data.rapor;
+            const p = data.prozodi;
+            const w = data.whisper;
+
+            // Score Cards
+            const scoreGrid = document.getElementById('scoreGrid');
+            const scoreColor = v => v >= 70 ? 'score-green' : v >= 40 ? 'score-yellow' : 'score-red';
+            scoreGrid.innerHTML = `
+                <div class="score-card ${scoreColor(r.genel_skor || 0)}">
+                    <div class="score-value">${r.genel_skor || '—'}</div>
+                    <div class="score-label">Genel Skor</div>
+                </div>
+                <div class="score-card ${scoreColor(r.dogruluk_skoru || 0)}">
+                    <div class="score-value">${r.dogruluk_skoru || '—'}</div>
+                    <div class="score-label">Doğruluk</div>
+                </div>
+                <div class="score-card ${scoreColor(r.akicilik_skoru || 0)}">
+                    <div class="score-value">${r.akicilik_skoru || '—'}</div>
+                    <div class="score-label">Akıcılık</div>
+                </div>
+                <div class="score-card ${scoreColor(r.prozodi_skoru || 0)}">
+                    <div class="score-value">${r.prozodi_skoru || '—'}</div>
+                    <div class="score-label">Prozodi</div>
+                </div>
+            `;
+
+            // Level Badge
+            const lb = document.getElementById('levelBadge');
+            const seviye = (r.seviye || '').toLowerCase();
+            let levelClass = 'level-gelisen';
+            if (seviye.includes('başlangıç') || seviye.includes('baslangic')) levelClass = 'level-baslangic';
+            else if (seviye.includes('yeterli')) levelClass = 'level-yeterli';
+            else if (seviye.includes('ileri')) levelClass = 'level-ileri';
+            lb.className = 'level-badge ' + levelClass;
+            lb.textContent = (r.seviye || 'Değerlendiriliyor') + (r.okuma_hizi_wpm ? ` · ${r.okuma_hizi_wpm} kelime/dk` : '');
+
+            // Text Comparison
+            document.getElementById('textComparison').innerHTML = `
+                <div class="text-box text-box-ref">
+                    <div class="text-box-label">📖 Referans Metin</div>
+                    ${document.getElementById('referansMetin').value}
+                </div>
+                <div class="text-box text-box-stt">
+                    <div class="text-box-label">🗣️ Whisper Transkripti</div>
+                    ${w.transkript || '—'}
+                </div>
+            `;
+
+            // Pedagojik Değerlendirme
+            const ped = document.getElementById('pedagogikDegerlendirme');
+            ped.innerHTML = `
+                <div class="summary-label">Doğruluk</div>
+                <div class="summary-text">${r.dogruluk_ozeti || ''}</div>
+                <div class="summary-label" style="margin-top:16px">Akıcılık</div>
+                <div class="summary-text">${r.akicilik_ozeti || ''}</div>
+                <div class="summary-label" style="margin-top:16px">Prozodi & Tonlama</div>
+                <div class="summary-text">${r.prozodi_ozeti || ''}</div>
+            `;
+
+            // Prozodi Grid
+            const pg = document.getElementById('prozodiGrid');
+            pg.innerHTML = `
+                <div class="prozodi-item">
+                    <div class="prozodi-item-label">Pitch Ortalaması</div>
+                    <div class="prozodi-item-value">${p.pitch.ortalama_hz || '—'} Hz</div>
+                    <div class="prozodi-item-note">${p.pitch.monotonluk || ''}</div>
+                </div>
+                <div class="prozodi-item">
+                    <div class="prozodi-item-label">Tonlama Canlılığı</div>
+                    <div class="prozodi-item-value">${p.pitch.std_hz || '—'} Hz</div>
+                    <div class="prozodi-item-note">Std. sapma (yüksek = canlı)</div>
+                </div>
+                <div class="prozodi-item">
+                    <div class="prozodi-item-label">Vurgu Gücü</div>
+                    <div class="prozodi-item-value">${p.enerji.std_db || '—'} dB</div>
+                    <div class="prozodi-item-note">${p.enerji.vurgu_durumu || ''}</div>
+                </div>
+                <div class="prozodi-item">
+                    <div class="prozodi-item-label">Toplam Süre</div>
+                    <div class="prozodi-item-value">${p.duraksama.toplam_sure_sn || '—'} sn</div>
+                    <div class="prozodi-item-note">Konuşma: ${p.duraksama.konusma_suresi_sn || '?'} sn</div>
+                </div>
+                <div class="prozodi-item">
+                    <div class="prozodi-item-label">Duraksama Sayısı</div>
+                    <div class="prozodi-item-value">${p.duraksama.duraksama_sayisi || 0}</div>
+                    <div class="prozodi-item-note">Sessizlik: %${p.duraksama.sessizlik_orani || '?'}</div>
+                </div>
+                <div class="prozodi-item">
+                    <div class="prozodi-item-label">Akıcılık</div>
+                    <div class="prozodi-item-value">${p.duraksama.akicilik_durumu || '—'}</div>
+                    <div class="prozodi-item-note">Sessizlik süresi: ${p.duraksama.sessizlik_suresi_sn || '?'} sn</div>
+                </div>
+            `;
+
+            // Word Table
+            const tbody = document.querySelector('#wordTable tbody');
+            tbody.innerHTML = '';
+            if (r.kelime_analizi && r.kelime_analizi.length) {
+                r.kelime_analizi.forEach((k, i) => {
+                    const statusClass = 'status-' + (k.durum || 'yanlis');
+                    const statusLabel = { dogru: 'Doğru', yanlis: 'Yanlış', atlandi: 'Atlandı', eklendi: 'Eklendi' }[k.durum] || k.durum;
+                    tbody.innerHTML += `<tr>
+                        <td style="color:var(--text-secondary)">${i + 1}</td>
+                        <td><strong>${k.kelime || ''}</strong></td>
+                        <td>${k.cocugun_okudugu || '—'}</td>
+                        <td class="${statusClass}">${statusLabel}</td>
+                        <td style="color:var(--text-secondary);font-size:12px">${k.not || ''}</td>
+                    </tr>`;
+                });
+            }
+
+            // Lists
+            renderList('gucluYonler', r.guclu_yonler);
+            renderList('gelisimAlanlari', r.gelisim_alanlari);
+            renderList('oneriler', r.oneriler);
+
+            // Keyword Chips
+            const chips = document.getElementById('zorlanilanKelimeler');
+            chips.innerHTML = '';
+            if (r.dikkat_edilecek_kelimeler) {
+                r.dikkat_edilecek_kelimeler.forEach(k => {
+                    chips.innerHTML += `<span class="chip">${k}</span>`;
+                });
+            }
+        }
+
+        function renderList(id, items) {
+            const el = document.getElementById(id);
+            el.innerHTML = '';
+            if (items && items.length) {
+                items.forEach(item => { el.innerHTML += `<li>${item}</li>`; });
+            } else {
+                el.innerHTML = '<li style="color:var(--text-secondary)">Veri yok</li>';
+            }
+        }
+
+        // ── PDF Download ──
+        async function pdfIndir() {
+            if (!lastAnalysisData) return;
+            const btn = document.getElementById('btnPdf');
+            btn.disabled = true;
+            btn.innerHTML = '<span>PDF Hazirlaniyor...</span>';
+
+            try {
+                const resp = await fetch('/pdf-indir', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(lastAnalysisData)
+                });
+
+                if (!resp.ok) throw new Error('PDF olusturulamadi');
+
+                const blob = await resp.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = resp.headers.get('Content-Disposition')?.split('filename=')[1] || 'Okudio_Rapor.pdf';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+            } catch (err) {
+                alert('PDF indirme hatasi: ' + err.message);
+            }
+
+            btn.disabled = false;
+            btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:18px;height:18px"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg> PDF Rapor Indir`;
+        }
+    </script>
+</body>
+</html>
