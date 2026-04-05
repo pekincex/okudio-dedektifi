@@ -89,8 +89,8 @@ REFERANS METIN:
 WHISPER STT:
 {whisper_transkript}
 
-KELIME ZAMANLAMA:
-{json.dumps(whisper_kelimeler, ensure_ascii=False)}
+KELIME ZAMANLAMA (ilk 30):
+{json.dumps(whisper_kelimeler[:30], ensure_ascii=False)}
 
 PROZODI VERILERI:
 {json.dumps(prozodi_verileri, ensure_ascii=False)}
@@ -179,13 +179,17 @@ ONEMLI:
 - Kelime suresi > 1sn = heceleme isareti. pitch std < 20 = monoton. sessizlik > %35 = kesik kesik.
 - Sadece JSON dondur. Turkce karakterler kullan."""
 
-    response = client.messages.create(model="claude-sonnet-4-20250514", max_tokens=4096, messages=[{"role": "user", "content": prompt}])
+    response = client.messages.create(model="claude-sonnet-4-20250514", max_tokens=8000, messages=[{"role": "user", "content": prompt}])
     raw = response.content[0].text.strip()
     if raw.startswith("```json"): raw = raw[7:]
     if raw.startswith("```"): raw = raw[3:]
     if raw.endswith("```"): raw = raw[:-3]
-    try: return json.loads(raw.strip())
-    except: return {"hata": "Parse hatasi", "ham_yanit": raw}
+    try:
+        return json.loads(raw.strip())
+    except Exception as e:
+        print(f"  JSON HATASI: {e}")
+        print(f"  HAM YANIT: {raw[:500]}")
+        return {"hata": "Claude yanit parse edilemedi", "ham_yanit": raw[:500]}
 
 
 def pdf_rapor_uret(rapor_data):
