@@ -7,3 +7,4 @@ numpy<2.0
 soundfile==0.13.1
 reportlab==4.4.0
 gunicorn==23.0.0
+pydub
