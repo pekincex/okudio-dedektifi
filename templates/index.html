@@ -1,143 +1,246 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>pekincex — vibe coding xd</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&family=DM+Serif+Display&display=swap" rel="stylesheet">
-<style>
-:root{--bg:#FAFAF8;--surface:#FFF;--surface-alt:#F5F3EF;--border:#E8E4DD;--text:#1A1915;--text-secondary:#6B6560;--accent:#2563EB;--accent-soft:#EFF6FF;--success:#059669;--success-bg:#ECFDF5;--warning:#D97706;--warning-bg:#FFFBEB;--danger:#DC2626;--danger-bg:#FEF2F2;--info:#7C3AED;--info-bg:#F5F3FF;--radius:12px;--shadow:0 1px 3px rgba(0,0,0,.04),0 4px 12px rgba(0,0,0,.03);--shadow-lg:0 4px 6px rgba(0,0,0,.04),0 10px 30px rgba(0,0,0,.06)}
-*{margin:0;padding:0;box-sizing:border-box}body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh}
-header{background:var(--surface);border-bottom:1px solid var(--border);padding:20px 0}header .inner{max-width:960px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:14px}.logo-icon{width:40px;height:40px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff}header h1{font-family:'DM Serif Display',serif;font-size:22px;font-weight:400}header h1 span{color:var(--accent)}.header-badge{margin-left:auto;font-size:11px;padding:4px 10px;background:var(--surface-alt);border-radius:20px;color:var(--text-secondary);font-weight:500}
-main{max-width:960px;margin:0 auto;padding:32px 24px 80px}
-.upload-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:32px;box-shadow:var(--shadow);margin-bottom:24px}.upload-card h2{font-family:'DM Serif Display',serif;font-size:20px;font-weight:400;margin-bottom:20px}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}@media(max-width:640px){.form-grid{grid-template-columns:1fr}}
-.form-group label{display:block;font-size:13px;font-weight:600;color:var(--text-secondary);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
-.audio-input-modes{display:flex;gap:8px;margin-bottom:12px}.mode-tab{flex:1;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--surface-alt);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;text-align:center;transition:all .2s;color:var(--text-secondary)}.mode-tab.active{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600}
-.dropzone{border:2px dashed var(--border);border-radius:var(--radius);padding:32px 20px;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface-alt)}.dropzone:hover,.dropzone.dragover{border-color:var(--accent);background:var(--accent-soft)}.dropzone.has-file{border-color:var(--success);background:var(--success-bg);border-style:solid}.dropzone-icon{font-size:32px;margin-bottom:8px}.dropzone-text{font-size:14px;color:var(--text-secondary)}.dropzone-text strong{color:var(--accent)}.dropzone-filename{font-size:14px;font-weight:600;color:var(--success)}.dropzone input{display:none}
-.record-area{display:none;text-align:center;padding:24px 20px;border:2px dashed var(--border);border-radius:var(--radius);background:var(--surface-alt)}.record-area.visible{display:block}.btn-record{width:72px;height:72px;border-radius:50%;border:3px solid var(--danger);background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all .2s}.btn-record:hover{background:var(--danger-bg)}.btn-record .rec-dot{width:28px;height:28px;background:var(--danger);border-radius:50%;transition:all .2s}.btn-record.recording .rec-dot{width:20px;height:20px;border-radius:4px}.btn-record.recording{animation:pr 1.5s infinite}@keyframes pr{0%{box-shadow:0 0 0 0 rgba(220,38,38,.3)}70%{box-shadow:0 0 0 12px rgba(220,38,38,0)}100%{box-shadow:0 0 0 0 rgba(220,38,38,0)}}.record-status{margin-top:12px;font-size:14px;color:var(--text-secondary)}.record-status .rec-time{font-family:'DM Serif Display',serif;font-size:20px;color:var(--danger)}.record-done{display:none;margin-top:12px}.record-done.visible{display:block}.record-done audio{width:100%;height:36px;margin-top:8px}
-textarea{width:100%;height:160px;border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.7;resize:vertical;color:var(--text);background:var(--surface-alt);transition:border-color .2s}textarea:focus{outline:none;border-color:var(--accent);background:#fff}textarea::placeholder{color:#B0AAA2}
-.btn-analyze{margin-top:24px;width:100%;padding:16px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:16px;font-weight:600;cursor:pointer;transition:all .2s}.btn-analyze:hover:not(:disabled){background:#1D4ED8;transform:translateY(-1px)}.btn-analyze:disabled{opacity:.6;cursor:not-allowed}
-.btn-pdf{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:var(--text);color:#fff;border:none;border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:all .2s}.btn-pdf:hover:not(:disabled){background:#374151}.btn-pdf:disabled{opacity:.5;cursor:not-allowed}.btn-pdf svg{width:18px;height:18px}
-.results-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px}.results-title{font-family:'DM Serif Display',serif;font-size:22px}
-.loading-overlay{display:none;margin-top:24px}.loading-overlay.active{display:block}.loading-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:40px 32px;text-align:center;box-shadow:var(--shadow)}.spinner{width:48px;height:48px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:sp .8s linear infinite;margin:0 auto 16px}@keyframes sp{to{transform:rotate(360deg)}}.loading-step{font-size:15px;color:var(--text-secondary);margin-top:8px}.loading-step strong{color:var(--text)}
-.error-box{display:none;background:var(--danger-bg);border:1px solid #FECACA;border-radius:var(--radius);padding:16px 20px;margin-top:16px;color:var(--danger);font-size:14px}
-.retry-box{display:none;background:var(--warning-bg);border:1px solid #FDE68A;border-radius:var(--radius);padding:24px;margin-top:20px;text-align:center}.retry-box.visible{display:block}.retry-emoji{font-size:48px;margin-bottom:12px}.retry-title{font-family:'DM Serif Display',serif;font-size:18px;color:var(--warning);margin-bottom:8px}.retry-text{font-size:14px;color:var(--text-secondary);margin-bottom:16px;line-height:1.7}.btn-retry{padding:12px 24px;background:var(--warning);color:#fff;border:none;border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer}.btn-retry:hover{background:#B45309}
-.results{display:none;margin-top:24px}.results.visible{display:block}
-.rs{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:16px;overflow:hidden}.rsh{padding:18px 24px;font-weight:600;font-size:15px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}.rsb{padding:20px 24px}
-.score-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}@media(max-width:640px){.score-grid{grid-template-columns:repeat(2,1fr)}}.score-card{text-align:center;padding:20px 12px;border-radius:var(--radius);background:var(--surface-alt)}.score-value{font-family:'DM Serif Display',serif;font-size:36px;line-height:1;margin-bottom:6px}.score-label{font-size:12px;color:var(--text-secondary);font-weight:500;text-transform:uppercase;letter-spacing:.3px}.score-green .score-value{color:var(--success)}.score-yellow .score-value{color:var(--warning)}.score-red .score-value{color:var(--danger)}
-.level-badge{display:inline-block;padding:6px 16px;border-radius:20px;font-weight:600;font-size:13px;margin-top:12px}.level-baslangic{background:var(--danger-bg);color:var(--danger)}.level-gelisen{background:var(--warning-bg);color:var(--warning)}.level-yeterli{background:var(--success-bg);color:var(--success)}.level-ileri{background:var(--info-bg);color:var(--info)}
-/* Color-coded text */
-.cc-text{font-size:14px;line-height:2.2;padding:16px;background:var(--surface-alt);border-radius:8px}
-.cc-text .w-ok{background:#bbf7d0;padding:2px 4px;border-radius:4px;color:#166534}
-.cc-text .w-bad{background:#fecaca;padding:2px 4px;border-radius:4px;color:#991b1b}
-.cc-text .w-miss{background:#fef08a;padding:2px 4px;border-radius:4px;color:#854d0e}
-.cc-legend{display:flex;gap:16px;margin-top:12px;font-size:12px;color:var(--text-secondary)}.cc-legend span{display:inline-flex;align-items:center;gap:4px}.cc-dot{width:12px;height:12px;border-radius:3px;display:inline-block}
-.word-table{width:100%;border-collapse:collapse;font-size:13px}.word-table th{text-align:left;padding:10px 12px;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-secondary);border-bottom:2px solid var(--border);font-weight:600}.word-table td{padding:9px 12px;border-bottom:1px solid var(--border)}.word-table tr:last-child td{border-bottom:none}
-.status-dogru{color:var(--success);font-weight:600}.status-yanlis{color:var(--danger);font-weight:600}.status-atlandi{color:var(--warning);font-weight:600}.status-eklendi{color:var(--info);font-weight:600}.status-tekrar{color:var(--info);font-weight:600}
-.insight-list{list-style:none;padding:0}.insight-list li{padding:8px 0 8px 28px;position:relative;font-size:14px;line-height:1.6;border-bottom:1px solid var(--border)}.insight-list li:last-child{border-bottom:none}.insight-list li::before{content:'';position:absolute;left:8px;top:15px;width:8px;height:8px;border-radius:50%}.insight-list.green li::before{background:var(--success)}.insight-list.orange li::before{background:var(--warning)}.insight-list.blue li::before{background:var(--accent)}
-.summary-text{font-size:14px;line-height:1.8;color:var(--text);padding:4px 0}.summary-label{font-size:12px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px}
-.prozodi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}@media(max-width:640px){.prozodi-grid{grid-template-columns:1fr}}.prozodi-item{padding:16px;background:var(--surface-alt);border-radius:8px}.prozodi-item-label{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-secondary);font-weight:600;margin-bottom:6px}.prozodi-item-value{font-family:'DM Serif Display',serif;font-size:22px}.prozodi-item-note{font-size:12px;color:var(--text-secondary);margin-top:4px}
-.keyword-chips{display:flex;flex-wrap:wrap;gap:8px}.chip{display:inline-block;padding:6px 14px;background:var(--danger-bg);color:var(--danger);border-radius:20px;font-size:13px;font-weight:500}
-.error-card{padding:12px 16px;background:var(--surface-alt);border-radius:8px;margin-bottom:8px;border-left:3px solid var(--danger)}.error-card-type{font-size:11px;font-weight:600;text-transform:uppercase;color:var(--danger);margin-bottom:4px}.error-card-text{font-size:13px;color:var(--text);line-height:1.6}.error-card-context{font-size:12px;color:var(--text-secondary);margin-top:4px;font-style:italic}.error-card.prosody{border-left-color:var(--info)}.error-card.prosody .error-card-type{color:var(--info)}.error-card.fluency{border-left-color:var(--warning)}.error-card.fluency .error-card-type{color:var(--warning)}
-/* Olcek tablosu */
-.olcek-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}.olcek-table th{text-align:left;padding:8px 12px;background:var(--text);color:#fff;font-size:11px;text-transform:uppercase}.olcek-table td{padding:8px 12px;border-bottom:1px solid var(--border)}.olcek-table .puan-cell{font-family:'DM Serif Display',serif;font-size:18px;text-align:center;width:50px}
-/* Kelime anlam kartlari */
-.anlam-card{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;padding:12px;background:var(--surface-alt);border-radius:8px;margin-bottom:8px;border-left:3px solid var(--accent)}.anlam-card-word{font-weight:700;font-size:15px}.anlam-card-pron{font-size:13px;color:var(--accent)}.anlam-card-mean{font-size:12px;color:var(--text-secondary);grid-column:span 3;margin-top:4px}.anlam-card-tip{font-size:11px;color:var(--success);grid-column:span 3;margin-top:2px}
-@media(max-width:640px){.anlam-card{grid-template-columns:1fr}}
-/* Metodoloji */
-.met-ref{font-size:11px;color:var(--text-secondary);margin-top:8px;padding:8px 12px;background:var(--surface-alt);border-radius:6px;line-height:1.6}
-</style>
-</head>
-<body>
-<header><div class="inner"><div class="logo-icon">🎯</div><h1>pekincex <span>vibe coding xd</span></h1><div class="header-badge">Okuma Dedektifi</div></div></header>
-<main>
-<div class="upload-card">
-<h2>Sesli Okuma Analizi 📚</h2>
-<div class="form-grid">
-<div class="form-group"><label>Ses Kaydi</label>
-<div class="audio-input-modes"><button class="mode-tab active" id="tabUpload" onclick="setMode('upload')">📁 Dosya Yukle</button><button class="mode-tab" id="tabRecord" onclick="setMode('record')">🎙️ Kayit Yap</button></div>
-<div class="dropzone" id="dropzone"><div class="dropzone-icon">📁</div><div class="dropzone-text"><strong>Dosya sec</strong> veya surukle birak</div><div class="dropzone-filename" id="filename" style="display:none"></div><input type="file" id="audioFile" accept="audio/*,.bin,.webm"></div>
-<div class="record-area" id="recordArea"><button class="btn-record" id="btnRecord" onclick="toggleRecording()"><div class="rec-dot"></div></button><div class="record-status" id="recordStatus">🎤 Kaydetmek icin butona bas!</div><div class="record-done" id="recordDone"><div class="dropzone-filename">✅ Kayit tamamlandi</div><audio controls id="recordedAudio"></audio></div></div>
-</div>
-<div class="form-group"><label>Referans Metin</label><textarea id="referansMetin" placeholder="Cocugun okumasi gereken metni buraya yapistirin..."></textarea></div>
-</div>
-<button class="btn-analyze" id="btnAnalyze" disabled>🚀 Analizi Baslat</button>
-<div class="error-box" id="errorBox"></div>
-</div>
-<div class="retry-box" id="retryBox"><div class="retry-emoji">🤔</div><div class="retry-title">Hmm, bir seyler ters gitmis!</div><div class="retry-text" id="retryText"></div><button class="btn-retry" onclick="resetForRetry()">🔄 Tekrar Deneyelim!</button></div>
-<div class="loading-overlay" id="loading"><div class="loading-card"><div class="spinner"></div><div class="loading-step" id="loadingStep">🎙️ <strong>Katman 1:</strong> Whisper sesi dinliyor...</div></div></div>
-<div class="results" id="results">
-<div class="results-header"><div class="results-title">📋 Analiz Sonuclari</div><button class="btn-pdf" id="btnPdf" onclick="pdfIndir()"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>PDF Rapor</button></div>
-<div class="rs"><div class="rsh">📊 Performans Ozeti</div><div class="rsb"><div class="score-grid" id="scoreGrid"></div><div style="text-align:center"><div class="level-badge" id="levelBadge"></div></div></div></div>
-<div class="rs" id="metSection"><div class="rsh">📐 Puanlama Metodolojisi</div><div class="rsb" id="metodoloji"></div></div>
-<div class="rs"><div class="rsh">🔍 Metin Karsilastirma (Renk Kodlu)</div><div class="rsb"><div class="cc-text" id="colorText"></div><div class="cc-legend"><span><span class="cc-dot" style="background:#bbf7d0"></span> Dogru</span><span><span class="cc-dot" style="background:#fecaca"></span> Hatali</span><span><span class="cc-dot" style="background:#fef08a"></span> Okunmadi</span></div><div style="margin-top:16px"><div class="summary-label">🗣️ Whisper Transkripti</div><div style="font-size:13px;color:var(--text-secondary);padding:12px;background:var(--accent-soft);border-radius:8px" id="sttBox"></div></div></div></div>
-<div class="rs"><div class="rsh">📝 Pedagojik Degerlendirme</div><div class="rsb" id="pedDeg"></div></div>
-<div class="rs" id="anlamSection" style="display:none"><div class="rsh">📖 Hatali Kelimeler — Anlam & Telaffuz</div><div class="rsb" id="anlamlar"></div></div>
-<div class="rs" id="prozodiOlcekSection" style="display:none"><div class="rsh">🎭 Prozodik Okuma Olcegi (MEB)</div><div class="rsb" id="prozodiOlcek"></div></div>
-<div class="rs" id="phSection" style="display:none"><div class="rsh">🎭 Prozodi Hatalari</div><div class="rsb" id="prozodiHatalari"></div></div>
-<div class="rs" id="ahSection" style="display:none"><div class="rsh">⏱️ Akicilik Hatalari</div><div class="rsb" id="akicilikHatalari"></div></div>
-<div class="rs" id="dhSection" style="display:none"><div class="rsh">🔤 Dogruluk Hatalari</div><div class="rsb" id="dogrulukHatalari"></div></div>
-<div class="rs"><div class="rsh">🎵 Akustik Veriler</div><div class="rsb"><div class="prozodi-grid" id="prozodiGrid"></div></div></div>
-<div class="rs"><div class="rsh">🔤 Kelime Bazli Analiz</div><div class="rsb" style="padding:0;overflow-x:auto"><table class="word-table" id="wordTable"><thead><tr><th>#</th><th>Hedef</th><th>Okunan</th><th>Durum</th><th>Not</th></tr></thead><tbody></tbody></table></div></div>
-<div class="rs"><div class="rsh">💪 Guclu Yonler</div><div class="rsb"><ul class="insight-list green" id="gucluYonler"></ul></div></div>
-<div class="rs"><div class="rsh">🎯 Gelisim Alanlari</div><div class="rsb"><ul class="insight-list orange" id="gelisimAlanlari"></ul></div></div>
-<div class="rs"><div class="rsh">💡 Oneriler</div><div class="rsb"><ul class="insight-list blue" id="oneriler"></ul></div></div>
-<div class="rs"><div class="rsh">⚠️ Zorlanilan Kelimeler</div><div class="rsb"><div class="keyword-chips" id="zorlanilanKelimeler"></div></div></div>
-</div>
-</main>
-<script>
-var dz=document.getElementById('dropzone'),fi=document.getElementById('audioFile'),fn=document.getElementById('filename'),btn=document.getElementById('btnAnalyze'),ta=document.getElementById('referansMetin'),ld=document.getElementById('loading'),ls=document.getElementById('loadingStep'),eb=document.getElementById('errorBox'),rd=document.getElementById('results'),rb=document.getElementById('retryBox');
-var sf=null,lad=null,mr=null,rc=[],rst=null,rt=null,lrd=0;
-function setMode(m){document.getElementById('tabUpload').classList.toggle('active',m==='upload');document.getElementById('tabRecord').classList.toggle('active',m==='record');dz.style.display=m==='upload'?'':'none';document.getElementById('recordArea').classList.toggle('visible',m==='record')}
-async function toggleRecording(){var b=document.getElementById('btnRecord'),s=document.getElementById('recordStatus'),d=document.getElementById('recordDone');if(mr&&mr.state==='recording'){mr.stop();b.classList.remove('recording');clearInterval(rt);lrd=(Date.now()-rst)/1000;s.innerHTML='Durduruluyor...';return}try{var st=await navigator.mediaDevices.getUserMedia({audio:true});rc=[];mr=new MediaRecorder(st,{mimeType:'audio/webm'});mr.ondataavailable=function(e){if(e.data.size>0)rc.push(e.data)};mr.onstop=function(){st.getTracks().forEach(function(t){t.stop()});if(lrd<5){s.innerHTML='⚠️ Cok kisa! En az 5 saniye okuyalim 📖';d.classList.remove('visible');return}var bl=new Blob(rc,{type:'audio/webm'});sf=new File([bl],'kayit.webm',{type:'audio/webm'});document.getElementById('recordedAudio').src=URL.createObjectURL(bl);d.classList.add('visible');s.innerHTML='✅ Kayit hazir ('+Math.round(lrd)+' sn)';ck()};mr.start();b.classList.add('recording');d.classList.remove('visible');rb.classList.remove('visible');rst=Date.now();rt=setInterval(function(){var e=Math.floor((Date.now()-rst)/1000);s.innerHTML='<span class="rec-time">'+String(Math.floor(e/60)).padStart(2,'0')+':'+String(e%60).padStart(2,'0')+'</span> 🔴 Kayit devam ediyor...'},1000)}catch(e){s.innerHTML='😕 Mikrofon erisimi reddedildi!'}}
-function resetForRetry(){rb.classList.remove('visible');rd.classList.remove('visible');sf=null;document.getElementById('recordDone').classList.remove('visible');document.getElementById('recordStatus').innerHTML='🎤 Haydi tekrar!';btn.disabled=true;setMode('record');window.scrollTo({top:0,behavior:'smooth'})}
-dz.addEventListener('click',function(){fi.click()});dz.addEventListener('dragover',function(e){e.preventDefault();dz.classList.add('dragover')});dz.addEventListener('dragleave',function(){dz.classList.remove('dragover')});dz.addEventListener('drop',function(e){e.preventDefault();dz.classList.remove('dragover');if(e.dataTransfer.files.length)hf(e.dataTransfer.files[0])});fi.addEventListener('change',function(){if(fi.files.length)hf(fi.files[0])});
-function hf(f){sf=f;dz.classList.add('has-file');dz.querySelector('.dropzone-icon').textContent='✅';dz.querySelector('.dropzone-text').style.display='none';fn.style.display='block';fn.textContent=f.name+' ('+(f.size/1024/1024).toFixed(1)+' MB)';ck()}
-ta.addEventListener('input',ck);function ck(){btn.disabled=!(sf&&ta.value.trim())}
-btn.addEventListener('click',async function(){eb.style.display='none';rb.classList.remove('visible');rd.classList.remove('visible');ld.classList.add('active');btn.disabled=true;
-[{t:'🎙️ <strong>K1:</strong> Whisper dinliyor...',d:0},{t:'🎵 <strong>K2:</strong> Prozodi olculuyor...',d:5000},{t:'🧠 <strong>K3:</strong> Claude rapor yaziyor...',d:10000}].forEach(function(s){setTimeout(function(){ls.innerHTML=s.t},s.d)});
-var fd=new FormData();fd.append('ses_dosyasi',sf);fd.append('referans_metin',ta.value.trim());
-try{var rp=await fetch('/analiz',{method:'POST',body:fd});var dt=await rp.json();ld.classList.remove('active');
-if(dt.hata){eb.textContent='😕 '+dt.hata;eb.style.display='block';btn.disabled=false;return}
-if(dt.yeniden_kayit){document.getElementById('retryText').textContent=dt.sebep;rb.classList.add('visible');rb.scrollIntoView({behavior:'smooth',block:'center'});btn.disabled=false;return}
-rr(dt);lad=dt;lad.referans_metin=ta.value.trim();rd.classList.add('visible');rd.scrollIntoView({behavior:'smooth',block:'start'})}catch(e){ld.classList.remove('active');eb.innerHTML='😕 '+e.message;eb.style.display='block'}btn.disabled=false});
+"""
+Okudio Okuma Dedektifi v4 — Kisa ve Oz Rapor
+"""
+from pydub import AudioSegment
+import os, io, json, tempfile, datetime, re
+import numpy as np
+from flask import Flask, render_template, request, jsonify, send_file
 
-function rr(data){
-var r=data.rapor,p=data.prozodi,w=data.whisper;
-var sc=function(v){return v>=70?'score-green':v>=40?'score-yellow':'score-red'};
-document.getElementById('scoreGrid').innerHTML='<div class="score-card '+sc(r.genel_skor||0)+'"><div class="score-value">'+(r.genel_skor||'—')+'</div><div class="score-label">Genel</div></div><div class="score-card '+sc(r.dogruluk_skoru||0)+'"><div class="score-value">'+(r.dogruluk_skoru||'—')+'</div><div class="score-label">Dogruluk</div></div><div class="score-card '+sc(r.akicilik_skoru||0)+'"><div class="score-value">'+(r.akicilik_skoru||'—')+'</div><div class="score-label">Akicilik</div></div><div class="score-card '+sc(r.prozodi_skoru||0)+'"><div class="score-value">'+(r.prozodi_skoru||'—')+'</div><div class="score-label">Prozodi</div></div>';
-var lb=document.getElementById('levelBadge'),sv=(r.seviye||'').toLowerCase(),lc='level-gelisen';if(sv.indexOf('baslangic')>-1||sv.indexOf('başlangıç')>-1)lc='level-baslangic';else if(sv.indexOf('yeterli')>-1)lc='level-yeterli';else if(sv.indexOf('ileri')>-1)lc='level-ileri';lb.className='level-badge '+lc;lb.textContent=(r.seviye||'')+(r.okuma_hizi_wpm?' · '+r.okuma_hizi_wpm+' kelime/dk':'');
-// Metodoloji
-var pm=r.puanlama_metodolojisi||{};var mh='';
-if(pm.dogruluk_aciklama) mh+='<div class="summary-label">Dogruluk Hesaplama</div><div class="summary-text">'+pm.dogruluk_aciklama+'</div>';
-if(pm.akicilik_aciklama) mh+='<div class="summary-label" style="margin-top:12px">Akicilik Hesaplama</div><div class="summary-text">'+pm.akicilik_aciklama+'</div>';
-if(pm.prozodi_aciklama) mh+='<div class="summary-label" style="margin-top:12px">Prozodi Hesaplama</div><div class="summary-text">'+pm.prozodi_aciklama+'</div>';
-var refs=pm.referanslar||[];if(refs.length) mh+='<div class="met-ref"><strong>Referanslar:</strong> '+refs.join(' | ')+'</div>';
-document.getElementById('metodoloji').innerHTML=mh||'<span style="color:var(--text-secondary)">Metodoloji verisi yok</span>';
-// Prozodik Okuma Olcegi
-var poo=pm.prozodik_okuma_olcegi||[];
-if(poo.length){document.getElementById('prozodiOlcekSection').style.display='block';var oh='<table class="olcek-table"><tr><th>Madde</th><th>Puan</th><th>Aciklama</th></tr>';poo.forEach(function(m){var pc=m.puan>=3?'var(--success)':m.puan>=2?'var(--warning)':'var(--danger)';oh+='<tr><td>'+m.madde+'</td><td class="puan-cell" style="color:'+pc+'">'+m.puan+'/4</td><td style="font-size:12px;color:var(--text-secondary)">'+m.aciklama+'</td></tr>'});oh+='</table>';document.getElementById('prozodiOlcek').innerHTML=oh}else{document.getElementById('prozodiOlcekSection').style.display='none'}
-// Color-coded text comparison
-var mk=r.metin_karsilastirma||[];var ct='';
-if(mk.length){mk.forEach(function(m){var cls=m.durum==='eslesme'?'w-ok':m.durum==='uyumsuz'?'w-bad':'w-miss';ct+='<span class="'+cls+'">'+m.kelime+'</span> '})}else{ct=ta.value}
-document.getElementById('colorText').innerHTML=ct;
-document.getElementById('sttBox').textContent=w.transkript||'—';
-// Pedagojik
-document.getElementById('pedDeg').innerHTML='<div class="summary-label">Dogruluk</div><div class="summary-text">'+(r.dogruluk_ozeti||'')+'</div><div class="summary-label" style="margin-top:16px">Akicilik</div><div class="summary-text">'+(r.akicilik_ozeti||'')+'</div><div class="summary-label" style="margin-top:16px">Prozodi</div><div class="summary-text">'+(r.prozodi_ozeti||'')+'</div>';
-// Hatali kelime anlamlari
-var hkd=r.hatali_kelime_detaylari||[];
-if(hkd.length){document.getElementById('anlamSection').style.display='block';var ah='';hkd.forEach(function(h){ah+='<div class="anlam-card"><div class="anlam-card-word">❌ '+h.kelime+' → <span style="color:var(--danger)">'+h.cocugun_okudugu+'</span></div><div class="anlam-card-pron">✅ '+h.dogru_telaffuz+'</div><div></div><div class="anlam-card-mean">📖 '+h.anlami+'</div><div class="anlam-card-tip">💡 '+h.oneri+'</div></div>'});document.getElementById('anlamlar').innerHTML=ah}else{document.getElementById('anlamSection').style.display='none'}
-// Hata kategorileri
-re('prozodiHatalari','phSection',r.prozodi_hatalari,'prosody');re('akicilikHatalari','ahSection',r.akicilik_hatalari,'fluency');re('dogrulukHatalari','dhSection',r.dogruluk_hatalari,'accuracy');
-// Akustik
-document.getElementById('prozodiGrid').innerHTML='<div class="prozodi-item"><div class="prozodi-item-label">Pitch Ort.</div><div class="prozodi-item-value">'+(p.pitch.ortalama_hz||'—')+' Hz</div><div class="prozodi-item-note">'+(p.pitch.monotonluk||'')+'</div></div><div class="prozodi-item"><div class="prozodi-item-label">Tonlama</div><div class="prozodi-item-value">'+(p.pitch.std_hz||'—')+' Hz</div><div class="prozodi-item-note">Std. sapma</div></div><div class="prozodi-item"><div class="prozodi-item-label">Vurgu</div><div class="prozodi-item-value">'+(p.enerji.std_db||'—')+' dB</div><div class="prozodi-item-note">'+(p.enerji.vurgu_durumu||'')+'</div></div><div class="prozodi-item"><div class="prozodi-item-label">Sure</div><div class="prozodi-item-value">'+(p.duraksama.toplam_sure_sn||'—')+' sn</div><div class="prozodi-item-note">Konusma: '+(p.duraksama.konusma_suresi_sn||'?')+' sn</div></div><div class="prozodi-item"><div class="prozodi-item-label">Duraksama</div><div class="prozodi-item-value">'+(p.duraksama.duraksama_sayisi||0)+'</div><div class="prozodi-item-note">Uzun: '+(p.duraksama.uzun_duraksama_sayisi||0)+'</div></div><div class="prozodi-item"><div class="prozodi-item-label">Akicilik</div><div class="prozodi-item-value">'+(p.duraksama.akicilik_durumu||'—')+'</div><div class="prozodi-item-note">Sessizlik: %'+(p.duraksama.sessizlik_orani||'?')+'</div></div>';
-// Kelime tablosu
-var tb=document.querySelector('#wordTable tbody');tb.innerHTML='';if(r.kelime_analizi&&r.kelime_analizi.length){r.kelime_analizi.forEach(function(k,i){var sl={dogru:'Dogru ✅',yanlis:'Yanlis ❌',atlandi:'Atlandi ⏭️',eklendi:'Eklendi ➕',tekrar:'Tekrar 🔄'}[k.durum]||k.durum;tb.innerHTML+='<tr><td style="color:var(--text-secondary)">'+(i+1)+'</td><td><strong>'+(k.kelime||'')+'</strong></td><td>'+(k.cocugun_okudugu||'—')+'</td><td class="status-'+(k.durum||'yanlis')+'">'+sl+'</td><td style="color:var(--text-secondary);font-size:12px">'+(k.not||'')+'</td></tr>'})}
-rl('gucluYonler',r.guclu_yonler);rl('gelisimAlanlari',r.gelisim_alanlari);rl('oneriler',r.oneriler);
-var ch=document.getElementById('zorlanilanKelimeler');ch.innerHTML='';if(r.dikkat_edilecek_kelimeler){r.dikkat_edilecek_kelimeler.forEach(function(k){ch.innerHTML+='<span class="chip">'+k+'</span>'})}}
-function re(cid,sid,errs,cls){var c=document.getElementById(cid),s=document.getElementById(sid);if(!errs||!errs.length){s.style.display='none';return}s.style.display='block';c.innerHTML='';errs.forEach(function(e){var cx=e.cumle_veya_bolum||e.hedef_kelime||e.zaman_araligi||'';c.innerHTML+='<div class="error-card '+cls+'"><div class="error-card-type">'+(e.tur||'')+'</div><div class="error-card-text">'+(e.aciklama||'')+'</div>'+(cx?'<div class="error-card-context">'+cx+'</div>':'')+'</div>'})}
-function rl(id,items){var el=document.getElementById(id);el.innerHTML='';if(items&&items.length){items.forEach(function(i){el.innerHTML+='<li>'+i+'</li>'})}else{el.innerHTML='<li style="color:var(--text-secondary)">Veri yok</li>'}}
-async function pdfIndir(){if(!lad)return;var pb=document.getElementById('btnPdf');pb.disabled=true;pb.innerHTML='PDF...';try{var r=await fetch('/pdf-indir',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(lad)});if(!r.ok)throw new Error('Hata');var b=await r.blob();var u=window.URL.createObjectURL(b);var a=document.createElement('a');a.href=u;a.download='Okudio_Rapor.pdf';document.body.appendChild(a);a.click();a.remove();window.URL.revokeObjectURL(u)}catch(e){alert('PDF: '+e.message)}pb.disabled=false;pb.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:18px;height:18px"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>PDF Rapor'}
-</script>
-</body>
-</html>
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
+ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
+
+app = Flask(__name__)
+app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
+
+
+def temizle(metin):
+    """Noktalama isaretlerini kaldir, kucuk harfe cevir"""
+    return re.sub(r'[^\w\s]', '', metin).lower().strip()
+
+
+def whisper_analiz(ses_dosya_yolu):
+    from openai import OpenAI
+    client = OpenAI(api_key=OPENAI_API_KEY)
+    with open(ses_dosya_yolu, "rb") as audio:
+        response = client.audio.transcriptions.create(
+            model="whisper-1", file=audio, language="tr",
+            response_format="verbose_json", timestamp_granularities=["word"],
+            prompt="Ogrenci sesli okuma yapiyor. Duraksama seslerini ve tekrarlari oldugu gibi yaz."
+        )
+    transkript = response.text
+    kelimeler = []
+    if hasattr(response, 'words') and response.words:
+        for w in response.words:
+            kelimeler.append({"kelime": w.word, "baslangic": round(w.start, 2), "bitis": round(w.end, 2), "sure": round(w.end - w.start, 2)})
+    return transkript, kelimeler
+
+
+def prozodi_analiz(ses_dosya_yolu):
+    import parselmouth, librosa
+    ses = parselmouth.Sound(ses_dosya_yolu)
+    toplam_sure = ses.get_total_duration()
+    pitch = ses.to_pitch()
+    pv = pitch.selected_array['frequency']; pv = pv[pv > 0]
+    if len(pv) > 0:
+        q1 = pv[:max(1,int(len(pv)*0.25))]; q4 = pv[int(len(pv)*0.75):]
+        pitch_data = {"ortalama_hz": round(float(np.mean(pv)),1), "std_hz": round(float(np.std(pv)),1), "aralik_hz": round(float(np.max(pv)-np.min(pv)),1), "monotonluk": "Monoton" if float(np.std(pv))<20 else "Normal" if float(np.std(pv))<40 else "Canli"}
+    else:
+        pitch_data = {"ortalama_hz":0,"std_hz":0,"monotonluk":"Olculemedi"}
+    intensity = ses.to_intensity()
+    iv = intensity.values.T.flatten(); iv = iv[iv>40]
+    enerji_data = {"ortalama_db": round(float(np.mean(iv)),1), "std_db": round(float(np.std(iv)),1), "vurgu_durumu": "Yetersiz" if float(np.std(iv))<3.5 else "Normal" if float(np.std(iv))<7 else "Guclu"} if len(iv)>0 else {"ortalama_db":0,"std_db":0,"vurgu_durumu":"Olculemedi"}
+    y, sr = librosa.load(ses_dosya_yolu, sr=None)
+    sk = librosa.effects.split(y, top_db=30)
+    ks = 0; duraksamalar = []; uzun = 0
+    for i, k in enumerate(sk):
+        ks += (k[1]-k[0])/sr
+        if i > 0:
+            ds = k[0]/sr - sk[i-1][1]/sr
+            if ds > 0.15:
+                duraksamalar.append({"zaman": round(sk[i-1][1]/sr,2), "sure_ms": round(ds*1000,0)})
+                if ds > 1.0: uzun += 1
+    ss = toplam_sure - ks; so = (ss/toplam_sure)*100 if toplam_sure>0 else 0
+    return {"pitch": pitch_data, "enerji": enerji_data, "duraksama": {"toplam_sure_sn": round(toplam_sure,1), "konusma_suresi_sn": round(ks,1), "sessizlik_suresi_sn": round(ss,1), "sessizlik_orani": round(so,1), "duraksama_sayisi": len(duraksamalar), "uzun_duraksama_sayisi": uzun, "akicilik_durumu": "Akici" if so<20 else "Normal" if so<35 else "Kesik kesik"}}
+
+
+def kayit_kalitesi_kontrol(transkript, kelimeler, prozodi, referans_metin):
+    rks = len(referans_metin.strip().split()); sks = len(transkript.strip().split()) if transkript.strip() else 0
+    ts = prozodi.get("duraksama",{}).get("toplam_sure_sn",0); so = prozodi.get("duraksama",{}).get("sessizlik_orani",0)
+    if sks < 3: return False, "Kayitte hic ses algilanamadi. Mikrofona yakin okumayı deneyelim!"
+    if ts < 5: return False, "Kayit cok kisa. En az 5 saniye okumamiz lazim!"
+    if rks > 5 and sks < rks * 0.15: return False, "Ses referans metinle uyusmuyor. Dogru metni mi okuduk?"
+    if so > 80: return False, "Kaydin buyuk bolumu sessizlik."
+    rk = set(temizle(referans_metin).split()); sk = set(temizle(transkript).split())
+    if rks > 5 and len(rk.intersection(sk)) < 2: return False, "Sesleri metinle eslestiremedik. Tekrar deneyelim!"
+    return True, ""
+
+
+def claude_pedagojik_analiz(referans_metin, whisper_transkript, whisper_kelimeler, prozodi_verileri):
+    import anthropic
+    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+
+    ref_temiz = temizle(referans_metin)
+
+    prompt = f"""Ilkokul ogrencisinin sesli okuma performansini analiz et. KISA ve OZ rapor ver.
+
+REFERANS METIN (noktalama kaldirilmis):
+{ref_temiz}
+
+WHISPER TRANSKRIPTI:
+{whisper_transkript}
+
+KELIME ZAMANLAMA (ilk 25):
+{json.dumps(whisper_kelimeler[:25], ensure_ascii=False)}
+
+AKUSTIK VERILER:
+- Pitch ortalama: {prozodi_verileri['pitch']['ortalama_hz']} Hz, std: {prozodi_verileri['pitch']['std_hz']} Hz ({prozodi_verileri['pitch']['monotonluk']})
+- Enerji std: {prozodi_verileri['enerji']['std_db']} dB ({prozodi_verileri['enerji']['vurgu_durumu']})
+- Toplam sure: {prozodi_verileri['duraksama']['toplam_sure_sn']} sn, sessizlik: %{prozodi_verileri['duraksama']['sessizlik_orani']}
+- Duraksama sayisi: {prozodi_verileri['duraksama']['duraksama_sayisi']}, uzun (1sn+): {prozodi_verileri['duraksama']['uzun_duraksama_sayisi']}
+- Akicilik: {prozodi_verileri['duraksama']['akicilik_durumu']}
+
+KURALLAR:
+- Noktalama isaretleri okuma hatasi DEGILDIR, karsilastirmadan cikar.
+- Metin bittikten sonra kayit devam etmisse (son kelimeler eslestikten sonra fazla ses varsa) onu DIKKATE ALMA.
+- Whisper bazen cocugun dogru okudugunu yanlis yazabilir, bunu goz onunde bulundur.
+- 2. sinif seviyesine gore degerlendir. WPM beklentisi: 40-60.
+- Dogruluk: dogru sozcuk/toplam sozcuk x 100. %95+=bagimsiz, %90-94=ogretimsel, <%90=endiselendirici.
+
+SADECE su JSON'u dondur, baska HIC bir sey yazma:
+{{
+  "genel_skor": 0-100,
+  "dogruluk_skoru": 0-100,
+  "akicilik_skoru": 0-100,
+  "prozodi_skoru": 0-100,
+  "seviye": "Baslangic/Gelisen/Yeterli/Ileri",
+  "okuma_hizi_wpm": sayi,
+  "dogruluk_ozeti": "1-2 cumle",
+  "akicilik_ozeti": "1-2 cumle",
+  "prozodi_ozeti": "1-2 cumle",
+  "metin_karsilastirma": [
+    {{"kelime": "referans kelime", "durum": "eslesme/uyumsuz/okunmadi"}}
+  ],
+  "hatali_kelimeler": [
+    {{"kelime": "yanlis okunan", "okunan": "cocugun dedigi", "dogru_telaffuz": "he-ce-le-ri", "anlami": "kisa anlam", "oneri": "kisa oneri"}}
+  ],
+  "guclu_yonler": ["2 madde"],
+  "gelisim_alanlari": ["2 madde"],
+  "oneriler": ["ogretmene 1", "veliye 1", "cocuga 1 motivasyon"]
+}}"""
+
+    print(f"  Claude prompt uzunlugu: ~{len(prompt)} karakter")
+    response = client.messages.create(model="claude-sonnet-4-20250514", max_tokens=4000, messages=[{"role": "user", "content": prompt}])
+    raw = response.content[0].text.strip()
+    print(f"  Claude yanit uzunlugu: {len(raw)} karakter")
+    if raw.startswith("```json"): raw = raw[7:]
+    if raw.startswith("```"): raw = raw[3:]
+    if raw.endswith("```"): raw = raw[:-3]
+    try:
+        return json.loads(raw.strip())
+    except Exception as e:
+        print(f"  JSON HATASI: {e}")
+        print(f"  HAM YANIT: {raw[:500]}")
+        return {"hata": "Claude yanit parse edilemedi", "ham_yanit": raw[:500]}
+
+
+def pdf_rapor_uret(rapor_data):
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib import colors
+    from reportlab.lib.units import mm
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
+    from reportlab.lib.styles import ParagraphStyle
+    from reportlab.pdfbase import pdfmetrics
+    from reportlab.pdfbase.ttfonts import TTFont
+    fn="Helvetica";fb="Helvetica-Bold"
+    for p in ["/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf","/Library/Fonts/DejaVuSans.ttf",os.path.expanduser("~/Library/Fonts/DejaVuSans.ttf")]:
+        if os.path.exists(p): pdfmetrics.registerFont(TTFont("DejaVu",p));fn="DejaVu";break
+    for p in ["/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf","/Library/Fonts/DejaVuSans-Bold.ttf",os.path.expanduser("~/Library/Fonts/DejaVuSans-Bold.ttf")]:
+        if os.path.exists(p): pdfmetrics.registerFont(TTFont("DejaVuBold",p));fb="DejaVuBold";break
+    NV=colors.HexColor("#1A2332");GR=colors.HexColor("#059669");LG=colors.HexColor("#ECFDF5");OR=colors.HexColor("#D97706");LO=colors.HexColor("#FFFBEB");RD=colors.HexColor("#DC2626");LR=colors.HexColor("#FEF2F2");GY=colors.HexColor("#6B7280");LGY=colors.HexColor("#F3F4F6");LB=colors.HexColor("#EFF6FF");WH=colors.white
+    r=rapor_data.get("rapor",{});pr=rapor_data.get("prozodi",{});wh=rapor_data.get("whisper",{})
+    st=ParagraphStyle("T",fontName=fb,fontSize=22,textColor=NV,spaceAfter=4,leading=28)
+    ss=ParagraphStyle("S",fontName=fn,fontSize=10,textColor=GY,spaceAfter=16)
+    sh=ParagraphStyle("H",fontName=fb,fontSize=13,textColor=NV,spaceBefore=18,spaceAfter=8,leading=18)
+    sb=ParagraphStyle("B",fontName=fn,fontSize=9.5,textColor=colors.HexColor("#374151"),leading=15,spaceAfter=4)
+    sm=ParagraphStyle("M",fontName=fn,fontSize=8,textColor=GY,leading=12)
+    sl=ParagraphStyle("L",fontName=fb,fontSize=8,textColor=GY,leading=11,spaceAfter=2)
+    buf=io.BytesIO();doc=SimpleDocTemplate(buf,pagesize=A4,topMargin=20*mm,bottomMargin=15*mm,leftMargin=18*mm,rightMargin=18*mm)
+    el=[];pw=A4[0]-36*mm;t=datetime.datetime.now().strftime("%d.%m.%Y %H:%M")
+    el.append(Paragraph("Okuma Analiz Raporu",st));el.append(Paragraph(f"Tarih: {t}",ss))
+    el.append(HRFlowable(width="100%",thickness=1,color=colors.HexColor("#E5E7EB")));el.append(Spacer(1,8))
+    def sc(v):return GR if v>=70 else OR if v>=40 else RD
+    def bg(v):return LG if v>=70 else LO if v>=40 else LR
+    gs=r.get("genel_skor",0);ds=r.get("dogruluk_skoru",0);ak=r.get("akicilik_skoru",0);ps=r.get("prozodi_skoru",0)
+    el.append(Paragraph("Performans",sh))
+    sd=[[Paragraph(f"<font size='20' color='{sc(gs).hexval()}'>{gs}</font><br/><font size='7' color='#6B7280'>Genel</font>",sb),Paragraph(f"<font size='20' color='{sc(ds).hexval()}'>{ds}</font><br/><font size='7' color='#6B7280'>Dogruluk</font>",sb),Paragraph(f"<font size='20' color='{sc(ak).hexval()}'>{ak}</font><br/><font size='7' color='#6B7280'>Akicilik</font>",sb),Paragraph(f"<font size='20' color='{sc(ps).hexval()}'>{ps}</font><br/><font size='7' color='#6B7280'>Prozodi</font>",sb)]]
+    tt=Table(sd,colWidths=[pw/4]*4,rowHeights=[50]);tt.setStyle(TableStyle([('ALIGN',(0,0),(-1,-1),'CENTER'),('VALIGN',(0,0),(-1,-1),'MIDDLE'),('BACKGROUND',(0,0),(0,0),bg(gs)),('BACKGROUND',(1,0),(1,0),bg(ds)),('BACKGROUND',(2,0),(2,0),bg(ak)),('BACKGROUND',(3,0),(3,0),bg(ps)),('BOX',(0,0),(-1,-1),0.5,colors.HexColor("#E5E7EB")),('INNERGRID',(0,0),(-1,-1),0.5,colors.HexColor("#E5E7EB"))]));el.append(tt)
+    el.append(Spacer(1,6));el.append(Paragraph(f"<font color='#2563EB'><b>Seviye:</b> {r.get('seviye','')} | <b>Hiz:</b> {r.get('okuma_hizi_wpm','')} kelime/dk</font>",sb))
+    el.append(Paragraph("Degerlendirme",sh))
+    for l,k in [("Dogruluk","dogruluk_ozeti"),("Akicilik","akicilik_ozeti"),("Prozodi","prozodi_ozeti")]:
+        v=r.get(k,"");
+        if v:el.append(Paragraph(f"<b>{l}:</b> {v}",sb));el.append(Spacer(1,4))
+    el.append(Paragraph("Metin",sh))
+    ct=Table([[Paragraph("<b>Referans</b>",sl),Paragraph("<b>Transkript</b>",sl)],[Paragraph(rapor_data.get("referans_metin","")[:500],sm),Paragraph(wh.get("transkript","")[:500],sm)]],colWidths=[pw/2]*2)
+    ct.setStyle(TableStyle([('BACKGROUND',(0,0),(0,-1),LGY),('BACKGROUND',(1,0),(1,-1),LB),('VALIGN',(0,0),(-1,-1),'TOP'),('TOPPADDING',(0,0),(-1,-1),6),('BOTTOMPADDING',(0,0),(-1,-1),6),('LEFTPADDING',(0,0),(-1,-1),8),('BOX',(0,0),(-1,-1),0.5,colors.HexColor("#E5E7EB")),('INNERGRID',(0,0),(-1,-1),0.5,colors.HexColor("#E5E7EB"))]));el.append(ct)
+    hk=r.get("hatali_kelimeler",[])
+    if hk:
+        el.append(Paragraph("Hatali Kelimeler",sh))
+        hd=[["Kelime","Okunan","Telaffuz","Anlami"]]+[[h.get("kelime",""),h.get("okunan",""),h.get("dogru_telaffuz",""),h.get("anlami","")[:40]] for h in hk[:10]]
+        ht=Table(hd,colWidths=[pw*0.20,pw*0.20,pw*0.25,pw*0.35]);ht.setStyle(TableStyle([('BACKGROUND',(0,0),(-1,0),NV),('TEXTCOLOR',(0,0),(-1,0),WH),('FONTNAME',(0,0),(-1,0),fb),('FONTSIZE',(0,0),(-1,-1),8),('FONTNAME',(0,1),(-1,-1),fn),('GRID',(0,0),(-1,-1),0.3,colors.HexColor("#E5E7EB")),('ROWBACKGROUNDS',(0,1),(-1,-1),[WH,LGY])]));el.append(ht)
+    pi=pr.get("pitch",{});en=pr.get("enerji",{});du=pr.get("duraksama",{})
+    el.append(Paragraph("Akustik",sh))
+    avd=[["Metrik","Deger","Durum"],["Pitch",f"{pi.get('ortalama_hz','-')} Hz",pi.get('monotonluk','')],["Tonlama",f"{pi.get('std_hz','-')} Hz","std sapma"],["Vurgu",f"{en.get('std_db','-')} dB",en.get('vurgu_durumu','')],["Sure",f"{du.get('toplam_sure_sn','-')} sn",f"Konusma: {du.get('konusma_suresi_sn','-')} sn"],["Akicilik",du.get('akicilik_durumu','-'),f"Sessizlik: %{du.get('sessizlik_orani','-')}"]]
+    avt=Table(avd,colWidths=[pw*0.30,pw*0.30,pw*0.40]);avt.setStyle(TableStyle([('BACKGROUND',(0,0),(-1,0),NV),('TEXTCOLOR',(0,0),(-1,0),WH),('FONTNAME',(0,0),(-1,0),fb),('FONTSIZE',(0,0),(-1,-1),8.5),('FONTNAME',(0,1),(-1,-1),fn),('ROWBACKGROUNDS',(0,1),(-1,-1),[WH,LGY]),('GRID',(0,0),(-1,-1),0.5,colors.HexColor("#E5E7EB"))]));el.append(avt)
+    gu=r.get("guclu_yonler",[]);ge=r.get("gelisim_alanlari",[]);on=r.get("oneriler",[])
+    if gu or ge:
+        el.append(Paragraph("Guclu / Gelisim",sh))
+        gg=[[Paragraph("<b>Guclu</b>",sl),Paragraph("<b>Gelisim</b>",sl)],[Paragraph("<br/>".join([f"+ {g}" for g in gu]) if gu else "-",sm),Paragraph("<br/>".join([f"- {g}" for g in ge]) if ge else "-",sm)]]
+        gt=Table(gg,colWidths=[pw/2]*2);gt.setStyle(TableStyle([('BACKGROUND',(0,0),(0,-1),LG),('BACKGROUND',(1,0),(1,-1),LO),('VALIGN',(0,0),(-1,-1),'TOP'),('TOPPADDING',(0,0),(-1,-1),6),('BOTTOMPADDING',(0,0),(-1,-1),8),('LEFTPADDING',(0,0),(-1,-1),8),('BOX',(0,0),(-1,-1),0.5,colors.HexColor("#E5E7EB")),('INNERGRID',(0,0),(-1,-1),0.5,colors.HexColor("#E5E7EB"))]));el.append(gt)
+    if on:
+        el.append(Paragraph("Oneriler",sh))
+        for o in on:el.append(Paragraph(f"  {o}",sb))
+    el.append(Spacer(1,16));el.append(HRFlowable(width="100%",thickness=0.5,color=colors.HexColor("#E5E7EB")))
+    el.append(Paragraph(f"Okudio Okuma Dedektifi | {t}",ParagraphStyle("F",fontName=fn,fontSize=7,textColor=GY,alignment=1)))
+    doc.build(el);buf.seek(0);return buf
+
+
+@app.route('/')
+def index():return render_template('index.html')
+
+@app.route('/analiz', methods=['POST'])
+def analiz():
+    try:
+        if 'ses_dosyasi' not in request.files:return jsonify({"hata":"Ses dosyasi yuklenmedi"}),400
+        sf=request.files['ses_dosyasi'];rm=request.form.get('referans_metin','').strip()
+        if not rm:return jsonify({"hata":"Referans metin girilmedi"}),400
+        if sf.filename=='':return jsonify({"hata":"Dosya secilmedi"}),400
+        sx=os.path.splitext(sf.filename)[1] or '.wav'
+        with tempfile.NamedTemporaryFile(delete=False,suffix=sx) as tmp:sf.save(tmp.name);tp=tmp.name
+        wp=tp+"_c.wav"
+        try:
+            print(f"  Format: {sx}")
+            AudioSegment.from_file(tp).export(wp,format="wav")
+            print("  K1: Whisper...");tr,kl=whisper_analiz(wp);print(f"  STT: {tr[:80]}...")
+            print("  K2: Prozodi...");pz=prozodi_analiz(wp);print(f"  Pitch: {pz['pitch'].get('ortalama_hz','?')} Hz")
+            ok,sb=kayit_kalitesi_kontrol(tr,kl,pz,rm)
+            if not ok:print(f"  Red: {sb}");return jsonify({"basarili":False,"yeniden_kayit":True,"sebep":sb})
+            print("  K3: Claude...");rp=claude_pedagojik_analiz(rm,tr,kl,pz);print("  Rapor OK!")
+            return jsonify({"basarili":True,"referans_metin":rm,"whisper":{"transkript":tr,"kelimeler":kl},"prozodi":pz,"rapor":rp})
+        finally:
+            if os.path.exists(tp):os.unlink(tp)
+            if os.path.exists(wp):os.unlink(wp)
+    except Exception as e:
+        import traceback;traceback.print_exc();return jsonify({"hata":str(e)}),500
+
+@app.route('/pdf-indir', methods=['POST'])
+def pdf_indir():
+    try:
+        rd=request.get_json()
+        if not rd:return jsonify({"hata":"Veri eksik"}),400
+        return send_file(pdf_rapor_uret(rd),mimetype='application/pdf',as_attachment=True,download_name=f"Rapor_{datetime.datetime.now().strftime('%Y%m%d_%H%M')}.pdf")
+    except Exception as e:
+        import traceback;traceback.print_exc();return jsonify({"hata":str(e)}),500
+
+if __name__=='__main__':
+    print("\n  Okudio v4\n  http://localhost:8080\n")
+    app.run(debug=True,port=8080,host='0.0.0.0')
