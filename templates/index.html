@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Okudio — Okuma Dedektifi</title>
+    <title>pekincex — vibe coding xd</title>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&family=DM+Serif+Display&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -118,6 +118,33 @@
             letter-spacing: 0.5px;
         }
 
+        /* Mode Tabs */
+        .audio-input-modes {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .mode-tab {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--surface-alt);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+            color: var(--text-secondary);
+        }
+        .mode-tab.active {
+            background: var(--accent-soft);
+            border-color: var(--accent);
+            color: var(--accent);
+            font-weight: 600;
+        }
+
         /* Dropzone */
         .dropzone {
             border: 2px dashed var(--border);
@@ -147,6 +174,62 @@
         }
         .dropzone input { display: none; }
 
+        /* Record Area */
+        .record-area {
+            display: none;
+            text-align: center;
+            padding: 24px 20px;
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            background: var(--surface-alt);
+        }
+        .record-area.visible { display: block; }
+
+        .btn-record {
+            width: 72px; height: 72px;
+            border-radius: 50%;
+            border: 3px solid var(--danger);
+            background: white;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .btn-record:hover { background: var(--danger-bg); }
+        .btn-record .rec-dot {
+            width: 28px; height: 28px;
+            background: var(--danger);
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+        .btn-record.recording .rec-dot {
+            width: 20px; height: 20px;
+            border-radius: 4px;
+        }
+        .btn-record.recording {
+            animation: pulse-ring 1.5s infinite;
+        }
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0 rgba(220,38,38,0.3); }
+            70% { box-shadow: 0 0 0 12px rgba(220,38,38,0); }
+            100% { box-shadow: 0 0 0 0 rgba(220,38,38,0); }
+        }
+
+        .record-status {
+            margin-top: 12px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        .record-status .rec-time {
+            font-family: 'DM Serif Display', serif;
+            font-size: 20px;
+            color: var(--danger);
+        }
+        .record-done { display: none; margin-top: 12px; }
+        .record-done.visible { display: block; }
+        .record-done audio { width: 100%; height: 36px; margin-top: 8px; }
+
         /* Textarea */
         textarea {
             width: 100%;
@@ -169,7 +252,7 @@
         }
         textarea::placeholder { color: #B0AAA2; }
 
-        /* Button */
+        /* Buttons */
         .btn-analyze {
             margin-top: 24px;
             width: 100%;
@@ -183,23 +266,46 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
-            letter-spacing: 0.2px;
         }
         .btn-analyze:hover:not(:disabled) {
             background: #1D4ED8;
             transform: translateY(-1px);
             box-shadow: var(--shadow-lg);
         }
-        .btn-analyze:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
+        .btn-analyze:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .btn-pdf {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            background: var(--text);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-pdf:hover:not(:disabled) { background: #374151; transform: translateY(-1px); box-shadow: var(--shadow-lg); }
+        .btn-pdf:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-pdf svg { width: 18px; height: 18px; }
+
+        .results-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        .results-title {
+            font-family: 'DM Serif Display', serif;
+            font-size: 22px;
         }
 
         /* ── LOADING ── */
-        .loading-overlay {
-            display: none;
-            margin-top: 24px;
-        }
+        .loading-overlay { display: none; margin-top: 24px; }
         .loading-overlay.active { display: block; }
         .loading-card {
             background: var(--surface);
@@ -218,14 +324,10 @@
             margin: 0 auto 16px;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .loading-step {
-            font-size: 15px;
-            color: var(--text-secondary);
-            margin-top: 8px;
-        }
+        .loading-step { font-size: 15px; color: var(--text-secondary); margin-top: 8px; }
         .loading-step strong { color: var(--text); }
 
-        /* ── ERROR ── */
+        /* ── WARNING BOX ── */
         .error-box {
             display: none;
             background: var(--danger-bg);
@@ -236,6 +338,34 @@
             color: var(--danger);
             font-size: 14px;
         }
+
+        /* ── RETRY BOX ── */
+        .retry-box {
+            display: none;
+            background: var(--warning-bg);
+            border: 1px solid #FDE68A;
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .retry-box.visible { display: block; }
+        .retry-emoji { font-size: 48px; margin-bottom: 12px; }
+        .retry-title { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--warning); margin-bottom: 8px; }
+        .retry-text { font-size: 14px; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.7; }
+        .btn-retry {
+            padding: 12px 24px;
+            background: var(--warning);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-retry:hover { background: #B45309; }
 
         /* ── RESULTS ── */
         .results { display: none; margin-top: 24px; }
@@ -266,9 +396,7 @@
             grid-template-columns: repeat(4, 1fr);
             gap: 12px;
         }
-        @media (max-width: 640px) {
-            .score-grid { grid-template-columns: repeat(2, 1fr); }
-        }
+        @media (max-width: 640px) { .score-grid { grid-template-columns: repeat(2, 1fr); } }
         .score-card {
             text-align: center;
             padding: 20px 12px;
@@ -291,9 +419,7 @@
         .score-green .score-value { color: var(--success); }
         .score-yellow .score-value { color: var(--warning); }
         .score-red .score-value { color: var(--danger); }
-        .score-blue .score-value { color: var(--accent); }
 
-        /* Level Badge */
         .level-badge {
             display: inline-block;
             padding: 6px 16px;
@@ -307,219 +433,102 @@
         .level-yeterli { background: var(--success-bg); color: var(--success); }
         .level-ileri { background: var(--info-bg); color: var(--info); }
 
-        /* Text Comparison */
-        .text-comparison {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-        @media (max-width: 640px) {
-            .text-comparison { grid-template-columns: 1fr; }
-        }
-        .text-box {
-            padding: 16px;
-            border-radius: 8px;
-            font-size: 14px;
-            line-height: 1.8;
-        }
+        .text-comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        @media (max-width: 640px) { .text-comparison { grid-template-columns: 1fr; } }
+        .text-box { padding: 16px; border-radius: 8px; font-size: 14px; line-height: 1.8; }
         .text-box-ref { background: var(--surface-alt); }
         .text-box-stt { background: var(--accent-soft); }
-        .text-box-label {
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
-        }
+        .text-box-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); margin-bottom: 8px; }
 
-        /* Word Table */
-        .word-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
-        .word-table th {
-            text-align: left;
-            padding: 10px 12px;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-secondary);
-            border-bottom: 2px solid var(--border);
-            font-weight: 600;
-        }
-        .word-table td {
-            padding: 9px 12px;
-            border-bottom: 1px solid var(--border);
-        }
+        .word-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .word-table th { text-align: left; padding: 10px 12px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); border-bottom: 2px solid var(--border); font-weight: 600; }
+        .word-table td { padding: 9px 12px; border-bottom: 1px solid var(--border); }
         .word-table tr:last-child td { border-bottom: none; }
         .status-dogru { color: var(--success); font-weight: 600; }
         .status-yanlis { color: var(--danger); font-weight: 600; }
         .status-atlandi { color: var(--warning); font-weight: 600; }
         .status-eklendi { color: var(--info); font-weight: 600; }
 
-        /* Insight Lists */
-        .insight-list {
-            list-style: none;
-            padding: 0;
-        }
-        .insight-list li {
-            padding: 8px 0 8px 28px;
-            position: relative;
-            font-size: 14px;
-            line-height: 1.6;
-            border-bottom: 1px solid var(--border);
-        }
+        .insight-list { list-style: none; padding: 0; }
+        .insight-list li { padding: 8px 0 8px 28px; position: relative; font-size: 14px; line-height: 1.6; border-bottom: 1px solid var(--border); }
         .insight-list li:last-child { border-bottom: none; }
-        .insight-list li::before {
-            content: '';
-            position: absolute;
-            left: 8px;
-            top: 15px;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-        }
+        .insight-list li::before { content: ''; position: absolute; left: 8px; top: 15px; width: 8px; height: 8px; border-radius: 50%; }
         .insight-list.green li::before { background: var(--success); }
         .insight-list.orange li::before { background: var(--warning); }
         .insight-list.blue li::before { background: var(--accent); }
 
-        /* Summary Paragraphs */
-        .summary-text {
-            font-size: 14px;
-            line-height: 1.8;
-            color: var(--text);
-            padding: 4px 0;
-        }
+        .summary-text { font-size: 14px; line-height: 1.8; color: var(--text); padding: 4px 0; }
         .summary-text + .summary-text { margin-top: 12px; }
-        .summary-label {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
-            margin-bottom: 4px;
-        }
+        .summary-label { font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px; }
 
-        /* Prozodi Details */
-        .prozodi-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-        }
-        @media (max-width: 640px) {
-            .prozodi-grid { grid-template-columns: 1fr; }
-        }
-        .prozodi-item {
-            padding: 16px;
-            background: var(--surface-alt);
-            border-radius: 8px;
-        }
-        .prozodi-item-label {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-secondary);
-            font-weight: 600;
-            margin-bottom: 6px;
-        }
-        .prozodi-item-value {
-            font-family: 'DM Serif Display', serif;
-            font-size: 22px;
-        }
-        .prozodi-item-note {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-top: 4px;
-        }
+        .prozodi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        @media (max-width: 640px) { .prozodi-grid { grid-template-columns: 1fr; } }
+        .prozodi-item { padding: 16px; background: var(--surface-alt); border-radius: 8px; }
+        .prozodi-item-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); font-weight: 600; margin-bottom: 6px; }
+        .prozodi-item-value { font-family: 'DM Serif Display', serif; font-size: 22px; }
+        .prozodi-item-note { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
 
-        /* Keyword chips */
-        .keyword-chips {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        .chip {
-            display: inline-block;
-            padding: 6px 14px;
-            background: var(--danger-bg);
-            color: var(--danger);
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 500;
-        }
-
-        /* PDF Button */
-        .btn-pdf {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 14px 28px;
-            background: var(--text);
-            color: white;
-            border: none;
-            border-radius: var(--radius);
-            font-family: 'DM Sans', sans-serif;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-bottom: 20px;
-        }
-        .btn-pdf:hover:not(:disabled) {
-            background: #374151;
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-lg);
-        }
-        .btn-pdf:disabled { opacity: 0.5; cursor: not-allowed; }
-        .btn-pdf svg { width: 18px; height: 18px; }
-
-        .results-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 16px;
-        }
-        .results-title {
-            font-family: 'DM Serif Display', serif;
-            font-size: 22px;
-        }
+        .keyword-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+        .chip { display: inline-block; padding: 6px 14px; background: var(--danger-bg); color: var(--danger); border-radius: 20px; font-size: 13px; font-weight: 500; }
     </style>
 </head>
 <body>
     <header>
         <div class="inner">
-            <div class="logo-icon">📖</div>
-            <h1>Okudio <span>Okuma Dedektifi</span></h1>
-            <div class="header-badge">Whisper + Parselmouth + Claude</div>
+            <div class="logo-icon">🎯</div>
+            <h1>pekincex <span>vibe coding xd</span></h1>
+            <div class="header-badge">Okuma Dedektifi · Whisper + Parselmouth + Claude</div>
         </div>
     </header>
 
     <main>
         <!-- UPLOAD FORM -->
         <div class="upload-card">
-            <h2>Sesli Okuma Analizi</h2>
+            <h2>Sesli Okuma Analizi 📚</h2>
             <div class="form-grid">
                 <div class="form-group">
-                    <label>Ses Kaydı</label>
+                    <label>Ses Kaydi</label>
+                    <div class="audio-input-modes">
+                        <button class="mode-tab active" id="tabUpload" onclick="setMode('upload')">📁 Dosya Yukle</button>
+                        <button class="mode-tab" id="tabRecord" onclick="setMode('record')">🎙️ Kayit Yap</button>
+                    </div>
+
                     <div class="dropzone" id="dropzone">
-                        <div class="dropzone-icon">🎙️</div>
+                        <div class="dropzone-icon">📁</div>
                         <div class="dropzone-text">
-                            <strong>Dosya seçin</strong> veya sürükleyip bırakın<br>
-                            WAV, MP3, M4A, WEBM, BIN
+                            <strong>Dosya secin</strong> veya surukleyip birakin<br>
+                            WAV, MP3, M4A, WEBM
                         </div>
                         <div class="dropzone-filename" id="filename" style="display:none"></div>
                         <input type="file" id="audioFile" accept="audio/*,.bin,.webm">
                     </div>
+
+                    <div class="record-area" id="recordArea">
+                        <button class="btn-record" id="btnRecord" onclick="toggleRecording()">
+                            <div class="rec-dot"></div>
+                        </button>
+                        <div class="record-status" id="recordStatus">🎤 Kaydetmek icin butona bas!</div>
+                        <div class="record-done" id="recordDone">
+                            <div class="dropzone-filename">✅ Kayit tamamlandi</div>
+                            <audio controls id="recordedAudio"></audio>
+                        </div>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>Referans Metin</label>
-                    <textarea id="referansMetin" placeholder="Çocuğun okuması gereken metni buraya yapıştırın..."></textarea>
+                    <textarea id="referansMetin" placeholder="Cocugun okumasi gereken metni buraya yapistirin..."></textarea>
                 </div>
             </div>
-            <button class="btn-analyze" id="btnAnalyze" disabled>Analizi Başlat</button>
+            <button class="btn-analyze" id="btnAnalyze" disabled>🚀 Analizi Baslat</button>
             <div class="error-box" id="errorBox"></div>
+        </div>
+
+        <!-- RETRY BOX -->
+        <div class="retry-box" id="retryBox">
+            <div class="retry-emoji">🤔</div>
+            <div class="retry-title">Hmm, bir seyler ters gitmis gibi!</div>
+            <div class="retry-text" id="retryText">Kayit cok kisa olabilir veya arka plan gurultusu fazla olmus olabilir. Tekrar denemeye ne dersin?</div>
+            <button class="btn-retry" onclick="resetForRetry()">🔄 Tekrar Deneyelim!</button>
         </div>
 
         <!-- LOADING -->
@@ -527,17 +536,15 @@
             <div class="loading-card">
                 <div class="spinner"></div>
                 <div class="loading-step" id="loadingStep">
-                    <strong>Katman 1:</strong> Whisper ses analizi yapılıyor...
+                    <strong>Katman 1:</strong> Whisper ses analizi yapiliyor...
                 </div>
             </div>
         </div>
 
         <!-- RESULTS -->
         <div class="results" id="results">
-
-            <!-- RESULTS HEADER WITH PDF BUTTON -->
             <div class="results-header">
-                <div class="results-title">Analiz Sonuclari</div>
+                <div class="results-title">📋 Analiz Sonuclari</div>
                 <button class="btn-pdf" id="btnPdf" onclick="pdfIndir()">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
@@ -546,9 +553,8 @@
                 </button>
             </div>
 
-            <!-- SKOR KARTLARI -->
             <div class="result-section">
-                <div class="result-section-header">📊 Performans Özeti</div>
+                <div class="result-section-header">📊 Performans Ozeti</div>
                 <div class="result-section-body">
                     <div class="score-grid" id="scoreGrid"></div>
                     <div style="text-align:center">
@@ -557,21 +563,18 @@
                 </div>
             </div>
 
-            <!-- METİN KARŞILAŞTIRMA -->
             <div class="result-section">
-                <div class="result-section-header">🔍 Metin Karşılaştırma</div>
+                <div class="result-section-header">🔍 Metin Karsilastirma</div>
                 <div class="result-section-body">
                     <div class="text-comparison" id="textComparison"></div>
                 </div>
             </div>
 
-            <!-- PEDAGOJİK DEĞERLENDİRME -->
             <div class="result-section">
-                <div class="result-section-header">📝 Pedagojik Değerlendirme</div>
+                <div class="result-section-header">📝 Pedagojik Degerlendirme</div>
                 <div class="result-section-body" id="pedagogikDegerlendirme"></div>
             </div>
 
-            <!-- PROZODİ DETAY -->
             <div class="result-section">
                 <div class="result-section-header">🎵 Prozodi & Akustik Veriler</div>
                 <div class="result-section-body">
@@ -579,55 +582,35 @@
                 </div>
             </div>
 
-            <!-- KELİME BAZLI ANALİZ -->
             <div class="result-section">
-                <div class="result-section-header">🔤 Kelime Bazlı Analiz</div>
+                <div class="result-section-header">🔤 Kelime Bazli Analiz</div>
                 <div class="result-section-body" style="padding:0; overflow-x:auto;">
                     <table class="word-table" id="wordTable">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Hedef Kelime</th>
-                                <th>Çocuğun Okuduğu</th>
-                                <th>Durum</th>
-                                <th>Not</th>
-                            </tr>
-                        </thead>
+                        <thead><tr><th>#</th><th>Hedef Kelime</th><th>Cocugun Okudugu</th><th>Durum</th><th>Not</th></tr></thead>
                         <tbody></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- GÜÇLÜ YÖNLER & GELİŞİM -->
             <div class="result-section">
-                <div class="result-section-header">💪 Güçlü Yönler</div>
-                <div class="result-section-body">
-                    <ul class="insight-list green" id="gucluYonler"></ul>
-                </div>
+                <div class="result-section-header">💪 Guclu Yonler</div>
+                <div class="result-section-body"><ul class="insight-list green" id="gucluYonler"></ul></div>
             </div>
 
             <div class="result-section">
-                <div class="result-section-header">🎯 Gelişim Alanları</div>
-                <div class="result-section-body">
-                    <ul class="insight-list orange" id="gelisimAlanlari"></ul>
-                </div>
+                <div class="result-section-header">🎯 Gelisim Alanlari</div>
+                <div class="result-section-body"><ul class="insight-list orange" id="gelisimAlanlari"></ul></div>
             </div>
 
             <div class="result-section">
-                <div class="result-section-header">💡 Öğretmen / Veli Önerileri</div>
-                <div class="result-section-body">
-                    <ul class="insight-list blue" id="oneriler"></ul>
-                </div>
+                <div class="result-section-header">💡 Ogretmen / Veli Onerileri</div>
+                <div class="result-section-body"><ul class="insight-list blue" id="oneriler"></ul></div>
             </div>
 
-            <!-- ZORLANILAN KELİMELER -->
             <div class="result-section">
-                <div class="result-section-header">⚠️ Zorlanılan Kelimeler</div>
-                <div class="result-section-body">
-                    <div class="keyword-chips" id="zorlanilanKelimeler"></div>
-                </div>
+                <div class="result-section-header">⚠️ Zorlanilan Kelimeler</div>
+                <div class="result-section-body"><div class="keyword-chips" id="zorlanilanKelimeler"></div></div>
             </div>
-
         </div>
     </main>
 
@@ -641,9 +624,98 @@
         const loadingStep = document.getElementById('loadingStep');
         const errorBox = document.getElementById('errorBox');
         const resultsDiv = document.getElementById('results');
+        const retryBox = document.getElementById('retryBox');
 
         let selectedFile = null;
-        let lastAnalysisData = null; // Store results for PDF download
+        let lastAnalysisData = null;
+        let mediaRecorder = null;
+        let recordedChunks = [];
+        let recordingStartTime = null;
+        let recordingTimer = null;
+        let lastRecordingDuration = 0;
+
+        // ── Mode Switching ──
+        function setMode(mode) {
+            document.getElementById('tabUpload').classList.toggle('active', mode === 'upload');
+            document.getElementById('tabRecord').classList.toggle('active', mode === 'record');
+            dropzone.style.display = mode === 'upload' ? '' : 'none';
+            document.getElementById('recordArea').classList.toggle('visible', mode === 'record');
+        }
+
+        // ── Recording ──
+        async function toggleRecording() {
+            const recBtn = document.getElementById('btnRecord');
+            const status = document.getElementById('recordStatus');
+            const done = document.getElementById('recordDone');
+
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+                recBtn.classList.remove('recording');
+                clearInterval(recordingTimer);
+                lastRecordingDuration = (Date.now() - recordingStartTime) / 1000;
+                status.innerHTML = 'Kayit durduruluyor...';
+                return;
+            }
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                recordedChunks = [];
+                mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+
+                mediaRecorder.ondataavailable = e => {
+                    if (e.data.size > 0) recordedChunks.push(e.data);
+                };
+
+                mediaRecorder.onstop = () => {
+                    stream.getTracks().forEach(t => t.stop());
+
+                    // Kisa kayit kontrolu
+                    if (lastRecordingDuration < 5) {
+                        status.innerHTML = '⚠️ Kayit cok kisa oldu! En az 5 saniye kayit yapmaliyiz.';
+                        done.classList.remove('visible');
+                        retryBox.classList.remove('visible');
+                        return;
+                    }
+
+                    const blob = new Blob(recordedChunks, { type: 'audio/webm' });
+                    selectedFile = new File([blob], 'kayit.webm', { type: 'audio/webm' });
+
+                    const url = URL.createObjectURL(blob);
+                    document.getElementById('recordedAudio').src = url;
+                    done.classList.add('visible');
+                    status.innerHTML = '✅ Harika! Kayit hazir (' + Math.round(lastRecordingDuration) + ' saniye)';
+                    checkReady();
+                };
+
+                mediaRecorder.start();
+                recBtn.classList.add('recording');
+                done.classList.remove('visible');
+                retryBox.classList.remove('visible');
+                recordingStartTime = Date.now();
+
+                recordingTimer = setInterval(() => {
+                    const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
+                    const min = String(Math.floor(elapsed / 60)).padStart(2, '0');
+                    const sec = String(elapsed % 60).padStart(2, '0');
+                    status.innerHTML = '<span class="rec-time">' + min + ':' + sec + '</span> 🔴 Kayit devam ediyor...';
+                }, 1000);
+
+            } catch (err) {
+                status.innerHTML = '😕 Mikrofon erisimi reddedildi. Tarayici izinlerini kontrol et!';
+            }
+        }
+
+        // ── Reset for Retry ──
+        function resetForRetry() {
+            retryBox.classList.remove('visible');
+            resultsDiv.classList.remove('visible');
+            selectedFile = null;
+            document.getElementById('recordDone').classList.remove('visible');
+            document.getElementById('recordStatus').innerHTML = '🎤 Haydi tekrar deneyelim! Butona bas.';
+            btn.disabled = true;
+            setMode('record');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
 
         // ── File Selection ──
         dropzone.addEventListener('click', () => fileInput.click());
@@ -674,15 +746,15 @@
         // ── Analysis ──
         btn.addEventListener('click', async () => {
             errorBox.style.display = 'none';
+            retryBox.classList.remove('visible');
             resultsDiv.classList.remove('visible');
             loading.classList.add('active');
             btn.disabled = true;
 
-            // Simulate step progress
             const steps = [
-                { text: '<strong>Katman 1:</strong> Whisper — ses kaydı analiz ediliyor...', delay: 0 },
-                { text: '<strong>Katman 2:</strong> Parselmouth — prozodi ölçülüyor...', delay: 5000 },
-                { text: '<strong>Katman 3:</strong> Claude — pedagojik rapor üretiliyor...', delay: 10000 },
+                { text: '🎙️ <strong>Katman 1:</strong> Whisper sesi dinliyor...', delay: 0 },
+                { text: '🎵 <strong>Katman 2:</strong> Prozodi olculuyor...', delay: 5000 },
+                { text: '🧠 <strong>Katman 3:</strong> Claude rapor yazıyor...', delay: 10000 },
             ];
             steps.forEach(s => setTimeout(() => { loadingStep.innerHTML = s.text; }, s.delay));
 
@@ -697,9 +769,34 @@
                 loading.classList.remove('active');
 
                 if (data.hata) {
-                    errorBox.textContent = data.hata;
+                    errorBox.textContent = '😕 ' + data.hata;
                     errorBox.style.display = 'block';
                     btn.disabled = false;
+                    return;
+                }
+
+                // Basarisiz kayit kontrolu
+                const skor = data.rapor?.genel_skor || 0;
+                const transkript = (data.whisper?.transkript || '').trim();
+                const refKelimeSayisi = textarea.value.trim().split(/\s+/).length;
+                const sttKelimeSayisi = transkript.split(/\s+/).length;
+
+                if (skor < 10 || transkript.length < 10 || sttKelimeSayisi < refKelimeSayisi * 0.2) {
+                    // Cok kotu sonuc - muhtemelen yanlis kayit
+                    const mesajlar = [
+                        'Kayit biraz karisik geldi galiba 🙈 Belki arka planda gurultu olmustur? Bir daha deneyelim!',
+                        'Hmm, sesi net duyamadik 🤷 Mikrofona biraz daha yakin okumayı deneyebilir miyiz?',
+                        'Bu kayitta metni tam yakalayamadik 📖 Sakin bir ortamda tekrar kayit alalim!',
+                    ];
+                    document.getElementById('retryText').textContent = mesajlar[Math.floor(Math.random() * mesajlar.length)];
+                    retryBox.classList.add('visible');
+                    retryBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    btn.disabled = false;
+                    // Yine de sonuclari goster
+                    renderResults(data);
+                    lastAnalysisData = data;
+                    lastAnalysisData.referans_metin = textarea.value.trim();
+                    resultsDiv.classList.add('visible');
                     return;
                 }
 
@@ -711,7 +808,7 @@
 
             } catch (err) {
                 loading.classList.remove('active');
-                errorBox.textContent = 'Bağlantı hatası: ' + err.message;
+                errorBox.innerHTML = '😕 Baglanti hatasi: ' + err.message;
                 errorBox.style.display = 'block';
             }
             btn.disabled = false;
@@ -723,133 +820,68 @@
             const p = data.prozodi;
             const w = data.whisper;
 
-            // Score Cards
             const scoreGrid = document.getElementById('scoreGrid');
             const scoreColor = v => v >= 70 ? 'score-green' : v >= 40 ? 'score-yellow' : 'score-red';
-            scoreGrid.innerHTML = `
-                <div class="score-card ${scoreColor(r.genel_skor || 0)}">
-                    <div class="score-value">${r.genel_skor || '—'}</div>
-                    <div class="score-label">Genel Skor</div>
-                </div>
-                <div class="score-card ${scoreColor(r.dogruluk_skoru || 0)}">
-                    <div class="score-value">${r.dogruluk_skoru || '—'}</div>
-                    <div class="score-label">Doğruluk</div>
-                </div>
-                <div class="score-card ${scoreColor(r.akicilik_skoru || 0)}">
-                    <div class="score-value">${r.akicilik_skoru || '—'}</div>
-                    <div class="score-label">Akıcılık</div>
-                </div>
-                <div class="score-card ${scoreColor(r.prozodi_skoru || 0)}">
-                    <div class="score-value">${r.prozodi_skoru || '—'}</div>
-                    <div class="score-label">Prozodi</div>
-                </div>
-            `;
+            scoreGrid.innerHTML =
+                '<div class="score-card ' + scoreColor(r.genel_skor || 0) + '"><div class="score-value">' + (r.genel_skor || '—') + '</div><div class="score-label">Genel Skor</div></div>' +
+                '<div class="score-card ' + scoreColor(r.dogruluk_skoru || 0) + '"><div class="score-value">' + (r.dogruluk_skoru || '—') + '</div><div class="score-label">Dogruluk</div></div>' +
+                '<div class="score-card ' + scoreColor(r.akicilik_skoru || 0) + '"><div class="score-value">' + (r.akicilik_skoru || '—') + '</div><div class="score-label">Akicilik</div></div>' +
+                '<div class="score-card ' + scoreColor(r.prozodi_skoru || 0) + '"><div class="score-value">' + (r.prozodi_skoru || '—') + '</div><div class="score-label">Prozodi</div></div>';
 
-            // Level Badge
             const lb = document.getElementById('levelBadge');
             const seviye = (r.seviye || '').toLowerCase();
             let levelClass = 'level-gelisen';
-            if (seviye.includes('başlangıç') || seviye.includes('baslangic')) levelClass = 'level-baslangic';
+            if (seviye.includes('baslangic') || seviye.includes('başlangıç')) levelClass = 'level-baslangic';
             else if (seviye.includes('yeterli')) levelClass = 'level-yeterli';
             else if (seviye.includes('ileri')) levelClass = 'level-ileri';
             lb.className = 'level-badge ' + levelClass;
-            lb.textContent = (r.seviye || 'Değerlendiriliyor') + (r.okuma_hizi_wpm ? ` · ${r.okuma_hizi_wpm} kelime/dk` : '');
+            lb.textContent = (r.seviye || 'Degerlendiriliyor') + (r.okuma_hizi_wpm ? ' · ' + r.okuma_hizi_wpm + ' kelime/dk' : '');
 
-            // Text Comparison
-            document.getElementById('textComparison').innerHTML = `
-                <div class="text-box text-box-ref">
-                    <div class="text-box-label">📖 Referans Metin</div>
-                    ${document.getElementById('referansMetin').value}
-                </div>
-                <div class="text-box text-box-stt">
-                    <div class="text-box-label">🗣️ Whisper Transkripti</div>
-                    ${w.transkript || '—'}
-                </div>
-            `;
+            document.getElementById('textComparison').innerHTML =
+                '<div class="text-box text-box-ref"><div class="text-box-label">📖 Referans Metin</div>' + textarea.value + '</div>' +
+                '<div class="text-box text-box-stt"><div class="text-box-label">🗣️ Whisper Transkripti</div>' + (w.transkript || '—') + '</div>';
 
-            // Pedagojik Değerlendirme
-            const ped = document.getElementById('pedagogikDegerlendirme');
-            ped.innerHTML = `
-                <div class="summary-label">Doğruluk</div>
-                <div class="summary-text">${r.dogruluk_ozeti || ''}</div>
-                <div class="summary-label" style="margin-top:16px">Akıcılık</div>
-                <div class="summary-text">${r.akicilik_ozeti || ''}</div>
-                <div class="summary-label" style="margin-top:16px">Prozodi & Tonlama</div>
-                <div class="summary-text">${r.prozodi_ozeti || ''}</div>
-            `;
+            document.getElementById('pedagogikDegerlendirme').innerHTML =
+                '<div class="summary-label">Dogruluk</div><div class="summary-text">' + (r.dogruluk_ozeti || '') + '</div>' +
+                '<div class="summary-label" style="margin-top:16px">Akicilik</div><div class="summary-text">' + (r.akicilik_ozeti || '') + '</div>' +
+                '<div class="summary-label" style="margin-top:16px">Prozodi & Tonlama</div><div class="summary-text">' + (r.prozodi_ozeti || '') + '</div>';
 
-            // Prozodi Grid
-            const pg = document.getElementById('prozodiGrid');
-            pg.innerHTML = `
-                <div class="prozodi-item">
-                    <div class="prozodi-item-label">Pitch Ortalaması</div>
-                    <div class="prozodi-item-value">${p.pitch.ortalama_hz || '—'} Hz</div>
-                    <div class="prozodi-item-note">${p.pitch.monotonluk || ''}</div>
-                </div>
-                <div class="prozodi-item">
-                    <div class="prozodi-item-label">Tonlama Canlılığı</div>
-                    <div class="prozodi-item-value">${p.pitch.std_hz || '—'} Hz</div>
-                    <div class="prozodi-item-note">Std. sapma (yüksek = canlı)</div>
-                </div>
-                <div class="prozodi-item">
-                    <div class="prozodi-item-label">Vurgu Gücü</div>
-                    <div class="prozodi-item-value">${p.enerji.std_db || '—'} dB</div>
-                    <div class="prozodi-item-note">${p.enerji.vurgu_durumu || ''}</div>
-                </div>
-                <div class="prozodi-item">
-                    <div class="prozodi-item-label">Toplam Süre</div>
-                    <div class="prozodi-item-value">${p.duraksama.toplam_sure_sn || '—'} sn</div>
-                    <div class="prozodi-item-note">Konuşma: ${p.duraksama.konusma_suresi_sn || '?'} sn</div>
-                </div>
-                <div class="prozodi-item">
-                    <div class="prozodi-item-label">Duraksama Sayısı</div>
-                    <div class="prozodi-item-value">${p.duraksama.duraksama_sayisi || 0}</div>
-                    <div class="prozodi-item-note">Sessizlik: %${p.duraksama.sessizlik_orani || '?'}</div>
-                </div>
-                <div class="prozodi-item">
-                    <div class="prozodi-item-label">Akıcılık</div>
-                    <div class="prozodi-item-value">${p.duraksama.akicilik_durumu || '—'}</div>
-                    <div class="prozodi-item-note">Sessizlik süresi: ${p.duraksama.sessizlik_suresi_sn || '?'} sn</div>
-                </div>
-            `;
+            document.getElementById('prozodiGrid').innerHTML =
+                '<div class="prozodi-item"><div class="prozodi-item-label">Pitch Ort.</div><div class="prozodi-item-value">' + (p.pitch.ortalama_hz || '—') + ' Hz</div><div class="prozodi-item-note">' + (p.pitch.monotonluk || '') + '</div></div>' +
+                '<div class="prozodi-item"><div class="prozodi-item-label">Tonlama Canliligi</div><div class="prozodi-item-value">' + (p.pitch.std_hz || '—') + ' Hz</div><div class="prozodi-item-note">Std. sapma</div></div>' +
+                '<div class="prozodi-item"><div class="prozodi-item-label">Vurgu Gucu</div><div class="prozodi-item-value">' + (p.enerji.std_db || '—') + ' dB</div><div class="prozodi-item-note">' + (p.enerji.vurgu_durumu || '') + '</div></div>' +
+                '<div class="prozodi-item"><div class="prozodi-item-label">Toplam Sure</div><div class="prozodi-item-value">' + (p.duraksama.toplam_sure_sn || '—') + ' sn</div><div class="prozodi-item-note">Konusma: ' + (p.duraksama.konusma_suresi_sn || '?') + ' sn</div></div>' +
+                '<div class="prozodi-item"><div class="prozodi-item-label">Duraksama</div><div class="prozodi-item-value">' + (p.duraksama.duraksama_sayisi || 0) + '</div><div class="prozodi-item-note">Sessizlik: %' + (p.duraksama.sessizlik_orani || '?') + '</div></div>' +
+                '<div class="prozodi-item"><div class="prozodi-item-label">Akicilik</div><div class="prozodi-item-value">' + (p.duraksama.akicilik_durumu || '—') + '</div><div class="prozodi-item-note">Sessizlik: ' + (p.duraksama.sessizlik_suresi_sn || '?') + ' sn</div></div>';
 
-            // Word Table
             const tbody = document.querySelector('#wordTable tbody');
             tbody.innerHTML = '';
             if (r.kelime_analizi && r.kelime_analizi.length) {
-                r.kelime_analizi.forEach((k, i) => {
-                    const statusClass = 'status-' + (k.durum || 'yanlis');
-                    const statusLabel = { dogru: 'Doğru', yanlis: 'Yanlış', atlandi: 'Atlandı', eklendi: 'Eklendi' }[k.durum] || k.durum;
-                    tbody.innerHTML += `<tr>
-                        <td style="color:var(--text-secondary)">${i + 1}</td>
-                        <td><strong>${k.kelime || ''}</strong></td>
-                        <td>${k.cocugun_okudugu || '—'}</td>
-                        <td class="${statusClass}">${statusLabel}</td>
-                        <td style="color:var(--text-secondary);font-size:12px">${k.not || ''}</td>
-                    </tr>`;
+                r.kelime_analizi.forEach(function(k, i) {
+                    var statusClass = 'status-' + (k.durum || 'yanlis');
+                    var statusLabel = { dogru: 'Dogru ✅', yanlis: 'Yanlis ❌', atlandi: 'Atlandi ⏭️', eklendi: 'Eklendi ➕' }[k.durum] || k.durum;
+                    tbody.innerHTML += '<tr><td style="color:var(--text-secondary)">' + (i+1) + '</td><td><strong>' + (k.kelime||'') + '</strong></td><td>' + (k.cocugun_okudugu||'—') + '</td><td class="' + statusClass + '">' + statusLabel + '</td><td style="color:var(--text-secondary);font-size:12px">' + (k.not||'') + '</td></tr>';
                 });
             }
 
-            // Lists
             renderList('gucluYonler', r.guclu_yonler);
             renderList('gelisimAlanlari', r.gelisim_alanlari);
             renderList('oneriler', r.oneriler);
 
-            // Keyword Chips
-            const chips = document.getElementById('zorlanilanKelimeler');
+            var chips = document.getElementById('zorlanilanKelimeler');
             chips.innerHTML = '';
             if (r.dikkat_edilecek_kelimeler) {
-                r.dikkat_edilecek_kelimeler.forEach(k => {
-                    chips.innerHTML += `<span class="chip">${k}</span>`;
+                r.dikkat_edilecek_kelimeler.forEach(function(k) {
+                    chips.innerHTML += '<span class="chip">' + k + '</span>';
                 });
             }
         }
 
         function renderList(id, items) {
-            const el = document.getElementById(id);
+            var el = document.getElementById(id);
             el.innerHTML = '';
             if (items && items.length) {
-                items.forEach(item => { el.innerHTML += `<li>${item}</li>`; });
+                items.forEach(function(item) { el.innerHTML += '<li>' + item + '</li>'; });
             } else {
                 el.innerHTML = '<li style="color:var(--text-secondary)">Veri yok</li>';
             }
@@ -858,12 +890,12 @@
         // ── PDF Download ──
         async function pdfIndir() {
             if (!lastAnalysisData) return;
-            const btn = document.getElementById('btnPdf');
-            btn.disabled = true;
-            btn.innerHTML = '<span>PDF Hazirlaniyor...</span>';
+            var pdfBtn = document.getElementById('btnPdf');
+            pdfBtn.disabled = true;
+            pdfBtn.innerHTML = 'PDF Hazirlaniyor...';
 
             try {
-                const resp = await fetch('/pdf-indir', {
+                var resp = await fetch('/pdf-indir', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(lastAnalysisData)
@@ -871,11 +903,11 @@
 
                 if (!resp.ok) throw new Error('PDF olusturulamadi');
 
-                const blob = await resp.blob();
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
+                var blob = await resp.blob();
+                var url = window.URL.createObjectURL(blob);
+                var a = document.createElement('a');
                 a.href = url;
-                a.download = resp.headers.get('Content-Disposition')?.split('filename=')[1] || 'Okudio_Rapor.pdf';
+                a.download = 'Okudio_Rapor.pdf';
                 document.body.appendChild(a);
                 a.click();
                 a.remove();
@@ -884,8 +916,8 @@
                 alert('PDF indirme hatasi: ' + err.message);
             }
 
-            btn.disabled = false;
-            btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:18px;height:18px"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg> PDF Rapor Indir`;
+            pdfBtn.disabled = false;
+            pdfBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:18px;height:18px"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg> PDF Rapor Indir';
         }
     </script>
 </body>
