@@ -39,7 +39,9 @@ def whisper_analiz(ses_dosya_yolu):
             file=audio,
             language="tr",
             response_format="verbose_json",
-            timestamp_granularities=["word"]
+            timestamp_granularities=["word"],
+            # HASSAS ANALİZ İÇİN EKLENEN SATIR BURASI:
+            prompt="Öğrenci okuma yapıyor. ee, ıı, hmm, hıh, şey gibi duraksama ve düşünme seslerini kesinlikle atlama, olduğu gibi metne dök."
         )
 
     transkript = response.text
