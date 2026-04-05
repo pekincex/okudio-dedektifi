@@ -186,8 +186,8 @@ Onemli notlar:
 - Sadece JSON dondur, baska metin ekleme.
 - JSON icinde Turkce karakterler kullan (ş, ç, ğ, ü, ö, ı)."""
 
-    response = client.messages.create(
-        model="claude-3-5-haiku-20241022",
+response = client.messages.create(
+        model="claude-3-haiku-20240307",
         max_tokens=1500,
         messages=[{"role": "user", "content": prompt}]
     )
