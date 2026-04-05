@@ -1,5 +1,5 @@
 """
-Okudio Okuma Dedektifi v5
+Okudio Okuma Dedektifi v7
 """
 from pydub import AudioSegment
 import os, io, json, tempfile, datetime, re
@@ -12,10 +12,17 @@ ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
 
+SINIF_REF = {
+    "2": {"wpm_min":40,"wpm_max":60,"dogruluk_min":95},
+    "3": {"wpm_min":70,"wpm_max":90,"dogruluk_min":95},
+    "4": {"wpm_min":90,"wpm_max":110,"dogruluk_min":97},
+    "5": {"wpm_min":110,"wpm_max":130,"dogruluk_min":98},
+    "6": {"wpm_min":130,"wpm_max":145,"dogruluk_min":99},
+    "7": {"wpm_min":145,"wpm_max":160,"dogruluk_min":99},
+}
 
 def temizle(metin):
     return re.sub(r'[^\w\s]', '', metin).lower().strip()
-
 
 def whisper_analiz(ses_dosya_yolu):
     from openai import OpenAI
@@ -27,7 +34,6 @@ def whisper_analiz(ses_dosya_yolu):
             prompt="Ogrenci sesli okuma yapiyor. Duraksama seslerini ve tekrarlari oldugu gibi yaz."
         )
     return response.text, [{"kelime": w.word, "baslangic": round(w.start, 2), "bitis": round(w.end, 2), "sure": round(w.end - w.start, 2)} for w in (response.words or [])]
-
 
 def prozodi_analiz(ses_dosya_yolu):
     import parselmouth, librosa
@@ -55,64 +61,50 @@ def prozodi_analiz(ses_dosya_yolu):
     ss = toplam_sure - ks; so = (ss/toplam_sure)*100 if toplam_sure>0 else 0
     return {"pitch": pitch_data, "enerji": enerji_data, "duraksama": {"toplam_sure_sn": round(toplam_sure,1), "konusma_suresi_sn": round(ks,1), "sessizlik_suresi_sn": round(ss,1), "sessizlik_orani": round(so,1), "duraksama_sayisi": len(duraksamalar), "uzun_duraksama_sayisi": uzun, "akicilik_durumu": "Akici" if so<20 else "Normal" if so<35 else "Kesik kesik"}}
 
-
 def kayit_kalitesi_kontrol(transkript, kelimeler, prozodi, referans_metin):
     rks = len(referans_metin.strip().split()); sks = len(transkript.strip().split()) if transkript.strip() else 0
     ts = prozodi.get("duraksama",{}).get("toplam_sure_sn",0); so = prozodi.get("duraksama",{}).get("sessizlik_orani",0)
-    if sks < 3: return False, "Kayitte hic ses algilanamadi. Mikrofona yakin okumayı deneyelim!"
-    if ts < 5: return False, "Kayit cok kisa. En az 5 saniye okumamiz lazim!"
+    if sks < 3: return False, "Kayitte hic ses algilanamadi."
+    if ts < 5: return False, "Kayit cok kisa."
     if rks > 5 and sks < rks * 0.15: return False, "Ses referans metinle uyusmuyor."
     if so > 80: return False, "Kaydin buyuk bolumu sessizlik."
     rk = set(temizle(referans_metin).split()); sk = set(temizle(transkript).split())
-    if rks > 5 and len(rk.intersection(sk)) < 2: return False, "Sesleri metinle eslestiremedik. Tekrar deneyelim!"
+    if rks > 5 and len(rk.intersection(sk)) < 2: return False, "Metinle eslestiremedik."
     return True, ""
 
-
-def claude_pedagojik_analiz(referans_metin, whisper_transkript, prozodi_verileri):
+def claude_pedagojik_analiz(referans_metin, whisper_transkript, prozodi_verileri, sinif, ogrenci_adi):
     import anthropic
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-
     ref_temiz = temizle(referans_metin)
     stt_temiz = temizle(whisper_transkript)
+    sr = SINIF_REF.get(sinif, SINIF_REF["2"])
 
-    prompt = f"""Ilkokul 2. sinif ogrencisinin sesli okuma performansini degerlendir.
+    prompt = f"""Ilkokul {sinif}. sinif ogrencisi "{ogrenci_adi}" sesli okuma yapti.
 
-REFERANS METIN:
-{ref_temiz}
+REFERANS: {ref_temiz}
+STT: {stt_temiz}
+AKUSTIK: Pitch {prozodi_verileri['pitch']['ortalama_hz']}Hz std:{prozodi_verileri['pitch']['std_hz']}Hz ({prozodi_verileri['pitch']['monotonluk']}), Enerji {prozodi_verileri['enerji']['std_db']}dB ({prozodi_verileri['enerji']['vurgu_durumu']}), Sure {prozodi_verileri['duraksama']['toplam_sure_sn']}sn, Sessizlik %{prozodi_verileri['duraksama']['sessizlik_orani']}, Duraksama {prozodi_verileri['duraksama']['duraksama_sayisi']}({prozodi_verileri['duraksama']['uzun_duraksama_sayisi']}uzun)
 
-COCUGUN OKUDUGU (Whisper STT):
-{stt_temiz}
+SINIF REFERANS: {sinif}. sinif icin beklenen WPM:{sr['wpm_min']}-{sr['wpm_max']}, dogruluk min:%{sr['dogruluk_min']}
 
-AKUSTIK:
-- Pitch: {prozodi_verileri['pitch']['ortalama_hz']}Hz, std:{prozodi_verileri['pitch']['std_hz']}Hz ({prozodi_verileri['pitch']['monotonluk']})
-- Enerji: {prozodi_verileri['enerji']['std_db']}dB ({prozodi_verileri['enerji']['vurgu_durumu']})
-- Sure: {prozodi_verileri['duraksama']['toplam_sure_sn']}sn, sessizlik:%{prozodi_verileri['duraksama']['sessizlik_orani']}
-- Duraksamalar: {prozodi_verileri['duraksama']['duraksama_sayisi']} (uzun:{prozodi_verileri['duraksama']['uzun_duraksama_sayisi']})
+KURALLAR: Noktalama hatasi SAYMA. Metin bittikten sonra kayit acik kalmissa DIKKATE ALMA. Whisper hatalari olabilir, dikkatli karsilastir. TUM metni degerlendir, hic kelime atlama.
 
-KURALLAR:
-- Referans metnin TAMAMINI degerlendir, hic kelime atlama.
-- Noktalama isareti hatasi SAYMA.
-- Metin bittikten sonra kayit acik kalmissa (son kelimeler eslestikten sonra fazla ses) onu DIKKATE ALMA.
-- Whisper bazen dogru okunan kelimeyi yanlis yazabilir, bunu goz onunde bulundur.
-- WPM = dogru kelime x 60 / sure. 2. sinif beklentisi 40-60.
+Hesaplamalar:
+- Dogruluk = dogru kelime / toplam kelime x 100. %95+=bagimsiz, %90-94=ogretimsel, <%90=endiselendirici
+- WPM = dogru kelime x 60 / sure(sn)
+- Prozodik Olcek: 12-16=ust, 8-11=orta, 4-7=zayif, <4=akici degil
 
-SADECE JSON dondur:
+SADECE JSON:
 {{
-  "genel_skor": 0-100,
-  "dogruluk_skoru": 0-100,
-  "akicilik_skoru": 0-100,
-  "prozodi_skoru": 0-100,
-  "seviye": "Baslangic/Gelisen/Yeterli/Ileri",
-  "okuma_hizi_wpm": sayi,
-  "dogruluk_ozeti": "2 cumle - kac kelime dogru/yanlis, hangileri",
-  "akicilik_ozeti": "2 cumle - hiz ve duraksama analizi",
-  "prozodi_ozeti": "2 cumle - tonlama ve vurgu analizi",
-  "hatali_kelimeler": [
-    {{"kelime":"yanlis okunan","okunan":"cocugun dedigi","dogru_telaffuz":"he-ce-le-ri","anlami":"kisa anlam"}}
-  ],
-  "guclu_yonler": ["2-3 madde"],
-  "gelisim_alanlari": ["2-3 madde"],
-  "oneriler": ["ogretmene 1","veliye 1","cocuga 1 motivasyon"]
+  "genel_skor":0-100,"dogruluk_skoru":0-100,"akicilik_skoru":0-100,"prozodi_skoru":0-100,
+  "seviye":"Baslangic/Gelisen/Yeterli/Ileri","okuma_hizi_wpm":sayi,
+  "kaba_degerlendirme":{{"toplam_sozcuk":sayi,"dogru_okunan":sayi,"yanlis_okunan":sayi,"heceleyerek_okunan":sayi,"atlanan_sozcuk":sayi,"eklenen_sozcuk":sayi,"dakikada_dogru_sozcuk":sayi}},
+  "prozodik_olcek":[{{"madde":"Duyguları yansıtma","puan":0-4}},{{"madde":"Gunluk konusma dili","puan":0-4}},{{"madde":"Vurgu ve tonlama","puan":0-4}},{{"madde":"Noktalama uyumu","puan":0-4}},{{"madde":"Anlam vurgusu","puan":0-4}},{{"madde":"Uygun bekleme","puan":0-4}},{{"madde":"Akici okuma","puan":0-4}},{{"madde":"Anlamli gruplama","puan":0-4}}],
+  "prozodik_toplam":0-32,
+  "dogruluk_ozeti":"2 cumle","akicilik_ozeti":"2 cumle","prozodi_ozeti":"2 cumle",
+  "hatali_kelimeler":[{{"kelime":"x","okunan":"y","dogru_telaffuz":"he-ce","anlami":"kisa anlam"}}],
+  "guclu_yonler":["2 madde"],"gelisim_alanlari":["2 madde"],
+  "oneriler":["ogretmene 1","veliye 1","cocuga 1"]
 }}"""
 
     response = client.messages.create(model="claude-sonnet-4-20250514", max_tokens=3000, messages=[{"role": "user", "content": prompt}])
@@ -143,15 +135,11 @@ def pdf_rapor_uret(rapor_data):
         if os.path.exists(p):pdfmetrics.registerFont(TTFont("DejaVuBold",p));fb="DejaVuBold";break
     NV=colors.HexColor("#1A2332");GR=colors.HexColor("#059669");LG=colors.HexColor("#ECFDF5");OR=colors.HexColor("#D97706");LO=colors.HexColor("#FFFBEB");RD=colors.HexColor("#DC2626");LR=colors.HexColor("#FEF2F2");GY=colors.HexColor("#6B7280");LGY=colors.HexColor("#F3F4F6");LB=colors.HexColor("#EFF6FF");WH=colors.white
     r=rapor_data.get("rapor",{});pr=rapor_data.get("prozodi",{});wh=rapor_data.get("whisper",{})
-    st=ParagraphStyle("T",fontName=fb,fontSize=20,textColor=NV,spaceAfter=4,leading=26)
-    ss=ParagraphStyle("S",fontName=fn,fontSize=10,textColor=GY,spaceAfter=14)
-    sh=ParagraphStyle("H",fontName=fb,fontSize=12,textColor=NV,spaceBefore=16,spaceAfter=6,leading=16)
-    sb=ParagraphStyle("B",fontName=fn,fontSize=9,textColor=colors.HexColor("#374151"),leading=14,spaceAfter=4)
-    sm=ParagraphStyle("M",fontName=fn,fontSize=8,textColor=GY,leading=12)
-    sl=ParagraphStyle("L",fontName=fb,fontSize=8,textColor=GY,leading=11)
-    buf=io.BytesIO();doc=SimpleDocTemplate(buf,pagesize=A4,topMargin=18*mm,bottomMargin=12*mm,leftMargin=16*mm,rightMargin=16*mm)
-    el=[];pw=A4[0]-32*mm;t=datetime.datetime.now().strftime("%d.%m.%Y %H:%M")
-    el.append(Paragraph("Okuma Analiz Raporu",st));el.append(Paragraph(f"{t}",ss))
+    st=ParagraphStyle("T",fontName=fb,fontSize=20,textColor=NV,spaceAfter=4,leading=26);ss=ParagraphStyle("S",fontName=fn,fontSize=10,textColor=GY,spaceAfter=14);sh=ParagraphStyle("H",fontName=fb,fontSize=12,textColor=NV,spaceBefore=16,spaceAfter=6,leading=16);sb=ParagraphStyle("B",fontName=fn,fontSize=9,textColor=colors.HexColor("#374151"),leading=14,spaceAfter=4);sm=ParagraphStyle("M",fontName=fn,fontSize=8,textColor=GY,leading=12);sl=ParagraphStyle("L",fontName=fb,fontSize=8,textColor=GY,leading=11)
+    buf=io.BytesIO();doc=SimpleDocTemplate(buf,pagesize=A4,topMargin=18*mm,bottomMargin=12*mm,leftMargin=16*mm,rightMargin=16*mm);el=[];pw=A4[0]-32*mm;t=datetime.datetime.now().strftime("%d.%m.%Y %H:%M")
+    oa=rapor_data.get("ogrenci_adi","");sn=rapor_data.get("sinif","")
+    el.append(Paragraph("Okuma Analiz Raporu",st))
+    el.append(Paragraph(f"Ogrenci: {oa} | Sinif: {sn}. sinif | Tarih: {t}",ss))
     el.append(HRFlowable(width="100%",thickness=1,color=colors.HexColor("#E5E7EB")));el.append(Spacer(1,6))
     def sc(v):return GR if v>=70 else OR if v>=40 else RD
     def bg(v):return LG if v>=70 else LO if v>=40 else LR
@@ -159,6 +147,16 @@ def pdf_rapor_uret(rapor_data):
     sd=[[Paragraph(f"<font size='18' color='{sc(gs).hexval()}'>{gs}</font><br/><font size='7' color='#6B7280'>Genel</font>",sb),Paragraph(f"<font size='18' color='{sc(ds).hexval()}'>{ds}</font><br/><font size='7' color='#6B7280'>Dogruluk</font>",sb),Paragraph(f"<font size='18' color='{sc(ak).hexval()}'>{ak}</font><br/><font size='7' color='#6B7280'>Akicilik</font>",sb),Paragraph(f"<font size='18' color='{sc(ps).hexval()}'>{ps}</font><br/><font size='7' color='#6B7280'>Prozodi</font>",sb)]]
     tt=Table(sd,colWidths=[pw/4]*4,rowHeights=[45]);tt.setStyle(TableStyle([('ALIGN',(0,0),(-1,-1),'CENTER'),('VALIGN',(0,0),(-1,-1),'MIDDLE'),('BACKGROUND',(0,0),(0,0),bg(gs)),('BACKGROUND',(1,0),(1,0),bg(ds)),('BACKGROUND',(2,0),(2,0),bg(ak)),('BACKGROUND',(3,0),(3,0),bg(ps)),('BOX',(0,0),(-1,-1),0.5,colors.HexColor("#E5E7EB")),('INNERGRID',(0,0),(-1,-1),0.5,colors.HexColor("#E5E7EB"))]));el.append(tt)
     el.append(Spacer(1,4));el.append(Paragraph(f"<font color='#2563EB'><b>{r.get('seviye','')}</b> | {r.get('okuma_hizi_wpm','')} kelime/dk</font>",sb))
+    kd=r.get("kaba_degerlendirme",{})
+    if kd:
+        el.append(Paragraph("Kaba Degerlendirme (MEB)",sh))
+        kdd=[["Metrik","Deger"],["Toplam",str(kd.get("toplam_sozcuk",""))],["Dogru",str(kd.get("dogru_okunan",""))],["Yanlis",str(kd.get("yanlis_okunan",""))],["Heceleme",str(kd.get("heceleyerek_okunan",""))],["Atlanan",str(kd.get("atlanan_sozcuk",""))],["Eklenen",str(kd.get("eklenen_sozcuk",""))],["Dk/Dogru",str(kd.get("dakikada_dogru_sozcuk",""))]]
+        kdt=Table(kdd,colWidths=[pw*0.50,pw*0.50]);kdt.setStyle(TableStyle([('BACKGROUND',(0,0),(-1,0),NV),('TEXTCOLOR',(0,0),(-1,0),WH),('FONTNAME',(0,0),(-1,0),fb),('FONTSIZE',(0,0),(-1,-1),8.5),('FONTNAME',(0,1),(-1,-1),fn),('GRID',(0,0),(-1,-1),0.3,colors.HexColor("#E5E7EB")),('ROWBACKGROUNDS',(0,1),(-1,-1),[WH,LGY])]));el.append(kdt)
+    po=r.get("prozodik_olcek",[])
+    if po:
+        el.append(Paragraph(f"Prozodik Olcek (MEB) — {r.get('prozodik_toplam','')}/32",sh))
+        pod=[["Madde","Puan"]]+[[p.get("madde",""),str(p.get("puan",""))+"/4"] for p in po]
+        pot=Table(pod,colWidths=[pw*0.70,pw*0.30]);pot.setStyle(TableStyle([('BACKGROUND',(0,0),(-1,0),NV),('TEXTCOLOR',(0,0),(-1,0),WH),('FONTNAME',(0,0),(-1,0),fb),('FONTSIZE',(0,0),(-1,-1),8.5),('FONTNAME',(0,1),(-1,-1),fn),('GRID',(0,0),(-1,-1),0.3,colors.HexColor("#E5E7EB")),('ROWBACKGROUNDS',(0,1),(-1,-1),[WH,LGY])]));el.append(pot)
     for l,k in [("Dogruluk","dogruluk_ozeti"),("Akicilik","akicilik_ozeti"),("Prozodi","prozodi_ozeti")]:
         v=r.get(k,"")
         if v:el.append(Paragraph(f"<b>{l}:</b> {v}",sb))
@@ -189,19 +187,22 @@ def analiz():
     try:
         if 'ses_dosyasi' not in request.files:return jsonify({"hata":"Ses dosyasi yuklenmedi"}),400
         sf=request.files['ses_dosyasi'];rm=request.form.get('referans_metin','').strip()
+        ogrenci_adi=request.form.get('ogrenci_adi','').strip() or 'Belirtilmedi'
+        sinif=request.form.get('sinif','2').strip()
         if not rm:return jsonify({"hata":"Referans metin girilmedi"}),400
         if sf.filename=='':return jsonify({"hata":"Dosya secilmedi"}),400
         sx=os.path.splitext(sf.filename)[1] or '.wav'
         with tempfile.NamedTemporaryFile(delete=False,suffix=sx) as tmp:sf.save(tmp.name);tp=tmp.name
         wp=tp+"_c.wav"
         try:
-            print(f"  Format: {sx}");AudioSegment.from_file(tp).export(wp,format="wav")
+            AudioSegment.from_file(tp).export(wp,format="wav")
+            print(f"  Ogrenci: {ogrenci_adi}, Sinif: {sinif}")
             print("  K1: Whisper...");tr,kl=whisper_analiz(wp);print(f"  STT: {tr[:80]}...")
             print("  K2: Prozodi...");pz=prozodi_analiz(wp);print(f"  Pitch: {pz['pitch'].get('ortalama_hz','?')}Hz")
             ok,sb=kayit_kalitesi_kontrol(tr,kl,pz,rm)
-            if not ok:print(f"  Red: {sb}");return jsonify({"basarili":False,"yeniden_kayit":True,"sebep":sb})
-            print("  K3: Claude...");rp=claude_pedagojik_analiz(rm,tr,pz);print("  OK!")
-            return jsonify({"basarili":True,"referans_metin":rm,"whisper":{"transkript":tr,"kelimeler":kl},"prozodi":pz,"rapor":rp})
+            if not ok:return jsonify({"basarili":False,"yeniden_kayit":True,"sebep":sb})
+            print("  K3: Claude...");rp=claude_pedagojik_analiz(rm,tr,pz,sinif,ogrenci_adi);print("  OK!")
+            return jsonify({"basarili":True,"referans_metin":rm,"ogrenci_adi":ogrenci_adi,"sinif":sinif,"whisper":{"transkript":tr,"kelimeler":kl},"prozodi":pz,"rapor":rp})
         finally:
             if os.path.exists(tp):os.unlink(tp)
             if os.path.exists(wp):os.unlink(wp)
