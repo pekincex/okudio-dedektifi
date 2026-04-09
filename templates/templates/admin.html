@@ -5,68 +5,54 @@
 <title>Okudio — Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#F8F9FA;--surface:#FFF;--alt:#F1F3F5;--border:#DEE2E6;--text:#212529;--muted:#868E96;--accent:#228BE6;--ok:#2B8A3E;--okbg:#EBFBEE;--warn:#E67700;--bad:#C92A2A;--badbg:#FFF5F5;--r:12px}
-*{margin:0;padding:0;box-sizing:border-box}body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text)}
-header{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 0}header .w{max-width:1000px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:12px}header h1{font-size:16px;font-weight:600}header h1 span{color:var(--accent)}.badge{padding:3px 8px;background:var(--alt);border-radius:12px;font-size:10px;color:var(--muted)}.spacer{flex:1}.logout{font-size:12px;color:var(--muted);text-decoration:none}.logout:hover{color:var(--bad)}
-main{max-width:1000px;margin:0 auto;padding:24px}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
-.card-title{font-family:'DM Serif Display',serif;font-size:18px;margin-bottom:14px}
-.form-row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}.form-row>div{flex:1;min-width:100px}
-label{display:block;font-size:10px;font-weight:600;color:var(--muted);margin-bottom:3px;text-transform:uppercase}
-input,select{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font:12px 'DM Sans',sans-serif;background:var(--alt)}
-.btn{padding:7px 14px;border:none;border-radius:6px;font:12px/1 'DM Sans',sans-serif;font-weight:600;cursor:pointer}.btn-p{background:var(--accent);color:#fff}.btn-d{background:var(--bad);color:#fff;font-size:10px;padding:4px 8px}
-table{width:100%;border-collapse:collapse;font-size:13px}th{text-align:left;padding:8px 10px;background:var(--text);color:#fff;font-size:10px;text-transform:uppercase}td{padding:8px 10px;border-bottom:1px solid var(--border)}tr:nth-child(even){background:var(--alt)}
-.score{display:inline-block;padding:2px 8px;border-radius:10px;font-weight:600;font-size:11px}
-.s-ok{background:var(--okbg);color:var(--ok)}.s-warn{background:#FFF9DB;color:var(--warn)}.s-bad{background:var(--badbg);color:var(--bad)}
-.flash{padding:8px 12px;border-radius:6px;font-size:12px;margin-bottom:12px}.flash-success{background:var(--okbg);color:var(--ok)}.flash-error{background:var(--badbg);color:var(--bad)}
-a{color:var(--accent);text-decoration:none;font-weight:600;font-size:12px}a:hover{text-decoration:underline}
-.stat{text-align:center;padding:16px;background:var(--alt);border-radius:var(--r)}.stat-val{font-family:'DM Serif Display',serif;font-size:28px;color:var(--accent)}.stat-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;margin-top:2px}
-.stats{display:flex;gap:12px;margin-bottom:16px}
+:root{--bg:#F8F9FA;--s:#FFF;--a:#F1F3F5;--b:#DEE2E6;--t:#212529;--m:#868E96;--ac:#228BE6;--ok:#2B8A3E;--ob:#EBFBEE;--w:#E67700;--bad:#C92A2A;--bb:#FFF5F5;--r:10px}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t);font-size:13px}
+header{background:var(--s);border-bottom:1px solid var(--b);padding:10px 0}header .w{max-width:1000px;margin:0 auto;padding:0 16px;display:flex;align-items:center;gap:8px}.spacer{flex:1}.logout{font-size:11px;color:var(--m);text-decoration:none}
+main{max-width:1000px;margin:0 auto;padding:16px}
+.card{background:var(--s);border:1px solid var(--b);border-radius:var(--r);padding:16px;margin-bottom:10px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.card-title{font-family:'DM Serif Display';font-size:16px;margin-bottom:10px}
+.form-row{display:flex;gap:6px;flex-wrap:wrap;align-items:flex-end}.form-row>div{flex:1;min-width:80px}
+label{display:block;font-size:9px;font-weight:600;color:var(--m);margin-bottom:2px;text-transform:uppercase}
+input,select{width:100%;padding:6px 8px;border:1px solid var(--b);border-radius:5px;font:11px 'DM Sans';background:var(--a)}
+.btn{padding:6px 12px;border:none;border-radius:5px;font:11px/1 'DM Sans';font-weight:600;cursor:pointer}.btn-p{background:var(--ac);color:#fff}.btn-d{background:var(--bad);color:#fff;font-size:9px;padding:3px 6px}
+table{width:100%;border-collapse:collapse;font-size:11px}th{text-align:left;padding:6px 8px;background:var(--t);color:#fff;font-size:9px;text-transform:uppercase}td{padding:6px 8px;border-bottom:1px solid var(--b)}tr:nth-child(even){background:var(--a)}
+.badge{display:inline-block;padding:2px 6px;border-radius:8px;font-weight:600;font-size:9px}.b-ok{background:var(--ob);color:var(--ok)}.b-w{background:#FFF9DB;color:var(--w)}.b-bad{background:var(--bb);color:var(--bad)}
+.flash{padding:6px 10px;border-radius:5px;font-size:11px;margin-bottom:10px}.flash-success{background:var(--ob);color:var(--ok)}.flash-error{background:var(--bb);color:var(--bad)}
+a{color:var(--ac);text-decoration:none;font-weight:600;font-size:11px}
+.stats{display:flex;gap:8px;margin-bottom:12px}.stat{flex:1;text-align:center;padding:10px;background:var(--a);border-radius:var(--r)}.stat-v{font-family:'DM Serif Display';font-size:22px;color:var(--ac)}.stat-l{font-size:8px;color:var(--m);text-transform:uppercase}
 </style>
 </head>
 <body>
-<header><div class="w"><span style="font-size:18px">📚</span><h1>Okudio <span>Admin</span></h1><span class="badge">{{ current_user.name }}</span><span class="spacer"></span><a href="/logout" class="logout">Cikis Yap →</a></div></header>
+<header><div class="w">📚 <b>Okudio Admin</b><span class="spacer"></span><a href="/logout" class="logout">Cikis →</a></div></header>
 <main>
 {% with messages = get_flashed_messages(with_categories=true) %}{% for cat, msg in messages %}<div class="flash flash-{{ cat }}">{{ msg }}</div>{% endfor %}{% endwith %}
-
 <div class="stats">
-<div class="stat" style="flex:1"><div class="stat-val">{{ students|length }}</div><div class="stat-lbl">Ogrenci</div></div>
-<div class="stat" style="flex:1"><div class="stat-val">{{ students|sum(attribute='total') }}</div><div class="stat-lbl">Toplam Oturum</div></div>
+<div class="stat"><div class="stat-v">{{ students|length }}</div><div class="stat-l">Ogrenci</div></div>
+<div class="stat"><div class="stat-v">{{ students|sum(attribute='total') }}</div><div class="stat-l">Toplam Oturum</div></div>
 </div>
-
 <div class="card">
 <div class="card-title">➕ Ogrenci Ekle</div>
-<form method="POST" action="/admin/ogrenci-ekle">
-<div class="form-row">
-<div><label>Ad Soyad</label><input name="name" required placeholder="Ogrenci adi"></div>
-<div><label>Kullanici Adi</label><input name="username" required placeholder="giris_adi"></div>
-<div><label>Sifre</label><input name="password" required placeholder="****"></div>
+<form method="POST" action="/admin/ogrenci-ekle"><div class="form-row">
+<div><label>Ad Soyad</label><input name="name" required></div>
+<div><label>Kullanici</label><input name="username" required></div>
+<div><label>Sifre</label><input name="password" required></div>
 <div><label>Sinif</label><select name="sinif"><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option></select></div>
 <div><button type="submit" class="btn btn-p">Ekle</button></div>
-</div>
-</form>
-</div>
-
+</div></form></div>
 <div class="card">
 <div class="card-title">👥 Ogrenciler</div>
 {% if students %}
-<table>
-<tr><th>Ad</th><th>Sinif</th><th>Oturum</th><th>Son Dogruluk</th><th>Son WPM</th><th></th><th></th></tr>
+<table><tr><th>Ad</th><th>Sinif</th><th>Oturum</th><th>Son Dogruluk</th><th>Son WPM</th><th></th><th></th></tr>
 {% for s in students %}
 <tr>
-<td><strong>{{ s.user.name }}</strong><br><span style="font-size:10px;color:var(--muted)">@{{ s.user.username }}</span></td>
-<td>{{ s.user.sinif }}. sinif</td>
-<td>{{ s.total }}</td>
-<td>{% if s.last %}<span class="score {{ 's-ok' if s.last.dogruluk >= 95 else 's-warn' if s.last.dogruluk >= 70 else 's-bad' }}">%{{ s.last.dogruluk }}</span>{% else %}-{% endif %}</td>
+<td><b>{{ s.user.name }}</b><br><span style="font-size:9px;color:var(--m)">@{{ s.user.username }}</span></td>
+<td>{{ s.user.sinif }}</td><td>{{ s.total }}</td>
+<td>{% if s.last %}<span class="badge {{ 'b-ok' if s.last.dogruluk >= 95 else 'b-w' if s.last.dogruluk >= 70 else 'b-bad' }}">%{{ "%.0f"|format(s.last.dogruluk) }}</span>{% else %}-{% endif %}</td>
 <td>{% if s.last %}{{ s.last.wpm }}{% else %}-{% endif %}</td>
 <td><a href="/admin/ogrenci/{{ s.user.id }}">Detay →</a></td>
-<td><form method="POST" action="/admin/ogrenci-sil/{{ s.user.id }}" onsubmit="return confirm('Emin misin?')"><button type="submit" class="btn btn-d">Sil</button></form></td>
-</tr>
-{% endfor %}
-</table>
-{% else %}
-<p style="text-align:center;color:var(--muted);padding:20px">Henuz ogrenci yok. Yukaridaki formdan ekleyin.</p>
-{% endif %}
+<td><form method="POST" action="/admin/ogrenci-sil/{{ s.user.id }}" onsubmit="return confirm('Emin?')"><button type="submit" class="btn btn-d">Sil</button></form></td>
+</tr>{% endfor %}</table>
+{% else %}<p style="text-align:center;color:var(--m);padding:16px">Henuz ogrenci yok</p>{% endif %}
 </div>
 </main>
 </body>
