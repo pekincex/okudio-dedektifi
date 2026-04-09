@@ -218,7 +218,219 @@ def kelime_ses_analizi(wav_path, karsilastirma):
     return kelime_detay
 
 
-# ═══ PROZODİ (global) ═══
+# ═══ ARTİKÜLASYON HATA SINIFLANDIRMA ═══
+def hata_siniflandir(ref, stt):
+    """Kelime çiftini analiz edip hata tipini belirle"""
+    if not stt or stt.strip() == "":
+        return {"tip": "omisyon", "alt_tip": "kelime_atlama", "detay": "Kelime tamamen atlandı", "ses": "", "pozisyon": ""}
+    r = re.sub(r'[^\w]', '', ref).lower()
+    s = re.sub(r'[^\w]', '', stt).lower()
+    if r == s:
+        return {"tip": "dogru", "alt_tip": "", "detay": "", "ses": "", "pozisyon": ""}
+
+    # Metatez: aynı harfler, farklı sıra (toprak→torpak)
+    if sorted(r) == sorted(s) and r != s:
+        # Hangi pozisyonlar değişmiş
+        degisen = [(i, r[i], s[i]) for i in range(len(r)) if r[i] != s[i]]
+        return {"tip": "metatez", "alt_tip": "yer_degistirme", "detay": f"Harfler yer değiştirmiş: {'↔'.join([f'{d[1]}/{d[2]}' for d in degisen[:2]])}", "ses": "", "pozisyon": ""}
+
+    # Karakter bazlı hizalama
+    # Basit LCS ile farkları bul
+    degisimler = []
+    eksikler = []
+    fazlalar = []
+
+    # İki kelimeyi hizala
+    ri = 0; si = 0
+    while ri < len(r) and si < len(s):
+        if r[ri] == s[si]:
+            ri += 1; si += 1
+        elif ri + 1 < len(r) and r[ri + 1] == s[si]:
+            # ri'deki harf atlanmış (omisyon)
+            poz = "bas" if ri == 0 else "son" if ri == len(r) - 1 else "orta"
+            eksikler.append({"harf": r[ri], "poz": poz})
+            ri += 1
+        elif si + 1 < len(s) and r[ri] == s[si + 1]:
+            # si'de fazla harf var (ekleme)
+            fazlalar.append({"harf": s[si]})
+            si += 1
+        else:
+            # Substitüsyon
+            poz = "bas" if ri == 0 else "son" if ri == len(r) - 1 else "orta"
+            degisimler.append({"kaynak": r[ri], "hedef": s[si], "poz": poz})
+            ri += 1; si += 1
+
+    # Kalan eksikler
+    while ri < len(r):
+        poz = "son" if ri == len(r) - 1 else "orta"
+        eksikler.append({"harf": r[ri], "poz": poz})
+        ri += 1
+    while si < len(s):
+        fazlalar.append({"harf": s[si]})
+        si += 1
+
+    # En belirgin hata tipini seç
+    if degisimler:
+        d = degisimler[0]
+        return {"tip": "substitusyon", "alt_tip": "ses_degistirme", "detay": f"'{d['kaynak']}' yerine '{d['hedef']}' ({'başta' if d['poz']=='bas' else 'ortada' if d['poz']=='orta' else 'sonda'})", "ses": f"{d['kaynak']}→{d['hedef']}", "pozisyon": d["poz"]}
+    elif eksikler:
+        e = eksikler[0]
+        return {"tip": "omisyon", "alt_tip": "ses_dusurme", "detay": f"'{e['harf']}' sesi düşürülmüş ({'başta' if e['poz']=='bas' else 'ortada' if e['poz']=='orta' else 'sonda'})", "ses": f"-{e['harf']}", "pozisyon": e["poz"]}
+    elif fazlalar:
+        f = fazlalar[0]
+        return {"tip": "ekleme", "alt_tip": "ses_ekleme", "detay": f"'{f['harf']}' sesi eklenmiş", "ses": f"+{f['harf']}", "pozisyon": ""}
+    else:
+        return {"tip": "belirsiz", "alt_tip": "", "detay": f"{r} → {s}", "ses": "", "pozisyon": ""}
+
+
+def hatalari_siniflandir(karsilastirma):
+    """Tüm hatalı kelimeleri sınıflandır"""
+    hatalar = []
+    for k in karsilastirma["kelimeler"]:
+        if k["durum"] == "dogru":
+            continue
+        sinif = hata_siniflandir(k["kelime"], k.get("stt", ""))
+        hatalar.append({**sinif, "kelime": k["kelime"], "okunan": k.get("stt", ""), "conf": k.get("conf", 0)})
+    return hatalar
+
+
+# ═══ TEKRARLAYAN HATA PATTERN TESPİTİ ═══
+def pattern_tespit(hata_listesi, gecmis_hatalar=None):
+    """Tekrarlayan hata kalıplarını tespit et"""
+    tip_sayac = {}
+    ses_sayac = {}
+    poz_sayac = {"bas": 0, "orta": 0, "son": 0}
+    alt_tip_sayac = {}
+
+    tum_hatalar = hata_listesi + (gecmis_hatalar or [])
+
+    for h in tum_hatalar:
+        tip = h.get("tip", "")
+        if tip and tip != "dogru":
+            tip_sayac[tip] = tip_sayac.get(tip, 0) + 1
+
+        at = h.get("alt_tip", "")
+        if at:
+            alt_tip_sayac[at] = alt_tip_sayac.get(at, 0) + 1
+
+        ses = h.get("ses", "")
+        if ses:
+            ses_sayac[ses] = ses_sayac.get(ses, 0) + 1
+
+        poz = h.get("pozisyon", "")
+        if poz in poz_sayac:
+            poz_sayac[poz] += 1
+
+    # Pattern'leri belirle
+    patterns = []
+
+    # Baskın hata tipi
+    if tip_sayac:
+        en_sik_tip = max(tip_sayac, key=tip_sayac.get)
+        if tip_sayac[en_sik_tip] >= 2:
+            tip_aciklama = {"substitusyon": "Ses değiştirme", "omisyon": "Ses düşürme", "metatez": "Harf karıştırma", "ekleme": "Ses ekleme"}
+            patterns.append({"pattern": "baskin_hata", "tip": en_sik_tip, "aciklama": f"{tip_aciklama.get(en_sik_tip, en_sik_tip)} hatası baskın ({tip_sayac[en_sik_tip]} kez)", "onem": "yuksek"})
+
+    # Tekrarlayan ses değişimleri
+    for ses, sayi in ses_sayac.items():
+        if sayi >= 2 and "→" in ses:
+            k, h = ses.split("→")
+            patterns.append({"pattern": "tekrar_ses", "tip": "substitusyon", "aciklama": f"'{k}' sesini sürekli '{h}' olarak okuyor ({sayi} kez)", "onem": "yuksek", "ses": ses})
+
+    # Pozisyon pattern'i
+    toplam_poz = sum(poz_sayac.values())
+    if toplam_poz >= 3:
+        en_sik_poz = max(poz_sayac, key=poz_sayac.get)
+        if poz_sayac[en_sik_poz] >= toplam_poz * 0.6:
+            poz_ad = {"bas": "kelimenin başındaki", "orta": "kelimenin ortasındaki", "son": "kelimenin sonundaki"}
+            patterns.append({"pattern": "pozisyon", "tip": "pozisyon", "aciklama": f"Hatalar genellikle {poz_ad.get(en_sik_poz, '')} seslerde yoğunlaşıyor", "onem": "orta"})
+
+    return {"tip_dagilimi": tip_sayac, "ses_degisim": ses_sayac, "pozisyon": poz_sayac, "patterns": patterns, "toplam_hata": len(hata_listesi)}
+
+
+# ═══ PEDAGOJİK ÖNERİ MOTORU ═══
+def pedagojik_oneri_uret(patterns, hata_listesi):
+    """Hata pattern'lerine göre spesifik egzersiz önerileri"""
+    oneriler = []
+    tip_dag = patterns.get("tip_dagilimi", {})
+
+    if tip_dag.get("substitusyon", 0) >= 1:
+        # Hangi sesler karıştırılıyor?
+        ses_ornekler = []
+        for ses, sayi in patterns.get("ses_degisim", {}).items():
+            if "→" in ses:
+                k, h = ses.split("→")
+                ses_ornekler.append(f"'{k}' ve '{h}'")
+        oneriler.append({
+            "baslik": "🎯 Minimal Çiftler Terapisi",
+            "aciklama": "Karıştırılan seslerin anlam farkı yarattığını oyunla gösterin. Görsel kartlarla eşleştirme yapın.",
+            "ornek": f"Karıştırılan sesler: {', '.join(ses_ornekler[:3]) if ses_ornekler else 'belirlenecek'}. Örnek: kar/tar, kaz/yaz, bal/val",
+            "hedef": "Seslerin birbirinden farkını ayırt etme",
+            "tip": "substitusyon", "icon": "🔄"
+        })
+        oneriler.append({
+            "baslik": "🪞 Ayna Egzersizi",
+            "aciklama": "Çocuk ayna karşısında doğru ağız pozisyonunu taklit etsin. Dudak, dil, diş pozisyonunu gösterin.",
+            "ornek": "Terapistin dudak hareketlerini yavaş çekimde taklit etme",
+            "hedef": "Doğru ses üretimi için motor beceri geliştirme",
+            "tip": "substitusyon", "icon": "🪞"
+        })
+
+    if tip_dag.get("omisyon", 0) >= 1:
+        oneriler.append({
+            "baslik": "🤖 Robot Okuma (Heceleme)",
+            "aciklama": "Kelimeleri robot gibi hecelerine ayırın, sonra normal hızda birleştirin.",
+            "ornek": "por-ta-kal → portakal, ke-le-bek → kelebek",
+            "hedef": "Her heceyi fark etme ve atlamamayı öğrenme",
+            "tip": "omisyon", "icon": "🤖"
+        })
+        oneriler.append({
+            "baslik": "👏 Alkışla Hecele",
+            "aciklama": "Her hece için bir alkış. Çocuk kelimenin kaç heceden oluştuğunu fiziksel olarak hissetsin.",
+            "ornek": "Ma-sa (2 alkış), Ö-ğret-men (3 alkış)",
+            "hedef": "Hece farkındalığı geliştirme",
+            "tip": "omisyon", "icon": "👏"
+        })
+
+    if tip_dag.get("metatez", 0) >= 1:
+        oneriler.append({
+            "baslik": "🧩 Harf Dizme Oyunu",
+            "aciklama": "Mıknatıslı harflerle kelimeyi doğru sıraya dizme oyunu oynayın.",
+            "ornek": "T-O-P-R-A-K harflerini karıştırıp doğru sıraya koyma",
+            "hedef": "Kelime içi ses sıralamasını pekiştirme",
+            "tip": "metatez", "icon": "🧩"
+        })
+
+    if tip_dag.get("ekleme", 0) >= 1:
+        oneriler.append({
+            "baslik": "✂️ Fazla Sesi Bul",
+            "aciklama": "Kelimeyi yavaş söyleyip her sesi parmakla sayma. Fazla ses var mı kontrol etme.",
+            "ornek": "'maasa' mı 'masa' mı? Parmakla say: m-a-s-a = 4 ses",
+            "hedef": "Doğru ses sayısı farkındalığı",
+            "tip": "ekleme", "icon": "✂️"
+        })
+
+    # Pozisyon bazlı öneriler
+    for p in patterns.get("patterns", []):
+        if p["pattern"] == "pozisyon":
+            oneriler.append({
+                "baslik": "📍 Pozisyon Odaklı Çalışma",
+                "aciklama": p["aciklama"] + ". Bu pozisyondaki seslere özel dikkat edin.",
+                "ornek": "Kelimenin başını/ortasını/sonunu vurgulayarak okuma",
+                "hedef": "Zayıf pozisyondaki sesleri güçlendirme",
+                "tip": "pozisyon", "icon": "📍"
+            })
+
+    # Genel öneriler her zaman
+    oneriler.append({
+        "baslik": "📖 Tekrarlı Okuma",
+        "aciklama": "Aynı metni 3 kez okuyun. Her seferinde akıcılık ve doğruluk artar.",
+        "ornek": "1. okuma: tanıma, 2. okuma: akıcılık, 3. okuma: prozodi",
+        "hedef": "Otomatik kelime tanıma geliştirme",
+        "tip": "genel", "icon": "📖"
+    })
+
+    return oneriler
 def prozodi_analiz(wav_path):
     import parselmouth,librosa
     ses=parselmouth.Sound(wav_path);ts=ses.get_total_duration()
@@ -400,6 +612,20 @@ def analiz():
             hl=list(set([k["kelime"] for k in kar["kelimeler"] if k["durum"]!="dogru"]))
             tam=kar["dogruluk_yuzdesi"]>=95
 
+            # K6: Artikülasyon hata sınıflandırma
+            print("  Hata siniflandirma...")
+            hatalar=hatalari_siniflandir(kar)
+            print(f"  {len(hatalar)} hata siniflandirildi")
+
+            # K7: Pattern tespiti
+            print("  Pattern tespiti...")
+            patterns=pattern_tespit(hatalar)
+            print(f"  {len(patterns['patterns'])} pattern bulundu")
+
+            # K8: Pedagojik öneri
+            ped_oneriler=pedagojik_oneri_uret(patterns, hatalar)
+            print(f"  {len(ped_oneriler)} oneri uretildi")
+
             # Radar data
             sr=SINIF_REF.get(current_user.sinif,SINIF_REF["2"])
             wpm=rp.get("wpm",0)
@@ -409,7 +635,7 @@ def analiz():
             sess=ReadingSession(user_id=current_user.id,asama=asama,referans_metin=rm,transkript=tr,dogruluk=kar["dogruluk_yuzdesi"],akicilik=rp.get("akicilik_skoru",0),prozodi=rp.get("prozodi_skoru",0),genel_skor=rp.get("genel_skor",0),wpm=wpm,hatali_json=json.dumps(hl,ensure_ascii=False),rapor_json=json.dumps(rp,ensure_ascii=False),radar_json=json.dumps(radar),tamamlandi=tam)
             db.session.add(sess);db.session.commit()
 
-            return jsonify({"basarili":True,"ogrenci_adi":current_user.name,"sinif":current_user.sinif,"asama":asama,"referans_metin":rm,"transkript":tr,"karsilastirma":kar,"kelime_detay":kd,"prozodi":pz,"rapor":rp,"radar":radar,"hatali_liste":hl,"tamamlandi":tam})
+            return jsonify({"basarili":True,"ogrenci_adi":current_user.name,"sinif":current_user.sinif,"asama":asama,"referans_metin":rm,"transkript":tr,"karsilastirma":kar,"kelime_detay":kd,"prozodi":pz,"rapor":rp,"radar":radar,"hatali_liste":hl,"tamamlandi":tam,"hatalar":hatalar,"patterns":patterns,"ped_oneriler":ped_oneriler})
         finally:
             if os.path.exists(tp):os.unlink(tp)
             if os.path.exists(wp):os.unlink(wp)
