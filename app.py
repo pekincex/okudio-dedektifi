@@ -1,5 +1,5 @@
 """
-Okudio Okuma Dedektifi — Faz 1
+Okudio Okuma Dedektifi — Faz 2 (Adaptif)
 Google Cloud STT + Parselmouth + Claude
 """
 from pydub import AudioSegment
@@ -25,67 +25,35 @@ SINIF_REF = {
 def temizle(metin):
     return re.sub(r'[^\w\s]', '', metin).lower().strip()
 
-
-# ─── GOOGLE CLOUD STT ───
 def google_stt_analiz(ses_dosya_yolu):
-    """Google Cloud STT ile kelime bazlı confidence skoru al"""
     with open(ses_dosya_yolu, "rb") as f:
         audio_b64 = base64.b64encode(f.read()).decode("utf-8")
-
     payload = {
         "config": {
-            "encoding": "LINEAR16",
-            "sampleRateHertz": 16000,
-            "languageCode": "tr-TR",
-            "enableWordTimeOffsets": True,
-            "enableWordConfidence": True,
-            "model": "default",
-            "useEnhanced": True
+            "encoding": "LINEAR16", "sampleRateHertz": 16000, "languageCode": "tr-TR",
+            "enableWordTimeOffsets": True, "enableWordConfidence": True, "model": "default", "useEnhanced": True
         },
         "audio": {"content": audio_b64}
     }
-
-    url = f"https://speech.googleapis.com/v1p1beta1/speech:recognize?key={GOOGLE_API_KEY}"
-    print(f"  Google STT çağrılıyor...")
-    resp = requests.post(url, json=payload, timeout=120)
+    resp = requests.post(f"https://speech.googleapis.com/v1p1beta1/speech:recognize?key={GOOGLE_API_KEY}", json=payload, timeout=120)
     data = resp.json()
-
     if "error" in data:
-        print(f"  Google STT HATA: {data['error']}")
-        return "", []
-
+        print(f"  STT HATA: {data['error']}"); return "", []
     if "results" not in data:
-        print(f"  Google STT: sonuç yok")
         return "", []
-
-    transkript = ""
-    kelimeler = []
-
+    transkript = ""; kelimeler = []
     for result in data["results"]:
         alt = result["alternatives"][0]
         transkript += alt.get("transcript", "") + " "
-
         for w in alt.get("words", []):
             start = w.get("startTime", "0s").replace("s", "")
             end = w.get("endTime", "0s").replace("s", "")
-            kelimeler.append({
-                "kelime": w["word"],
-                "baslangic": round(float(start), 2),
-                "bitis": round(float(end), 2),
-                "confidence": round(w.get("confidence", 0), 3)
-            })
-
-    print(f"  STT: {transkript[:80]}...")
-    print(f"  {len(kelimeler)} kelime, ort confidence: {np.mean([k['confidence'] for k in kelimeler]):.2f}" if kelimeler else "  Kelime yok")
+            kelimeler.append({"kelime": w["word"], "baslangic": round(float(start), 2), "bitis": round(float(end), 2), "confidence": round(w.get("confidence", 0), 3)})
     return transkript.strip(), kelimeler
 
-
-# ─── KELIME KARSILASTIRMA (sunucu tarafı, confidence bazlı) ───
 def kelime_karsilastir(referans_metin, stt_kelimeler):
-    """Referans metni Google STT kelimeleriyle sırasal karşılaştır"""
     ref_words = re.sub(r'[^\w\s]', '', referans_metin).lower().split()
     stt_words = [{"kelime_temiz": re.sub(r'[^\w\s]', '', k["kelime"]).lower(), **k} for k in stt_kelimeler]
-
     def lev_sim(a, b):
         if a == b: return 1.0
         if not a or not b: return 0.0
@@ -96,49 +64,27 @@ def kelime_karsilastir(referans_metin, stt_kelimeler):
             for j in range(1, len(b)+1):
                 m[i][j] = m[i-1][j-1] if a[i-1]==b[j-1] else min(m[i-1][j-1],m[i][j-1],m[i-1][j])+1
         return (max(len(a),len(b))-m[len(a)][len(b)])/max(len(a),len(b))
-
-    sonuc = []
-    stt_idx = 0
-
+    sonuc = []; stt_idx = 0
     for ref_w in ref_words:
-        best_sim = 0
-        best_j = -1
-        best_conf = 0
-        search_end = min(len(stt_words), stt_idx + 8)
-
+        best_sim = 0; best_j = -1; best_conf = 0
+        search_end = min(len(stt_words), stt_idx + 15)
         for j in range(stt_idx, search_end):
             s = lev_sim(ref_w, stt_words[j]["kelime_temiz"])
-            if s > best_sim:
-                best_sim = s
-                best_j = j
-                best_conf = stt_words[j]["confidence"]
-
-        if best_sim >= 0.95 and best_conf >= 0.8:
-            sonuc.append({"kelime": ref_w, "durum": "dogru", "confidence": best_conf, "stt": stt_words[best_j]["kelime"] if best_j >= 0 else ""})
+            if s > best_sim: best_sim = s; best_j = j; best_conf = stt_words[j]["confidence"]
+        if best_sim >= 0.85 and best_conf >= 0.5:
+            sonuc.append({"kelime": ref_w, "durum": "dogru", "confidence": best_conf, "stt": stt_words[best_j]["kelime"]})
             stt_idx = best_j + 1
-        elif best_sim >= 0.5:
-            sonuc.append({"kelime": ref_w, "durum": "hatali", "confidence": best_conf, "stt": stt_words[best_j]["kelime"] if best_j >= 0 else ""})
+        elif best_sim >= 0.4:
+            sonuc.append({"kelime": ref_w, "durum": "hatali", "confidence": best_conf, "stt": stt_words[best_j]["kelime"]})
             stt_idx = best_j + 1
         else:
             sonuc.append({"kelime": ref_w, "durum": "atlanmis", "confidence": 0, "stt": ""})
-
     dogru = sum(1 for s in sonuc if s["durum"] == "dogru")
     hatali = sum(1 for s in sonuc if s["durum"] == "hatali")
     atlanmis = sum(1 for s in sonuc if s["durum"] == "atlanmis")
     toplam = len(ref_words)
-    dogruluk = round(dogru / toplam * 100, 1) if toplam > 0 else 0
+    return {"kelimeler": sonuc, "toplam": toplam, "dogru": dogru, "hatali": hatali, "atlanmis": atlanmis, "dogruluk_yuzdesi": round(dogru / toplam * 100, 1) if toplam > 0 else 0}
 
-    return {
-        "kelimeler": sonuc,
-        "toplam": toplam,
-        "dogru": dogru,
-        "hatali": hatali,
-        "atlanmis": atlanmis,
-        "dogruluk_yuzdesi": dogruluk
-    }
-
-
-# ─── PROZODİ (Parselmouth) ───
 def prozodi_analiz(ses_dosya_yolu):
     import parselmouth, librosa
     ses = parselmouth.Sound(ses_dosya_yolu)
@@ -159,155 +105,111 @@ def prozodi_analiz(ses_dosya_yolu):
         ks += (k[1]-k[0])/sr
         if i > 0:
             ds = k[0]/sr - sk[i-1][1]/sr
-            if ds > 0.15:
-                duraksamalar.append(round(ds*1000,0))
-                if ds > 1.0: uzun += 1
+            if ds > 0.15: duraksamalar.append(round(ds*1000,0)); uzun += 1 if ds > 1.0 else 0
     ss = toplam_sure - ks; so = (ss/toplam_sure)*100 if toplam_sure>0 else 0
     return {"pitch": pitch_data, "enerji": enerji_data, "sure": {"toplam_sn": round(toplam_sure,1), "konusma_sn": round(ks,1), "sessizlik_sn": round(ss,1), "sessizlik_orani": round(so,1), "duraksama_sayisi": len(duraksamalar), "uzun_duraksama": uzun, "akicilik": "Akici" if so<20 else "Normal" if so<35 else "Kesik kesik"}}
 
-
-# ─── CLAUDE PEDAGOJİK ANALİZ ───
-def claude_analiz(referans_metin, karsilastirma, prozodi, sinif, ogrenci_adi):
+def claude_analiz(referans_metin, karsilastirma, prozodi, sinif, ogrenci_adi, asama=1):
     import anthropic
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
     sr = SINIF_REF.get(sinif, SINIF_REF["2"])
-
     hatali_kelimeler = [k for k in karsilastirma["kelimeler"] if k["durum"] != "dogru"]
     hatali_str = ", ".join([f"{k['kelime']}(okunan:{k['stt']}, conf:{k['confidence']})" for k in hatali_kelimeler[:15]])
+    prompt = f"""{sinif}. sinif "{ogrenci_adi}" sesli okuma yapti (Asama {asama}).
 
-    prompt = f"""{sinif}. sinif ogrencisi "{ogrenci_adi}" sesli okuma yapti.
-
-SONUCLAR:
-- Toplam: {karsilastirma['toplam']} kelime
-- Dogru: {karsilastirma['dogru']}, Hatali: {karsilastirma['hatali']}, Atlanan: {karsilastirma['atlanmis']}
-- Dogruluk: %{karsilastirma['dogruluk_yuzdesi']}
-- Hatali kelimeler: {hatali_str or 'Yok'}
-
+SONUCLAR: Toplam:{karsilastirma['toplam']}, Dogru:{karsilastirma['dogru']}, Hatali:{karsilastirma['hatali']}, Atlanan:{karsilastirma['atlanmis']}, Dogruluk:%{karsilastirma['dogruluk_yuzdesi']}
+Hatalilar: {hatali_str or 'Yok'}
 AKUSTIK: Pitch {prozodi['pitch']['ortalama_hz']}Hz std:{prozodi['pitch']['std_hz']}Hz ({prozodi['pitch']['monotonluk']}), Enerji {prozodi['enerji']['std_db']}dB ({prozodi['enerji']['vurgu_durumu']}), Sure {prozodi['sure']['toplam_sn']}sn, Sessizlik %{prozodi['sure']['sessizlik_orani']}, Duraksama {prozodi['sure']['duraksama_sayisi']}({prozodi['sure']['uzun_duraksama']}uzun)
-
-SINIF REF: WPM:{sr['wpm_min']}-{sr['wpm_max']}, dogruluk min:%{sr['dogruluk_min']}
-
-Hesapla: WPM = {karsilastirma['dogru']} x 60 / {prozodi['sure']['konusma_sn']}
+REF: WPM:{sr['wpm_min']}-{sr['wpm_max']}, min dogruluk:%{sr['dogruluk_min']}
+WPM hesapla: {karsilastirma['dogru']}x60/{prozodi['sure']['konusma_sn']}
 
 SADECE JSON:
 {{
-  "genel_skor":0-100, "akicilik_skoru":0-100, "prozodi_skoru":0-100,
-  "seviye":"Baslangic/Gelisen/Yeterli/Ileri", "wpm":sayi,
+  "genel_skor":0-100,"akicilik_skoru":0-100,"prozodi_skoru":0-100,
+  "seviye":"Baslangic/Gelisen/Yeterli/Ileri","wpm":sayi,
   "kaba_degerlendirme":{{"toplam":{karsilastirma['toplam']},"dogru":{karsilastirma['dogru']},"yanlis":{karsilastirma['hatali']},"atlanan":{karsilastirma['atlanmis']},"wpm":sayi}},
   "prozodik_olcek":[{{"madde":"Duygu yansitma","puan":0-4}},{{"madde":"Konusma dili","puan":0-4}},{{"madde":"Vurgu tonlama","puan":0-4}},{{"madde":"Noktalama uyumu","puan":0-4}},{{"madde":"Anlam vurgusu","puan":0-4}},{{"madde":"Uygun bekleme","puan":0-4}},{{"madde":"Akici okuma","puan":0-4}},{{"madde":"Anlamli gruplama","puan":0-4}}],
   "prozodik_toplam":0-32,
-  "akicilik_ozeti":"1-2 cumle", "prozodi_ozeti":"1-2 cumle",
+  "akicilik_ozeti":"1-2 cumle","prozodi_ozeti":"1-2 cumle",
   "hatali_kelimeler":[{{"kelime":"x","okunan":"y","dogru_telaffuz":"he-ce","anlami":"kisa","hata_turu":"substitusyon/omisyon/metatez"}}],
-  "guclu_yonler":["2 madde"], "gelisim_alanlari":["2 madde"],
+  "guclu_yonler":["2 madde"],"gelisim_alanlari":["2 madde"],
   "oneriler":["ogretmene 1","veliye 1","cocuga 1"]
 }}"""
-
     response = client.messages.create(model="claude-sonnet-4-20250514", max_tokens=2500, messages=[{"role": "user", "content": prompt}])
     raw = response.content[0].text.strip()
     if raw.startswith("```json"): raw = raw[7:]
     if raw.startswith("```"): raw = raw[3:]
     if raw.endswith("```"): raw = raw[:-3]
-    try:
-        return json.loads(raw.strip())
+    try: return json.loads(raw.strip())
     except Exception as e:
-        print(f"  JSON HATASI: {e}\n  HAM: {raw[:300]}")
-        return {"hata": "Parse hatasi"}
+        print(f"  JSON HATASI: {e}\n  HAM: {raw[:300]}"); return {"hata": "Parse hatasi"}
 
 
-# ─── ROUTES ───
 @app.route('/')
-def index():
-    return render_template('index.html')
-
+def index(): return render_template('index.html')
 
 @app.route('/metin-olustur', methods=['POST'])
 def metin_olustur():
-    """Sınıf seviyesine uygun okuma metni üret"""
     import anthropic
     sinif = request.json.get('sinif', '2')
     sr = SINIF_REF.get(sinif, SINIF_REF["2"])
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+    response = client.messages.create(model="claude-sonnet-4-20250514", max_tokens=500, messages=[{"role": "user", "content": f"""{sinif}. sinif seviyesinde Turkce okuma metni yaz. {sr['kelime_sayisi']} kelime. Cocuklara uygun ilgi cekici konu (hayvanlar, doga, macera, bilim, uzay, dostluk vb). Her seferinde FARKLI konu. Sadece metni yaz."""}])
+    return jsonify({"metin": response.content[0].text.strip()})
 
-    response = client.messages.create(
-        model="claude-sonnet-4-20250514",
-        max_tokens=500,
-        messages=[{"role": "user", "content": f"""{sinif}. sinif seviyesinde Turkce okuma metni yaz.
-- {sr['kelime_sayisi']} kelime arasi olsun.
-- Cocuklara uygun, ilgi cekici bir konu sec (hayvanlar, doga, macera, bilim, uzay, deniz, dostluk vb).
-- Her seferinde FARKLI bir konu sec.
-- Basit ve anlasilir cumleler kur.
-- Sadece metni yaz, baslik veya aciklama ekleme."""}]
-    )
-
-    metin = response.content[0].text.strip()
-    return jsonify({"metin": metin})
-
+@app.route('/asama-metin', methods=['POST'])
+def asama_metin():
+    """Hatali kelimelerden yeni metin olustur"""
+    import anthropic
+    sinif = request.json.get('sinif', '2')
+    hatali = request.json.get('hatali_kelimeler', [])
+    asama = request.json.get('asama', 2)
+    sr = SINIF_REF.get(sinif, SINIF_REF["2"])
+    kelime_listesi = ", ".join(hatali[:10])
+    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+    response = client.messages.create(model="claude-sonnet-4-20250514", max_tokens=500, messages=[{"role": "user", "content": f"""{sinif}. sinif seviyesinde Turkce okuma metni yaz.
+Bu metin MUTLAKA su kelimeleri icersin: {kelime_listesi}
+Bu kelimeler cocugun onceki okumada zorlandigi kelimeler. Metinde bu kelimeleri dogal sekilde kullan.
+{sr['kelime_sayisi']} kelime arasi. Sadece metni yaz, aciklama ekleme."""}])
+    return jsonify({"metin": response.content[0].text.strip()})
 
 @app.route('/analiz', methods=['POST'])
 def analiz():
     try:
-        if 'ses_dosyasi' not in request.files:
-            return jsonify({"hata": "Ses dosyasi yuklenmedi"}), 400
+        if 'ses_dosyasi' not in request.files: return jsonify({"hata": "Ses dosyasi yuklenmedi"}), 400
         sf = request.files['ses_dosyasi']
         rm = request.form.get('referans_metin', '').strip()
         ogrenci_adi = request.form.get('ogrenci_adi', '').strip() or 'Belirtilmedi'
         sinif = request.form.get('sinif', '2').strip()
-
+        asama = int(request.form.get('asama', '1'))
         if not rm: return jsonify({"hata": "Referans metin girilmedi"}), 400
-        if sf.filename == '': return jsonify({"hata": "Dosya secilmedi"}), 400
-
         sx = os.path.splitext(sf.filename)[1] or '.wav'
-        with tempfile.NamedTemporaryFile(delete=False, suffix=sx) as tmp:
-            sf.save(tmp.name); tp = tmp.name
+        with tempfile.NamedTemporaryFile(delete=False, suffix=sx) as tmp: sf.save(tmp.name); tp = tmp.name
         wp = tp + "_c.wav"
-
         try:
-            # WAV'a çevir (16kHz mono — Google STT için)
             AudioSegment.from_file(tp).set_frame_rate(16000).set_channels(1).set_sample_width(2).export(wp, format="wav")
-
-            # K1: Google STT
-            print(f"\n  === {ogrenci_adi} ({sinif}. sinif) ===")
-            print("  K1: Google STT...")
-            transkript, stt_kelimeler = google_stt_analiz(wp)
-
+            print(f"\n  === {ogrenci_adi} ({sinif}. sinif) Asama {asama} ===")
+            print("  K1: Google STT..."); transkript, stt_kelimeler = google_stt_analiz(wp)
             if not transkript or len(stt_kelimeler) < 3:
-                return jsonify({"basarili": False, "yeniden_kayit": True, "sebep": "Ses kaydindan konusma algilanamadi."})
-
-            # K2: Kelime karşılaştırma
-            print("  K2: Karsilastirma...")
-            karsilastirma = kelime_karsilastir(rm, stt_kelimeler)
-            print(f"  Dogruluk: %{karsilastirma['dogruluk_yuzdesi']} ({karsilastirma['dogru']}/{karsilastirma['toplam']})")
-
-            # K3: Prozodi
-            print("  K3: Prozodi...")
-            pz = prozodi_analiz(wp)
-            print(f"  Pitch: {pz['pitch']['ortalama_hz']}Hz, Akicilik: {pz['sure']['akicilik']}")
-
-            # K4: Claude
-            print("  K4: Claude...")
-            rapor = claude_analiz(rm, karsilastirma, pz, sinif, ogrenci_adi)
-            print("  OK!")
-
+                return jsonify({"basarili": False, "yeniden_kayit": True, "sebep": "Konusma algilanamadi."})
+            print("  K2: Karsilastirma..."); karsilastirma = kelime_karsilastir(rm, stt_kelimeler)
+            print(f"  Dogruluk: %{karsilastirma['dogruluk_yuzdesi']}")
+            print("  K3: Prozodi..."); pz = prozodi_analiz(wp)
+            print("  K4: Claude..."); rapor = claude_analiz(rm, karsilastirma, pz, sinif, ogrenci_adi, asama); print("  OK!")
+            # Hatali kelimeleri ayikla (sonraki asama icin)
+            hatali_liste = list(set([k["kelime"] for k in karsilastirma["kelimeler"] if k["durum"] != "dogru"]))
             return jsonify({
-                "basarili": True,
-                "ogrenci_adi": ogrenci_adi,
-                "sinif": sinif,
-                "referans_metin": rm,
-                "transkript": transkript,
-                "stt_kelimeler": stt_kelimeler,
-                "karsilastirma": karsilastirma,
-                "prozodi": pz,
-                "rapor": rapor
+                "basarili": True, "ogrenci_adi": ogrenci_adi, "sinif": sinif, "asama": asama,
+                "referans_metin": rm, "transkript": transkript, "stt_kelimeler": stt_kelimeler,
+                "karsilastirma": karsilastirma, "prozodi": pz, "rapor": rapor,
+                "hatali_liste": hatali_liste,
+                "tamamlandi": karsilastirma["dogruluk_yuzdesi"] >= 95
             })
-
         finally:
             if os.path.exists(tp): os.unlink(tp)
             if os.path.exists(wp): os.unlink(wp)
-
     except Exception as e:
-        import traceback; traceback.print_exc()
-        return jsonify({"hata": str(e)}), 500
-
+        import traceback; traceback.print_exc(); return jsonify({"hata": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, port=8080, host='0.0.0.0')
