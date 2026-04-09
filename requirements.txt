@@ -7,6 +7,7 @@ praat-parselmouth
 librosa
 numpy
 anthropic
+openai
 requests
 reportlab
 psycopg2-binary
