@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Rapor — {{ student.name }}</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F8F9FA;--s:#FFF;--a:#F1F3F5;--b:#DEE2E6;--t:#212529;--m:#868E96;--ac:#228BE6;--as:#E7F5FF;--ok:#2B8A3E;--ob:#EBFBEE;--w:#E67700;--wb:#FFF9DB;--bad:#C92A2A;--bb:#FFF5F5;--r:10px;--sh:0 1px 2px rgba(0,0,0,.05)}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t);font-size:13px;line-height:1.5}
+header{background:var(--s);border-bottom:1px solid var(--b);padding:10px 0}header .w{max-width:1000px;margin:0 auto;padding:0 16px;display:flex;align-items:center;gap:8px}
+a{color:var(--ac);text-decoration:none;font-weight:600;font-size:11px}
+main{max-width:1000px;margin:0 auto;padding:16px}
+.card{background:var(--s);border:1px solid var(--b);border-radius:var(--r);padding:14px;margin-bottom:10px;box-shadow:var(--sh)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}@media(max-width:700px){.g2,.g3{grid-template-columns:1fr}}
+.sec{background:var(--s);border:1px solid var(--b);border-radius:var(--r);box-shadow:var(--sh);margin-bottom:8px;overflow:hidden}.sec-h{padding:8px 12px;font-weight:600;font-size:11px;border-bottom:1px solid var(--b);background:var(--a)}.sec-b{padding:10px 12px}
+.donut-row{display:flex;justify-content:center;gap:16px;flex-wrap:wrap}.donut-item{text-align:center}.donut-label{font-size:8px;color:var(--m);text-transform:uppercase;margin-top:3px;font-weight:600}
+.lvl{display:inline-block;padding:3px 10px;border-radius:12px;font-weight:600;font-size:10px}
+.pb{margin-bottom:10px}.pb-h{display:flex;justify-content:space-between;font-size:10px;margin-bottom:2px;font-weight:600}.pb-bar{height:6px;background:var(--a);border-radius:3px;overflow:hidden}.pb-f{height:100%;border-radius:3px}.pb-t{font-size:9px;color:var(--m);margin-top:2px}
+.mt{width:100%;border-collapse:collapse;font-size:10px}.mt th{text-align:left;padding:4px 6px;background:var(--t);color:#fff;font-size:8px;text-transform:uppercase}.mt td{padding:4px 6px;border-bottom:1px solid var(--b)}.mt tr:nth-child(even){background:var(--a)}
+.po-bar{display:flex;gap:1px;align-items:center}.po-d{width:10px;height:10px;border-radius:2px;border:1px solid var(--b)}.po-d.on{border:none}
+.hk{padding:6px 8px;background:var(--a);border-radius:5px;margin-bottom:4px;border-left:2px solid var(--bad);font-size:10px}
+.il{list-style:none;padding:0}.il li{padding:4px 0 4px 14px;position:relative;font-size:11px;border-bottom:1px solid var(--b)}.il li:last-child{border:none}.il li::before{content:'';position:absolute;left:1px;top:9px;width:5px;height:5px;border-radius:50%}.il.g li::before{background:var(--ok)}.il.o li::before{background:var(--w)}.il.b li::before{background:var(--ac)}
+.spacer{flex:1}
+.info{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--m);margin-bottom:8px}.info b{color:var(--t)}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-weight:600;font-size:10px}.b-ok{background:var(--ob);color:var(--ok)}.b-w{background:var(--wb);color:var(--w)}
+.chip{display:inline-block;padding:2px 6px;background:var(--bb);color:var(--bad);border-radius:4px;font-size:10px;margin:2px}
+</style>
+</head>
+<body>
+<header><div class="w">📚 <b>Oturum Raporu</b><span class="spacer"></span><a href="/admin/ogrenci/{{ student.id }}">← {{ student.name }}</a></div></header>
+<main>
+<div class="card"><div class="info"><span>👤 <b>{{ student.name }}</b></span><span>{{ student.sinif }}. Sinif</span><span>📅 {{ sess.created_at.strftime('%d.%m.%Y %H:%M') }}</span><span>🔄 {{ sess.asama }}. Asama</span><span>{% if sess.tamamlandi %}<span class="badge b-ok">✅ Tamamlandi</span>{% else %}<span class="badge b-w">📖 Devam</span>{% endif %}</span></div></div>
+<div class="g2">
+<div class="sec"><div class="sec-h">📊 Performans</div><div class="sec-b"><div class="donut-row" id="donuts"></div><div style="text-align:center"><div class="lvl" id="lvl"></div></div></div></div>
+<div class="sec"><div class="sec-h">📝 Degerlendirme</div><div class="sec-b" id="ped"></div></div>
+</div>
+<div class="g2">
+<div class="sec"><div class="sec-h">📋 Kaba</div><div class="sec-b" id="kdb"></div></div>
+<div class="sec"><div class="sec-h">🎭 Prozodik</div><div class="sec-b" id="pob"></div></div>
+</div>
+<div class="sec"><div class="sec-h">🔍 Referans vs STT</div><div class="sec-b"><div class="g2"><div><div style="font-size:8px;font-weight:600;color:var(--m);margin-bottom:2px">REFERANS</div><div style="font-size:11px;line-height:1.6;padding:6px;background:var(--a);border-radius:5px">{{ sess.referans_metin or '-' }}</div></div><div><div style="font-size:8px;font-weight:600;color:var(--m);margin-bottom:2px">GOOGLE STT</div><div style="font-size:11px;line-height:1.6;padding:6px;background:var(--as);border-radius:5px">{{ sess.transkript or '-' }}</div></div></div></div></div>
+<div class="g2">
+<div class="sec"><div class="sec-h">📖 Hatali Kelimeler</div><div class="sec-b" id="hkb"></div></div>
+<div class="sec"><div class="sec-h">💡 Oneriler</div><div class="sec-b" id="onb"></div></div>
+</div>
+<div class="g3">
+<div class="sec"><div class="sec-h">💪 Guclu</div><div class="sec-b"><ul class="il g" id="gy"></ul></div></div>
+<div class="sec"><div class="sec-h">🎯 Gelisim</div><div class="sec-b"><ul class="il o" id="ga"></ul></div></div>
+<div class="sec"><div class="sec-h">⚠️ Zorlanilan</div><div class="sec-b" id="zk"></div></div>
+</div>
+</main>
+<script>
+var R={{ rapor|tojson }},H={{ hatali|tojson }};
+function dn(v,l,c){var p=Math.max(0,Math.min(100,v)),r=36,ci=2*Math.PI*r,d=ci*p/100;return '<div class="donut-item"><svg width="80" height="80" viewBox="0 0 100 100"><circle cx="50" cy="50" r="'+r+'" fill="none" stroke="#E9ECEF" stroke-width="6"/><circle cx="50" cy="50" r="'+r+'" fill="none" stroke="'+c+'" stroke-width="6" stroke-dasharray="'+d+' '+ci+'" stroke-linecap="round" transform="rotate(-90 50 50)"/></svg><div style="margin-top:-58px;position:relative;z-index:1"><div style="font-family:DM Serif Display;font-size:18px;color:'+c+'">'+v+'</div></div><div class="donut-label" style="position:relative;margin-top:22px">'+l+'</div></div>'}
+function gc(v){return v>=70?'#2B8A3E':v>=40?'#E67700':'#C92A2A'}
+function bc(v){return v>=70?'var(--ok)':v>=40?'var(--w)':'var(--bad)'}
+function rl(id,a){var e=document.getElementById(id);if(!e)return;e.innerHTML='';if(a&&a.length)a.forEach(function(i){e.innerHTML+='<li>'+i+'</li>'});else e.innerHTML='<li style="color:var(--m)">—</li>'}
+if(R&&!R.hata){
+var gs=R.genel_skor||0,ds={{ "%.0f"|format(sess.dogruluk) }},a2=R.akicilik_skoru||0,ps=R.prozodi_skoru||0;
+document.getElementById('donuts').innerHTML=dn(gs,'Genel',gc(gs))+dn(ds,'Dogruluk',ds>=95?'#2B8A3E':ds>=90?'#E67700':'#C92A2A')+dn(a2,'Akicilik',gc(a2))+dn(ps,'Prozodi',gc(ps));
+var lv=document.getElementById('lvl'),sv=(R.seviye||'').toLowerCase();lv.style.background=sv.indexOf('baslangic')>-1?'var(--bb)':sv.indexOf('yeterli')>-1||sv.indexOf('ileri')>-1?'var(--ob)':'var(--wb)';lv.style.color=sv.indexOf('baslangic')>-1?'var(--bad)':sv.indexOf('yeterli')>-1||sv.indexOf('ileri')>-1?'var(--ok)':'var(--w)';lv.textContent=(R.seviye||'')+(R.wpm?' · '+R.wpm+' k/dk':'');
+var ph='';[{l:'Akicilik',v:a2,t:R.ao||''},{l:'Prozodi',v:ps,t:R.po||''}].forEach(function(m){ph+='<div class="pb"><div class="pb-h"><span>'+m.l+'</span><span style="color:'+bc(m.v)+'">'+m.v+'</span></div><div class="pb-bar"><div class="pb-f" style="width:'+m.v+'%;background:'+bc(m.v)+'"></div></div><div class="pb-t">'+m.t+'</div></div>'});document.getElementById('ped').innerHTML=ph;
+var kd=R.kaba;if(kd)document.getElementById('kdb').innerHTML='<table class="mt"><tr><th>Metrik</th><th>Deger</th></tr><tr><td>Toplam</td><td><b>'+kd.toplam+'</b></td></tr><tr><td>Dogru</td><td><b style="color:var(--ok)">'+kd.dogru+'</b></td></tr><tr><td>Yanlis</td><td><b style="color:var(--bad)">'+kd.yanlis+'</b></td></tr><tr><td>Atlanan</td><td><b>'+kd.atlanan+'</b></td></tr><tr><td>WPM</td><td><b style="color:var(--ac)">'+kd.wpm+'</b></td></tr></table>';
+var po=R.prozodik_olcek;if(po&&po.length){var poh='<div style="margin-bottom:4px;font-size:11px"><b><span style="color:var(--ac);font-family:DM Serif Display">'+(R.pt||0)+'/32</span></b></div><table class="mt"><tr><th>Madde</th><th style="width:70px">Puan</th></tr>';po.forEach(function(m){var pn=m.p||0,cl=pn>=3?'var(--ok)':pn>=2?'var(--w)':'var(--bad)';var dots='';for(var i=0;i<4;i++)dots+='<span class="po-d'+(i<pn?' on':'')+'" style="'+(i<pn?'background:'+cl:'')+'">'+'</span>';poh+='<tr><td>'+(m.m||'')+'</td><td><div class="po-bar">'+dots+'<span style="margin-left:2px;font-weight:700;font-size:9px;color:'+cl+'">'+pn+'/4</span></div></td></tr>'});poh+='</table>';document.getElementById('pob').innerHTML=poh}
+var hk=R.hk||[];if(hk.length){var hh='';hk.forEach(function(h){hh+='<div class="hk"><b style="color:var(--bad)">'+(h.k||'')+'</b> → '+(h.o||'')+' <span style="color:var(--ok);font-weight:600">✓ '+(h.t||'')+'</span><br><span style="color:var(--m)">'+(h.a||'')+' · '+(h.ht||'')+'</span></div>'});document.getElementById('hkb').innerHTML=hh}else document.getElementById('hkb').innerHTML='<span style="color:var(--m)">Hata yok</span>';
+rl('gy',R.gy);rl('ga',R.ga);
+var oe=document.getElementById('onb');if(R.on&&R.on.length){var oh='<ul class="il b">';R.on.forEach(function(o){oh+='<li>'+o+'</li>'});oe.innerHTML=oh+'</ul>'}else oe.innerHTML='<span style="color:var(--m)">—</span>'}
+document.getElementById('zk').innerHTML=H&&H.length?H.map(function(k){return '<span class="chip">'+k+'</span>'}).join(' '):'<span style="color:var(--m)">—</span>';
+</script>
+</body>
+</html>
