@@ -41,6 +41,15 @@ textarea{width:100%;min-height:70px;border:1px solid var(--b);border-radius:var(
 .radar-wrap{display:flex;justify-content:center;padding:8px 0}
 /* Word analysis */
 .wa{display:flex;flex-wrap:wrap;gap:3px;padding:6px}.wa-w{padding:3px 5px;border-radius:4px;font-size:9px;position:relative;cursor:default}.wa-w.ok{background:#D3F9D8;color:#2B8A3E}.wa-w.err{background:#FFE3E3;color:#C92A2A}.wa-w.skip{background:#FFF3BF;color:#E67700}.wa-w.hece{border-bottom:2px solid var(--w)}.wa-w.yavas{border-bottom:2px solid var(--ac)}.wa-dur{font-size:7px;color:var(--m);display:block;text-align:center}
+/* Faz 4 */
+.art-card{padding:5px 7px;border-radius:4px;margin-bottom:3px;font-size:9px;display:flex;align-items:center;gap:6px;border-left:2px solid var(--b)}
+.art-card.sub{border-color:#845EF7;background:#F3F0FF}.art-card.omi{border-color:#E64980;background:#FFF0F6}.art-card.met{border-color:#F76707;background:#FFF4E6}.art-card.ekl{border-color:#228BE6;background:#E7F5FF}
+.art-tip{font-size:7px;font-weight:700;text-transform:uppercase;padding:1px 4px;border-radius:3px;color:#fff;flex-shrink:0}
+.art-tip.sub{background:#845EF7}.art-tip.omi{background:#E64980}.art-tip.met{background:#F76707}.art-tip.ekl{background:#228BE6}
+.pat-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:6px;font-size:9px;margin:2px;font-weight:600}
+.pat-badge.yuksek{background:#FFE3E3;color:#C92A2A}.pat-badge.orta{background:#FFF9DB;color:#E67700}
+.ped-card{background:var(--a);border-radius:6px;padding:8px 10px;margin-bottom:6px;border-left:3px solid var(--ac)}
+.ped-card h4{font-size:11px;margin-bottom:2px}.ped-card p{font-size:9px;color:var(--m);margin-bottom:1px}.ped-card .ornek{font-size:9px;color:var(--ac);font-style:italic}
 </style>
 </head>
 <body>
@@ -78,11 +87,17 @@ textarea{width:100%;min-height:70px;border:1px solid var(--b);border-radius:var(
 <!-- Metin -->
 <div class="sec"><div class="sec-h">🔍 STT</div><div class="sec-b"><div style="font-size:8px;color:var(--m);padding:4px;background:var(--as);border-radius:3px" id="sttx"></div></div></div>
 
-<!-- Hatali + Oneriler -->
+<!-- Hatali + Artikulasyon Analizi -->
 <div class="g2">
-<div class="sec" id="hks" style="display:none"><div class="sec-h">📖 Hatali</div><div class="sec-b" id="hkb"></div></div>
-<div class="sec"><div class="sec-h">💡 Oneriler</div><div class="sec-b"><ul class="il b" id="on"></ul></div></div>
+<div class="sec" id="hks" style="display:none"><div class="sec-h">📖 Hatali Kelimeler</div><div class="sec-b" id="hkb"></div></div>
+<div class="sec" id="artSec" style="display:none"><div class="sec-h">🔬 Artikülasyon Analizi</div><div class="sec-b" id="artBody"></div></div>
 </div>
+
+<!-- Pattern + Pedagojik Oneriler -->
+<div class="sec" id="patSec" style="display:none"><div class="sec-h">🧩 Hata Pattern'leri</div><div class="sec-b" id="patBody"></div></div>
+<div class="sec" id="pedSec" style="display:none"><div class="sec-h">🎓 Pedagojik Egzersiz Önerileri</div><div class="sec-b" id="pedBody"></div></div>
+
+<!-- Guclu + Gelisim -->
 <div class="g2">
 <div class="sec"><div class="sec-h">💪 Guclu</div><div class="sec-b"><ul class="il g" id="gy"></ul></div></div>
 <div class="sec"><div class="sec-h">🎯 Gelisim</div><div class="sec-b"><ul class="il o" id="ga"></ul></div></div>
@@ -169,9 +184,33 @@ function render(d){
     var wh='';kd.forEach(function(w){var cls=w.durum==='dogru'?'ok':w.durum==='hatali'?'err':'skip';if(w.anomali)cls+=' '+w.anomali;wh+='<div class="wa-w '+cls+'" title="'+(w.stt||'')+' '+w.sure_ms+'ms '+w.anomali+'">'+w.kelime+(w.sure_ms?'<span class="wa-dur">'+w.sure_ms+'ms</span>':'')+'</div>'});document.getElementById('waGrid').innerHTML=wh;
     // STT
     document.getElementById('sttx').innerHTML='<b>Google+Whisper:</b> '+(d.transkript||'-');
-    // Hatali
+    // Hatali (Claude)
     var hk=r.hk||[];if(hk.length){document.getElementById('hks').style.display='block';var hh='';hk.forEach(function(h){hh+='<div class="hk"><b style="color:var(--bad)">'+(h.k||'')+'</b> → '+(h.o||'')+' <span style="color:var(--ok)">✓'+(h.t||'')+'</span> <span style="color:var(--m)">'+(h.a||'')+' · '+(h.ht||'')+'</span></div>'});document.getElementById('hkb').innerHTML=hh}else{document.getElementById('hks').style.display='none'}
-    rl('gy',r.gy);rl('ga',r.ga);rl('on',r.on)
+
+    // Artikulasyon Analizi (Faz 4)
+    var hatalar=d.hatalar||[];
+    if(hatalar.length){document.getElementById('artSec').style.display='block';var ah='';
+    var tipCls={"substitusyon":"sub","omisyon":"omi","metatez":"met","ekleme":"ekl"};
+    var tipAd={"substitusyon":"Değiştirme","omisyon":"Düşürme","metatez":"Karıştırma","ekleme":"Ekleme"};
+    hatalar.forEach(function(h){var tc=tipCls[h.tip]||'';ah+='<div class="art-card '+tc+'"><span class="art-tip '+tc+'">'+(tipAd[h.tip]||h.tip)+'</span><b>'+h.kelime+'</b>'+(h.okunan?' → '+h.okunan:'')+'<span style="color:var(--m)">'+h.detay+'</span></div>'});
+    document.getElementById('artBody').innerHTML=ah}else{document.getElementById('artSec').style.display='none'}
+
+    // Pattern'ler (Faz 4)
+    var pat=d.patterns||{};
+    if(pat.patterns&&pat.patterns.length){document.getElementById('patSec').style.display='block';var ph2='';
+    // Tip dağılımı
+    var td=pat.tip_dagilimi||{};if(Object.keys(td).length){ph2+='<div style="margin-bottom:6px;font-size:9px;color:var(--m)">Hata dağılımı: ';for(var t in td){var tc2=tipCls[t]||'';ph2+='<span class="art-tip '+tc2+'" style="margin-right:3px">'+(tipAd[t]||t)+': '+td[t]+'</span>'};ph2+='</div>'}
+    // Pattern'ler
+    pat.patterns.forEach(function(p){ph2+='<div class="pat-badge '+p.onem+'">⚠️ '+p.aciklama+'</div> '});
+    document.getElementById('patBody').innerHTML=ph2}else{document.getElementById('patSec').style.display='none'}
+
+    // Pedagojik Egzersiz Onerileri (Faz 4)
+    var po2=d.ped_oneriler||[];
+    if(po2.length){document.getElementById('pedSec').style.display='block';var pedh='';
+    po2.forEach(function(o){pedh+='<div class="ped-card"><h4>'+(o.icon||'📝')+' '+o.baslik+'</h4><p>'+o.aciklama+'</p><div class="ornek">💡 '+o.ornek+'</div></div>'});
+    document.getElementById('pedBody').innerHTML=pedh}else{document.getElementById('pedSec').style.display='none'}
+
+    rl('gy',r.gy);rl('ga',r.ga)
 }
 function rl(id,a){var e=document.getElementById(id);e.innerHTML='';if(a&&a.length)a.forEach(function(i){e.innerHTML+='<li>'+i+'</li>'});else e.innerHTML='<li style="color:var(--m)">—</li>'}
 </script>
