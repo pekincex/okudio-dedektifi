@@ -27,12 +27,62 @@ login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
 SINIF_REF = {
-    "2": {"wpm_min":40,"wpm_max":60,"dogruluk_min":95,"kelime":60,"zorluk":"Cok basit, 4-6 kelimelik cumleler, gunluk kelimeler"},
-    "3": {"wpm_min":70,"wpm_max":90,"dogruluk_min":95,"kelime":70,"zorluk":"Basit, 6-8 kelimelik cumleler, sifatlar"},
-    "4": {"wpm_min":90,"wpm_max":110,"dogruluk_min":97,"kelime":80,"zorluk":"Orta, bilesik cumleler, 8-10 kelime"},
-    "5": {"wpm_min":110,"wpm_max":130,"dogruluk_min":98,"kelime":90,"zorluk":"Karisik cumleler, soyut kavramlar"},
-    "6": {"wpm_min":130,"wpm_max":145,"dogruluk_min":99,"kelime":100,"zorluk":"Uzun cumleler, akademik kelimeler"},
-    "7": {"wpm_min":145,"wpm_max":160,"dogruluk_min":99,"kelime":110,"zorluk":"Edebi dil, mecazlar"},
+    "2": {"wpm_min":40,"wpm_max":60,"dogruluk_min":95,"kelime":60,
+        "cumle_uzunluk":"4-6 kelime","yeni_kelime_orani":"%5",
+        "tema":"Hayvanlar, aile, okul, arkadaşlık, mevsimler",
+        "yapi":"Net giris-gelisme-sonuc. Tek karakter, tek problem. Kronolojik siralama.",
+        "kelime_turu":"Somut, günlük kelimeler. Eş anlamlı tekrarlar (sevinmek/mutlu olmak).",
+        "ipucu":"Her yeni kelime bağlamda açıklanmalı. Betimleyici sıfatlar: büyük, küçük, güzel.",
+        "zorluk":"Cok basit cumleler, tamamen bilinen kelimeler, %5 yeni kelime"},
+    "3": {"wpm_min":70,"wpm_max":90,"dogruluk_min":95,"kelime":70,
+        "cumle_uzunluk":"6-8 kelime","yeni_kelime_orani":"%7",
+        "tema":"Doğa olayları, hayvan yaşamları, duygusal maceralar, basit bilim",
+        "yapi":"Net hikaye haritası. Karakter motivasyonu belirgin. Basit diyaloglar.",
+        "kelime_turu":"Duygu kelimeleri (endişe, cesaret, merak). Doğa sıfatları (pürüzsüz, devasa).",
+        "ipucu":"Satır arası okuma fırsatı: 'Alt dudağı titredi' → üzgün çıkarımı. Sebep-sonuç.",
+        "zorluk":"Basit birleşik cümleler, %7 yeni kelime, duygu ve doğa kelimeleri"},
+    "4": {"wpm_min":90,"wpm_max":110,"dogruluk_min":97,"kelime":80,
+        "cumle_uzunluk":"8-10 kelime","yeni_kelime_orani":"%8",
+        "tema":"Buluşlar, keşifler, tarihsel maceralar, ekoloji, mizahi hikayeler",
+        "yapi":"Çoklu karakter. Problem-çözüm yapısı belirgin. Kısa paragraflar.",
+        "kelime_turu":"Akademik kelimeler (süreç, deney, gözlem). Mecazlar başlangıcı.",
+        "ipucu":"Karakter motivasyonu sorgulatıcı. 'Sence neden böyle yaptı?' düşündürücü.",
+        "zorluk":"Bileşik cümleler, diyaloglar, %8 yeni kelime, karşılaştırma yapıları"},
+    "5": {"wpm_min":110,"wpm_max":130,"dogruluk_min":98,"kelime":90,
+        "cumle_uzunluk":"10-12 kelime","yeni_kelime_orani":"%10",
+        "tema":"Bilim-kurgu, tarih, coğrafya, sosyal problemler, biyografiler",
+        "yapi":"Karmaşık olay örgüsü. Birden fazla problem. Çıkarım gerektiren boşluklar.",
+        "kelime_turu":"Soyut kavramlar (adalet, özgürlük, empati). Deyimler bağlamda.",
+        "ipucu":"Eş-zıt anlamlıların dansı: aynı kavram farklı kelimelerle tekrarlanmalı.",
+        "zorluk":"Karmaşık yapılar, soyut kelimeler, %10 yeni kelime, çıkarım gerektiren"},
+    "6": {"wpm_min":130,"wpm_max":145,"dogruluk_min":99,"kelime":100,
+        "cumle_uzunluk":"12-14 kelime","yeni_kelime_orani":"%10",
+        "tema":"Felsefi sorular, bilimsel keşifler, dünya kültürleri, çevre sorunları",
+        "yapi":"Çoklu bakış açısı. Belirsizlik içeren durumlar. Tartışmaya açık sonuçlar.",
+        "kelime_turu":"Akademik dil (hipotez, analiz, sentez). Mecaz ve deyimler bolca.",
+        "ipucu":"Ana fikir bulma ve karşılaştırma becerileri. Eleştirel düşünme.",
+        "zorluk":"Uzun birleşik cümleler, akademik dil, mecazlar, eleştirel düşünme"},
+    "7": {"wpm_min":145,"wpm_max":160,"dogruluk_min":99,"kelime":110,
+        "cumle_uzunluk":"14-16 kelime","yeni_kelime_orani":"%10",
+        "tema":"Edebi metinler, bilimsel makaleler, felsefi hikayeler, toplumsal konular",
+        "yapi":"Edebi dil. Betimleyici anlatım. İç monolog. Sembolik anlatım.",
+        "kelime_turu":"Edebi kelimeler, atasözleri bağlamda, karmaşık sıfat tamlamaları.",
+        "ipucu":"Dilin esnekliği: deyimlerin gerçek/mecaz anlam farkı. İroni.",
+        "zorluk":"Edebi dil, sembolik anlatım, karmaşık yapılar, derin çıkarım"},
+}
+
+# Türkçe artikülasyon: yaygın ses hataları (S.O.D.A. çerçevesi)
+TURK_SES_HATALARI = {
+    "r→y": {"tip":"substitusyon","aciklama":"Rötasizm — /r/ yerine /y/","yas":"5-6 yaş altında normal","egzersiz":"dil_siklatma"},
+    "r→l": {"tip":"substitusyon","aciklama":"Rötasizm — /r/ yerine /l/","yas":"5-6 yaş altında normal","egzersiz":"dil_siklatma"},
+    "k→t": {"tip":"substitusyon","aciklama":"Öne Kayma — /k/ yerine /t/","yas":"4 yaş üstü anormal","egzersiz":"damak_temasi"},
+    "g→d": {"tip":"substitusyon","aciklama":"Öne Kayma — /g/ yerine /d/","yas":"4 yaş üstü anormal","egzersiz":"damak_temasi"},
+    "s→ş": {"tip":"substitusyon","aciklama":"Peltek /s/ — lateral kayma","yas":"Her yaşta müdahale","egzersiz":"ayna_tisla"},
+    "ş→s": {"tip":"substitusyon","aciklama":"Ters peltek","yas":"Her yaşta müdahale","egzersiz":"ayna_tisla"},
+    "ç→ş": {"tip":"substitusyon","aciklama":"Affrikat kaybı","yas":"4 yaş üstü anormal","egzersiz":"patlayici_ses"},
+    "p→b": {"tip":"substitusyon","aciklama":"Sadalama hatası — tonsuz→tonlu","yas":"4 yaş üstü anormal","egzersiz":"nefes_kontrolu"},
+    "t→d": {"tip":"substitusyon","aciklama":"Sadalama hatası — tonsuz→tonlu","yas":"4 yaş üstü anormal","egzersiz":"nefes_kontrolu"},
+    "l→y": {"tip":"substitusyon","aciklama":"Lateral kayma — /l/ yerine /y/","yas":"5 yaş üstü anormal","egzersiz":"dil_ucu"},
 }
 
 # ═══ MODELS ═══
@@ -274,7 +324,11 @@ def hata_siniflandir(ref, stt):
     # En belirgin hata tipini seç
     if degisimler:
         d = degisimler[0]
-        return {"tip": "substitusyon", "alt_tip": "ses_degistirme", "detay": f"'{d['kaynak']}' yerine '{d['hedef']}' ({'başta' if d['poz']=='bas' else 'ortada' if d['poz']=='orta' else 'sonda'})", "ses": f"{d['kaynak']}→{d['hedef']}", "pozisyon": d["poz"]}
+        ses_key = f"{d['kaynak']}→{d['hedef']}"
+        # Bilinen Türkçe artikülasyon paterni mi?
+        turk_pattern = TURK_SES_HATALARI.get(ses_key, None)
+        alt_tip = turk_pattern["aciklama"] if turk_pattern else "ses_degistirme"
+        return {"tip": "substitusyon", "alt_tip": alt_tip, "detay": f"'{d['kaynak']}' yerine '{d['hedef']}' ({'başta' if d['poz']=='bas' else 'ortada' if d['poz']=='orta' else 'sonda'})", "ses": ses_key, "pozisyon": d["poz"], "turk_pattern": turk_pattern is not None}
     elif eksikler:
         e = eksikler[0]
         return {"tip": "omisyon", "alt_tip": "ses_dusurme", "detay": f"'{e['harf']}' sesi düşürülmüş ({'başta' if e['poz']=='bas' else 'ortada' if e['poz']=='orta' else 'sonda'})", "ses": f"-{e['harf']}", "pozisyon": e["poz"]}
@@ -352,88 +406,84 @@ def pattern_tespit(hata_listesi, gecmis_hatalar=None):
 
 # ═══ PEDAGOJİK ÖNERİ MOTORU ═══
 def pedagojik_oneri_uret(patterns, hata_listesi):
-    """Hata pattern'lerine göre spesifik egzersiz önerileri"""
+    """S.O.D.A. çerçevesine ve Türkçe artikülasyon rehberine göre egzersiz önerileri"""
     oneriler = []
     tip_dag = patterns.get("tip_dagilimi", {})
+    ses_dag = patterns.get("ses_degisim", {})
 
-    if tip_dag.get("substitusyon", 0) >= 1:
-        # Hangi sesler karıştırılıyor?
-        ses_ornekler = []
-        for ses, sayi in patterns.get("ses_degisim", {}).items():
-            if "→" in ses:
-                k, h = ses.split("→")
-                ses_ornekler.append(f"'{k}' ve '{h}'")
-        oneriler.append({
-            "baslik": "🎯 Minimal Çiftler Terapisi",
-            "aciklama": "Karıştırılan seslerin anlam farkı yarattığını oyunla gösterin. Görsel kartlarla eşleştirme yapın.",
-            "ornek": f"Karıştırılan sesler: {', '.join(ses_ornekler[:3]) if ses_ornekler else 'belirlenecek'}. Örnek: kar/tar, kaz/yaz, bal/val",
-            "hedef": "Seslerin birbirinden farkını ayırt etme",
-            "tip": "substitusyon", "icon": "🔄"
-        })
-        oneriler.append({
-            "baslik": "🪞 Ayna Egzersizi",
-            "aciklama": "Çocuk ayna karşısında doğru ağız pozisyonunu taklit etsin. Dudak, dil, diş pozisyonunu gösterin.",
-            "ornek": "Terapistin dudak hareketlerini yavaş çekimde taklit etme",
-            "hedef": "Doğru ses üretimi için motor beceri geliştirme",
-            "tip": "substitusyon", "icon": "🪞"
-        })
+    # ── SPESİFİK SES HATALARI (makaleden) ──
+    for ses, sayi in ses_dag.items():
+        if "→" not in ses: continue
+        k, h = ses.split("→")
+        tp = TURK_SES_HATALARI.get(ses, None)
+
+        # R sesi hataları (Rötasizm)
+        if k == "r" and h in ("y", "l"):
+            oneriler.append({"baslik": "🐴 Dil Kası ve R Sesi Çalışması", "icon": "🐴",
+                "aciklama": "Rötasizm: /r/ yerine /"+h+"/ kullanılıyor. Dil ucunun alveol bölgesinde (üst dişlerin arkası) titreşmesi gerekir.",
+                "ornek": "1) At tırıs sesi (dil şıklatma) 10 kez. 2) Hızlıca 'Tı-dı-tı-dı' tekrarı — hızlandıkça R sesi ortaya çıkar. 3) Motor sesi 'Vrroooom' ile titreşimi hissettirme. 4) Arı vızıltısı ile dil ucunu uyarma.",
+                "hedef": "Dil ucu titreşimini başlatma","tip":"ses_ozel"})
+            break
+        # K/G öne kayma
+        elif (k == "k" and h == "t") or (k == "g" and h == "d"):
+            oneriler.append({"baslik": "👅 Damak Teması Çalışması", "icon": "👅",
+                "aciklama": f"Öne Kayma: /{k}/ yerine /{h}/ kullanılıyor. Dil sırtı yumuşak damağa (arkaya) temas etmeli.",
+                "ornek": f"1) Lolipop/abeslang ile dil ucuna hafifçe basılarak öne gelmesi engellenir. 2) Su gargarası yaptırarak arka damak temasını hissettirme. 3) Minimal çiftler: '{k}edi' mi '{h}edi' mi? Resimli kartlarla ayırt etme.",
+                "hedef": "Velar (arka damak) temasını otomatikleştirme","tip":"ses_ozel"})
+            break
+        # S/Ş peltek
+        elif (k == "s" and h == "ş") or (k == "ş" and h == "s"):
+            oneriler.append({"baslik": "🐍 Yılan Tıslama Çalışması", "icon": "🐍",
+                "aciklama": "Peltek söyleyiş: Dil ucu ön dişlerin arasına fırlıyor. Dişler kapalı kalmalı.",
+                "ornek": "1) Ayna karşısında gülümse ve dişleri kenetle. 'İçerideki yılanı tıslat ama kapılar (dişler) kapalı: Sssss' 2) Ön dişlerin arasına yatay pipet yerleştir, ısır ve 'S' de — dil dışarı çıkamaz. 3) S→hece→kelime→cümle hiyerarşisi.",
+                "hedef": "Dil ucunu dişlerin arkasında tutma","tip":"ses_ozel"})
+            break
+        # Sadalama hataları (p→b, t→d)
+        elif tp and "sadalama" in (tp.get("aciklama","")).lower():
+            oneriler.append({"baslik": "💨 Nefes Kontrolü Çalışması", "icon": "💨",
+                "aciklama": f"Sadalama hatası: Tonsuz /{k}/ yerine tonlu /{h}/. Nefes kontrolü eksik.",
+                "ornek": f"1) Elin ağzın önünde tutarak '{k}' dediğinde nefes hisset, '{h}' dediğinde hissetme farkı. 2) Fısıltı ile '{k}' sesi çalışması. 3) Kelime hiyerarşisi: {k}a → {k}al → {k}alem → '{k}alemi al'",
+                "hedef": "Tonsuz-tonlu ses ayrımını öğrenme","tip":"ses_ozel"})
+            break
+
+    # ── GENEL TİP BAZLI ÖNERİLER ──
+    if tip_dag.get("substitusyon", 0) >= 1 and not any(o["tip"]=="ses_ozel" for o in oneriler):
+        ses_ornekler = [f"'{k}' ve '{h}'" for ses, sayi in ses_dag.items() if "→" in ses for k, h in [ses.split("→")]]
+        oneriler.append({"baslik": "🎯 Minimal Çiftler Terapisi", "icon": "🎯",
+            "aciklama": "Karıştırılan seslerin anlam farkı yarattığını resimli kartlarla gösterin.",
+            "ornek": f"Sesler: {', '.join(ses_ornekler[:3])}. 'Bana KEDİ'yi göster... şimdi TEDİ'yi göster' oyunu.",
+            "hedef": "İşitsel ayırt etme becerisi","tip":"substitusyon"})
 
     if tip_dag.get("omisyon", 0) >= 1:
-        oneriler.append({
-            "baslik": "🤖 Robot Okuma (Heceleme)",
-            "aciklama": "Kelimeleri robot gibi hecelerine ayırın, sonra normal hızda birleştirin.",
-            "ornek": "por-ta-kal → portakal, ke-le-bek → kelebek",
-            "hedef": "Her heceyi fark etme ve atlamamayı öğrenme",
-            "tip": "omisyon", "icon": "🤖"
-        })
-        oneriler.append({
-            "baslik": "👏 Alkışla Hecele",
-            "aciklama": "Her hece için bir alkış. Çocuk kelimenin kaç heceden oluştuğunu fiziksel olarak hissetsin.",
-            "ornek": "Ma-sa (2 alkış), Ö-ğret-men (3 alkış)",
-            "hedef": "Hece farkındalığı geliştirme",
-            "tip": "omisyon", "icon": "👏"
-        })
-
-    if tip_dag.get("metatez", 0) >= 1:
-        oneriler.append({
-            "baslik": "🧩 Harf Dizme Oyunu",
-            "aciklama": "Mıknatıslı harflerle kelimeyi doğru sıraya dizme oyunu oynayın.",
-            "ornek": "T-O-P-R-A-K harflerini karıştırıp doğru sıraya koyma",
-            "hedef": "Kelime içi ses sıralamasını pekiştirme",
-            "tip": "metatez", "icon": "🧩"
-        })
+        oneriler.append({"baslik": "🤖 Robot Okuma + Ritim Tutma", "icon": "🤖",
+            "aciklama": "Ses yutma: Hız, motor beceri kapasitesini aşıyor. Hızı yavaşlatıp her heceyi vurgulayın.",
+            "ornek": "1) Her hece için masaya bir kez vur: A-yak-ka-bı (4 vuruş). 2) 'Robot gibi konuş' oyunu — abartılı ağız hareketleri. 3) Noktalama işaretlerinde duraksayarak okuma.",
+            "hedef": "Kas hafızası güçlendirme, hız kontrolü","tip":"omisyon"})
 
     if tip_dag.get("ekleme", 0) >= 1:
-        oneriler.append({
-            "baslik": "✂️ Fazla Sesi Bul",
-            "aciklama": "Kelimeyi yavaş söyleyip her sesi parmakla sayma. Fazla ses var mı kontrol etme.",
-            "ornek": "'maasa' mı 'masa' mı? Parmakla say: m-a-s-a = 4 ses",
-            "hedef": "Doğru ses sayısı farkındalığı",
-            "tip": "ekleme", "icon": "✂️"
-        })
+        oneriler.append({"baslik": "✂️ Ses Sayma Oyunu", "icon": "✂️",
+            "aciklama": "Fazla ses ekleme: Çocuk kelimeye olmayan sesler ekliyor (ör: spor→sipor, tren→tiren).",
+            "ornek": "Kelimeyi yavaşça söyle ve her sesi parmakla say. S-P-O-R = 4 parmak, SI-PO-R ≠ doğru!",
+            "hedef": "Doğru ses sayısı farkındalığı","tip":"ekleme"})
 
-    # Pozisyon bazlı öneriler
-    for p in patterns.get("patterns", []):
-        if p["pattern"] == "pozisyon":
-            oneriler.append({
-                "baslik": "📍 Pozisyon Odaklı Çalışma",
-                "aciklama": p["aciklama"] + ". Bu pozisyondaki seslere özel dikkat edin.",
-                "ornek": "Kelimenin başını/ortasını/sonunu vurgulayarak okuma",
-                "hedef": "Zayıf pozisyondaki sesleri güçlendirme",
-                "tip": "pozisyon", "icon": "📍"
-            })
+    if tip_dag.get("metatez", 0) >= 1:
+        oneriler.append({"baslik": "🧩 Harf Dizme Oyunu", "icon": "🧩",
+            "aciklama": "Harf sırası karışıyor. Mıknatıslı/karton harflerle doğru sıraya dizme.",
+            "ornek": "T-O-P-R-A-K harflerini karıştır, doğru sıraya koy. Doğruysa alkışla!",
+            "hedef": "Kelime içi ses sıralamasını pekiştirme","tip":"metatez"})
 
-    # Genel öneri sadece başka öneri yoksa VE hata varsa
-    if not oneriler and len(hata_listesi) > 0:
-        oneriler.append({
-            "baslik": "📖 Tekrarlı Okuma",
-            "aciklama": "Aynı metni 3 kez okuyun. Her seferinde akıcılık ve doğruluk artar.",
-            "ornek": "1. okuma: tanıma, 2. okuma: akıcılık, 3. okuma: prozodi",
-            "hedef": "Otomatik kelime tanıma geliştirme",
-            "tip": "genel", "icon": "📖"
-        })
+    # ── İŞİTSEL BOMBARDIMAN (her durumda, hata varsa) ──
+    if hata_listesi:
+        hatali_kelimeler = list(set([h.get("kelime","") for h in hata_listesi if h.get("kelime")]))[:5]
+        oneriler.append({"baslik": "👂 İşitsel Bombardıman", "icon": "👂",
+            "aciklama": "Hatalı kelimeleri vurgulu ve yavaş bir şekilde çocuğa bol bol dinletin. 'Hayır öyle değil' demeden, doğru modeli verin.",
+            "ornek": f"Zorlanılan kelimeler: {', '.join(hatali_kelimeler)}. Bu kelimeleri içeren kısa bir masal vurgulu okuyun.",
+            "hedef": "Doğru ses modelini içselleştirme","tip":"genel"})
 
     return oneriler
+
+
+# ═══ PROZODİ (global) ═══
 def prozodi_analiz(wav_path):
     import parselmouth,librosa
     ses=parselmouth.Sound(wav_path);ts=ses.get_total_duration()
@@ -463,14 +513,21 @@ def claude_analiz(ref,kar,pz,sinif,ad,kelime_detay,asama=1):
     sr=SINIF_REF.get(sinif,SINIF_REF["2"])
     hl=", ".join([f"{k['kelime']}({k['stt']},c:{k['conf']:.1f})" for k in kar["kelimeler"] if k["durum"]!="dogru"][:12])
     anomaliler=[f"{k['kelime']}({k['anomali']},{k['sure_ms']}ms)" for k in kelime_detay if k["anomali"]][:8]
-    prompt=f"""{sinif}. sinif "{ad}" okuma (Asama {asama}).
-T:{kar['toplam']} D:{kar['dogru']} H:{kar['hatali']} A:{kar['atlanmis']} %{kar['dogruluk_yuzdesi']}
-Hatali: {hl or 'Yok'}
-Anomaliler: {', '.join(anomaliler) or 'Yok'}
-Pitch:{pz['pitch']['ort']}Hz std:{pz['pitch']['std']}({pz['pitch']['mon']}), E:{pz['enerji']['std']}dB({pz['enerji']['vur']}), S:{pz['sure']['toplam']}sn, Sess:%{pz['sure']['sessizlik']}, Dur:{pz['sure']['duraksama']}({pz['sure']['uzun']}uz)
-REF WPM:{sr['wpm_min']}-{sr['wpm_max']} min%{sr.get('dogruluk_min',95)} WPM={kar['dogru']}x60/{pz['sure']['konusma']}
+    prompt=f"""Sen cocuk okuma gucluğu ve akici okuma uzmanisin. MEB Prozodik Okuma Olcegi ve S.O.D.A. artikulasyon cercevesini biliyorsun.
+
+{sinif}. sinif "{ad}" sesli okuma analizi (Asama {asama}).
+Toplam:{kar['toplam']} Dogru:{kar['dogru']} Hatali:{kar['hatali']} Atlanan:{kar['atlanmis']} Dogruluk:%{kar['dogruluk_yuzdesi']}
+Hatali kelimeler: {hl or 'Yok'}
+Ses anomalileri (heceleme/yavas): {', '.join(anomaliler) or 'Yok'}
+Akustik: Pitch:{pz['pitch']['ort']}Hz std:{pz['pitch']['std']}({pz['pitch']['mon']}), Enerji std:{pz['enerji']['std']}dB({pz['enerji']['vur']}), Sure:{pz['sure']['toplam']}sn, Sessizlik:%{pz['sure']['sessizlik']}, Duraksama:{pz['sure']['duraksama']}({pz['sure']['uzun']}uzun)
+Sinif ref WPM:{sr['wpm_min']}-{sr['wpm_max']}, min dogruluk:%{sr.get('dogruluk_min',95)}
+
+HATALI KELIMELER ICIN: Her hata icin S.O.D.A. siniflandirmasi yap (sub=ses degistirme, omi=ses dusurme, met=harf karistirma, ekl=ses ekleme). Kelimenin anlamini cocuga uygun acikla. Dogru telaffuzu hece hece goster.
+
+PROZODIK OLCEK: Pitch std degerine bak — std<15 ise monoton (dusuk puan), std 15-30 normal, std>30 canli. Duraksama sayisi ve sessizlik yuzdesi akicilik icin onemli. Puan ALGORITMIK olsun, rastgele degil.
+
 SADECE JSON:
-{{"genel_skor":0-100,"akicilik_skoru":0-100,"prozodi_skoru":0-100,"seviye":"Baslangic/Gelisen/Yeterli/Ileri","wpm":N,"kaba":{{"toplam":{kar['toplam']},"dogru":{kar['dogru']},"yanlis":{kar['hatali']},"atlanan":{kar['atlanmis']},"wpm":N}},"prozodik_olcek":[{{"m":"Duygu","p":0-4}},{{"m":"Konusma","p":0-4}},{{"m":"Vurgu","p":0-4}},{{"m":"Noktalama","p":0-4}},{{"m":"Anlam","p":0-4}},{{"m":"Bekleme","p":0-4}},{{"m":"Akici","p":0-4}},{{"m":"Gruplama","p":0-4}}],"pt":0-32,"ao":"1 cumle","po":"1 cumle","hk":[{{"k":"x","o":"y","t":"he-ce","a":"anlam","ht":"sub/omi/met"}}],"gy":["2"],"ga":["2"],"on":["3"]}}"""
+{{"genel_skor":0-100,"akicilik_skoru":0-100,"prozodi_skoru":0-100,"seviye":"Baslangic/Gelisen/Yeterli/Ileri","wpm":N,"kaba":{{"toplam":{kar['toplam']},"dogru":{kar['dogru']},"yanlis":{kar['hatali']},"atlanan":{kar['atlanmis']},"wpm":N}},"prozodik_olcek":[{{"m":"Duygu yansitma","p":0-4}},{{"m":"Konusma dilini kullanma","p":0-4}},{{"m":"Vurgu ve tonlama","p":0-4}},{{"m":"Noktalamaya uyum","p":0-4}},{{"m":"Anlam birimleri vurgusu","p":0-4}},{{"m":"Uygun yerde bekleme","p":0-4}},{{"m":"Akici okuma","p":0-4}},{{"m":"Anlamli gruplama","p":0-4}}],"pt":0-32,"ao":"akicilik ozeti 1 cumle","po":"prozodi ozeti 1 cumle","hk":[{{"k":"hatali_kelime","o":"cocugun_okudugu","t":"he-ce-le-me","a":"cocuga_uygun_anlam","ht":"sub/omi/met/ekl"}}],"gy":["guclu yonler"],"ga":["gelisim alanlari"],"on":["cocuga ozel oneriler"]}}"""
     resp=client.messages.create(model="claude-sonnet-4-20250514",max_tokens=2000,messages=[{"role":"user","content":prompt}])
     raw=resp.content[0].text.strip()
     for p in ["```json","```"]:
@@ -485,11 +542,32 @@ def openai_metin_uret(sinif, hatali_kelimeler=None):
     from openai import OpenAI
     client=OpenAI(api_key=OPENAI_API_KEY)
     sr=SINIF_REF.get(sinif,SINIF_REF["2"])
+
+    pedagoji = f"""PEDAGOJIK KURALLAR (kesinlikle uy):
+1. %5-10 KURALI: Kelimelerin %90-95'i cocugun bildigi kelimeler olmali. Sadece %{sr.get('yeni_kelime_orani','5')} yeni/hedef kelime icersin.
+2. BAGLAMSAL IPUCU: Her yeni kelime baglamda anlasilmali. Kelimeyi kullanmadan once veya sonra anlamini fisildayan bir cumle koy. KOTU: "Cocuk mutereddit gorunuyordu." IYI: "Iceri girsem mi girmesem mi diye dusundu, bir turlu karar veremedi."
+3. ES ANLAMLI DANS: Ayni kavrami farkli kelimelerle tekrarla (sevinmek → mutlu olmak → nesesiyle ziplamak).
+4. HIKAYE HARITASI: {sr.get('yapi','')}
+5. CUMLE UZUNLUGU: {sr.get('cumle_uzunluk','4-8')} kelime arasi cumleler.
+6. KELIME TURLERI: {sr.get('kelime_turu','')}
+7. CIKARIM FIRSATI: {sr.get('ipucu','')}"""
+
     if hatali_kelimeler:
-        prompt=f"{sinif}. sinif Turkce okuma metni yaz. MUTLAKA su kelimeleri icersin: {', '.join(hatali_kelimeler[:10])}. Tam olarak {sr['kelime']} kelime. {sr['zorluk']}. BASLIK YAZMA. Sadece metni yaz."
+        prompt=f"""{sinif}. sinif Turkce okuma metni yaz.
+MUTLAKA su kelimeleri dogal olarak icersin: {', '.join(hatali_kelimeler[:10])}
+Tam olarak {sr['kelime']} kelime.
+Tema secenekleri: {sr.get('tema','')}
+{pedagoji}
+BASLIK YAZMA. ACIKLAMA EKLEME. Sadece metni yaz."""
     else:
-        prompt=f"{sinif}. sinif Turkce okuma metni yaz. Tam olarak {sr['kelime']} kelime. {sr['zorluk']}. Cocuklara uygun ilgi cekici konu. Her seferinde FARKLI konu. BASLIK YAZMA. Sadece metni yaz."
-    resp=client.chat.completions.create(model="gpt-4o-mini",messages=[{"role":"user","content":prompt}],max_tokens=500)
+        prompt=f"""{sinif}. sinif Turkce okuma metni yaz.
+Tam olarak {sr['kelime']} kelime.
+Tema secenekleri: {sr.get('tema','')}
+Her seferinde FARKLI bir tema sec.
+{pedagoji}
+BASLIK YAZMA. ACIKLAMA EKLEME. Sadece metni yaz."""
+
+    resp=client.chat.completions.create(model="gpt-4o-mini",messages=[{"role":"user","content":prompt}],max_tokens=600,temperature=0.9)
     return resp.choices[0].message.content.strip()
 
 
