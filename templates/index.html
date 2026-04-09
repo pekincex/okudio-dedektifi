@@ -7,56 +7,61 @@
 <style>
 :root{--bg:#F8F9FA;--surface:#FFF;--alt:#F1F3F5;--border:#DEE2E6;--text:#212529;--muted:#868E96;--accent:#228BE6;--asoft:#E7F5FF;--ok:#2B8A3E;--okbg:#EBFBEE;--warn:#E67700;--warnbg:#FFF9DB;--bad:#C92A2A;--badbg:#FFF5F5;--r:14px;--sh:0 1px 3px rgba(0,0,0,.06)}
 *{margin:0;padding:0;box-sizing:border-box}body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
-header{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 0}header .w{max-width:960px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:12px}.logo{width:36px;height:36px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff}header h1{font-size:18px;font-weight:600}header h1 span{color:var(--accent)}.badge{margin-left:auto;font-size:11px;padding:3px 10px;background:var(--alt);border-radius:20px;color:var(--muted)}
-main{max-width:960px;margin:0 auto;padding:28px 24px 80px}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:28px;box-shadow:var(--sh);margin-bottom:16px}
-.card-title{font-family:'DM Serif Display',serif;font-size:20px;margin-bottom:16px}
-.row{display:flex;gap:12px;flex-wrap:wrap}.row>*{flex:1;min-width:140px}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:20px}@media(max-width:640px){.g2{grid-template-columns:1fr}}
-label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px}
-input[type=text],select{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font:14px 'DM Sans',sans-serif;background:var(--alt)}input:focus,select:focus{outline:none;border-color:var(--accent);background:#fff}
-textarea{width:100%;height:130px;border:1px solid var(--border);border-radius:var(--r);padding:12px;font:14px/1.7 'DM Sans',sans-serif;background:var(--alt);resize:vertical}textarea:focus{outline:none;border-color:var(--accent);background:#fff}
-.btn{padding:10px 20px;border:none;border-radius:8px;font:14px/1 'DM Sans',sans-serif;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px}.btn-p{background:var(--accent);color:#fff}.btn-p:hover{background:#1C7ED6}.btn-s{background:var(--alt);color:var(--text);border:1px solid var(--border)}.btn-s:hover{background:#E9ECEF}.btn-d{background:var(--text);color:#fff}.btn:disabled{opacity:.5;cursor:not-allowed}
-.tabs{display:flex;gap:6px;margin-bottom:10px}.tab{flex:1;padding:7px;border:1px solid var(--border);border-radius:8px;background:var(--alt);font-size:13px;cursor:pointer;text-align:center;color:var(--muted)}.tab.on{background:var(--asoft);border-color:var(--accent);color:var(--accent);font-weight:600}
-.dz{border:2px dashed var(--border);border-radius:var(--r);padding:24px;text-align:center;cursor:pointer;background:var(--alt);font-size:13px;color:var(--muted)}.dz:hover{border-color:var(--accent)}.dz.ok{border-color:var(--ok);background:var(--okbg);border-style:solid}.dz input{display:none}
-.ra{display:none;text-align:center;padding:20px;border:2px dashed var(--border);border-radius:var(--r);background:var(--alt)}.ra.on{display:block}
-.rb{width:64px;height:64px;border-radius:50%;border:3px solid var(--bad);background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}.rb .dot{width:24px;height:24px;background:var(--bad);border-radius:50%;transition:.2s}.rb.rec .dot{width:16px;height:16px;border-radius:3px}.rb.rec{animation:p 1.5s infinite}@keyframes p{0%{box-shadow:0 0 0 0 rgba(201,42,42,.3)}70%{box-shadow:0 0 0 10px rgba(201,42,42,0)}}
-.rs{margin-top:10px;font-size:13px;color:var(--muted)}.rs .t{font-family:'DM Serif Display',serif;font-size:18px;color:var(--bad)}
-.rd{display:none;margin-top:10px}.rd.on{display:block}.rd audio{width:100%;height:32px}
-.ld{display:none;margin-top:20px}.ld.on{display:block}.ldc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:36px;text-align:center}.sp{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:s .8s linear infinite;margin:0 auto 12px}@keyframes s{to{transform:rotate(360deg)}}
-.err{display:none;background:var(--badbg);border:1px solid #FFC9C9;border-radius:var(--r);padding:14px;margin-top:14px;color:var(--bad);font-size:13px}
-.retry{display:none;background:var(--warnbg);border:1px solid #FFE066;border-radius:var(--r);padding:20px;margin-top:16px;text-align:center}.retry.on{display:block}
-.out{display:none;margin-top:20px}.out.on{display:block}
-.sec{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);margin-bottom:14px;overflow:hidden}.sec-h{padding:14px 20px;font-weight:600;font-size:14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}.sec-b{padding:18px 20px}
-/* Donut */
-.donut-row{display:flex;justify-content:center;gap:28px;flex-wrap:wrap;margin-bottom:12px}
-.donut-item{text-align:center}
-.donut{width:110px;height:110px;border-radius:50%;position:relative;display:flex;align-items:center;justify-content:center}
-.donut-inner{width:76px;height:76px;border-radius:50%;background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1}
-.donut-val{font-family:'DM Serif Display',serif;font-size:24px;line-height:1}
-.donut-label{font-size:10px;color:var(--muted);text-transform:uppercase;margin-top:8px;font-weight:600}
-.level-badge{display:inline-block;padding:5px 14px;border-radius:20px;font-weight:600;font-size:13px;margin-top:8px}
-/* Progress bars */
-.pb{margin-bottom:16px}.pb-h{display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px}.pb-h span:first-child{font-weight:600}.pb-bar{height:10px;background:var(--alt);border-radius:5px;overflow:hidden}.pb-f{height:100%;border-radius:5px;transition:width .5s}
-.pb-txt{font-size:12px;color:var(--muted);margin-top:4px}
-/* Color text */
-.ct{font-size:14px;line-height:2.2;padding:14px;background:var(--alt);border-radius:8px}.ct .g{background:#B2F2BB;padding:2px 4px;border-radius:3px;color:#2B8A3E}.ct .r{background:#FFC9C9;padding:2px 4px;border-radius:3px;color:#C92A2A}.ct .y{background:#FFEC99;padding:2px 4px;border-radius:3px;color:#E67700}
-.leg{display:flex;gap:14px;margin-top:8px;font-size:11px;color:var(--muted)}.leg span{display:inline-flex;align-items:center;gap:3px}.ldot{width:10px;height:10px;border-radius:2px}
-.mt{width:100%;border-collapse:collapse;font-size:12px}.mt th{text-align:left;padding:7px 10px;background:var(--text);color:#fff;font-size:10px;text-transform:uppercase}.mt td{padding:7px 10px;border-bottom:1px solid var(--border)}.mt tr:nth-child(even){background:var(--alt)}
-.po-bar{display:flex;gap:2px;align-items:center}.po-dot{width:16px;height:16px;border-radius:3px;border:1px solid var(--border)}.po-dot.on{border:none}
-.hk{padding:12px;background:var(--alt);border-radius:8px;margin-bottom:8px;border-left:3px solid var(--bad);font-size:13px}.hk b{color:var(--bad)}.hk .ok{color:var(--ok);font-weight:600}
-.il{list-style:none;padding:0}.il li{padding:7px 0 7px 20px;position:relative;font-size:13px;border-bottom:1px solid var(--border)}.il li:last-child{border-bottom:none}.il li::before{content:'';position:absolute;left:4px;top:12px;width:7px;height:7px;border-radius:50%}.il.g li::before{background:var(--ok)}.il.o li::before{background:var(--warn)}.il.b li::before{background:var(--accent)}
-.rh{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px}.rt{font-family:'DM Serif Display',serif;font-size:20px}
-.stu{font-size:13px;color:var(--muted);margin-bottom:10px}
-.conf-bar{display:inline-block;width:40px;height:8px;background:var(--alt);border-radius:4px;overflow:hidden;vertical-align:middle}.conf-fill{height:100%;border-radius:4px}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 0}header .w{max-width:960px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:12px}.logo{width:36px;height:36px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff}header h1{font-size:18px;font-weight:600}header h1 span{color:var(--accent)}.badge{margin-left:auto;font-size:11px;padding:3px 10px;background:var(--alt);border-radius:20px;color:var(--muted)}
+main{max-width:960px;margin:0 auto;padding:24px 24px 80px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:24px;box-shadow:var(--sh);margin-bottom:14px}
+.card-title{font-family:'DM Serif Display',serif;font-size:18px;margin-bottom:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1;min-width:120px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:640px){.g2{grid-template-columns:1fr}}
+label{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px}
+input[type=text],select{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:7px;font:13px 'DM Sans',sans-serif;background:var(--alt)}input:focus,select:focus{outline:none;border-color:var(--accent);background:#fff}
+textarea{width:100%;height:120px;border:1px solid var(--border);border-radius:var(--r);padding:10px;font:13px/1.7 'DM Sans',sans-serif;background:var(--alt);resize:vertical}textarea:focus{outline:none;border-color:var(--accent);background:#fff}
+.btn{padding:8px 16px;border:none;border-radius:7px;font:13px/1 'DM Sans',sans-serif;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:5px}.btn-p{background:var(--accent);color:#fff}.btn-p:hover{background:#1C7ED6}.btn-s{background:var(--alt);color:var(--text);border:1px solid var(--border)}.btn-ok{background:var(--ok);color:#fff}.btn-warn{background:var(--warn);color:#fff}.btn:disabled{opacity:.5;cursor:not-allowed}
+.tabs{display:flex;gap:6px;margin-bottom:8px}.tab{flex:1;padding:6px;border:1px solid var(--border);border-radius:7px;background:var(--alt);font-size:12px;cursor:pointer;text-align:center;color:var(--muted)}.tab.on{background:var(--asoft);border-color:var(--accent);color:var(--accent);font-weight:600}
+.dz{border:2px dashed var(--border);border-radius:var(--r);padding:20px;text-align:center;cursor:pointer;background:var(--alt);font-size:12px;color:var(--muted)}.dz:hover{border-color:var(--accent)}.dz.ok{border-color:var(--ok);background:var(--okbg);border-style:solid}.dz input{display:none}
+.ra{display:none;text-align:center;padding:18px;border:2px dashed var(--border);border-radius:var(--r);background:var(--alt)}.ra.on{display:block}
+.rb{width:60px;height:60px;border-radius:50%;border:3px solid var(--bad);background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}.rb .dot{width:22px;height:22px;background:var(--bad);border-radius:50%;transition:.2s}.rb.rec .dot{width:14px;height:14px;border-radius:3px}.rb.rec{animation:p 1.5s infinite}@keyframes p{0%{box-shadow:0 0 0 0 rgba(201,42,42,.3)}70%{box-shadow:0 0 0 10px rgba(201,42,42,0)}}
+.rs{margin-top:8px;font-size:12px;color:var(--muted)}.rs .t{font-family:'DM Serif Display',serif;font-size:16px;color:var(--bad)}
+.rd{display:none;margin-top:8px}.rd.on{display:block}.rd audio{width:100%;height:28px}
+.ld{display:none;margin-top:16px}.ld.on{display:block}.ldc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:32px;text-align:center}.sp{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:s .8s linear infinite;margin:0 auto 10px}@keyframes s{to{transform:rotate(360deg)}}
+.err{display:none;background:var(--badbg);border:1px solid #FFC9C9;border-radius:var(--r);padding:12px;margin-top:12px;color:var(--bad);font-size:12px}
+.retry{display:none;background:var(--warnbg);border:1px solid #FFE066;border-radius:var(--r);padding:16px;margin-top:14px;text-align:center}.retry.on{display:block}
+.out{display:none;margin-top:16px}.out.on{display:block}
+.sec{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);margin-bottom:12px;overflow:hidden}.sec-h{padding:12px 18px;font-weight:600;font-size:13px;border-bottom:1px solid var(--border)}.sec-b{padding:16px 18px}
+.donut-row{display:flex;justify-content:center;gap:24px;flex-wrap:wrap;margin-bottom:10px}.donut-item{text-align:center}
+.donut-label{font-size:10px;color:var(--muted);text-transform:uppercase;margin-top:6px;font-weight:600}
+.level-badge{display:inline-block;padding:4px 12px;border-radius:16px;font-weight:600;font-size:12px;margin-top:6px}
+.pb{margin-bottom:14px}.pb-h{display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px}.pb-h span:first-child{font-weight:600}.pb-bar{height:8px;background:var(--alt);border-radius:4px;overflow:hidden}.pb-f{height:100%;border-radius:4px;transition:width .5s}.pb-txt{font-size:11px;color:var(--muted);margin-top:3px}
+.ct{font-size:13px;line-height:2.2;padding:12px;background:var(--alt);border-radius:7px}.ct .g{background:#B2F2BB;padding:1px 4px;border-radius:3px;color:#2B8A3E}.ct .r{background:#FFC9C9;padding:1px 4px;border-radius:3px;color:#C92A2A}.ct .y{background:#FFEC99;padding:1px 4px;border-radius:3px;color:#E67700}
+.leg{display:flex;gap:12px;margin-top:6px;font-size:10px;color:var(--muted)}.leg span{display:inline-flex;align-items:center;gap:3px}.ldot{width:8px;height:8px;border-radius:2px}
+.mt{width:100%;border-collapse:collapse;font-size:12px}.mt th{text-align:left;padding:6px 8px;background:var(--text);color:#fff;font-size:10px;text-transform:uppercase}.mt td{padding:6px 8px;border-bottom:1px solid var(--border)}.mt tr:nth-child(even){background:var(--alt)}
+.po-bar{display:flex;gap:2px;align-items:center}.po-dot{width:14px;height:14px;border-radius:3px;border:1px solid var(--border)}.po-dot.on{border:none}
+.hk{padding:10px 12px;background:var(--alt);border-radius:7px;margin-bottom:6px;border-left:3px solid var(--bad);font-size:12px}.hk b{color:var(--bad)}.hk .ok{color:var(--ok);font-weight:600}
+.il{list-style:none;padding:0}.il li{padding:6px 0 6px 18px;position:relative;font-size:12px;border-bottom:1px solid var(--border)}.il li:last-child{border-bottom:none}.il li::before{content:'';position:absolute;left:3px;top:11px;width:6px;height:6px;border-radius:50%}.il.g li::before{background:var(--ok)}.il.o li::before{background:var(--warn)}.il.b li::before{background:var(--accent)}
+/* Progress tracker */
+.progress-track{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:14px;box-shadow:var(--sh)}
+.progress-title{font-size:13px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.round-bars{display:flex;gap:6px;align-items:flex-end;height:60px}
+.round-bar{flex:1;border-radius:4px 4px 0 0;position:relative;min-width:30px;transition:height .4s}
+.round-num{text-align:center;font-size:9px;color:var(--muted);margin-top:3px}
+.round-val{position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:700;white-space:nowrap}
+/* Completion */
+.complete{background:var(--okbg);border:2px solid var(--ok);border-radius:var(--r);padding:28px;text-align:center;margin-bottom:14px}
+.complete h2{font-family:'DM Serif Display',serif;font-size:24px;color:var(--ok);margin-bottom:6px}
+.complete p{font-size:14px;color:var(--muted)}
+/* Next stage */
+.next-stage{background:var(--warnbg);border:1px solid #FFE066;border-radius:var(--r);padding:20px;text-align:center;margin-bottom:14px}
+.next-stage p{font-size:13px;color:var(--warn);margin-bottom:10px}
+.stu{font-size:12px;color:var(--muted);margin-bottom:8px}
 </style>
 </head>
 <body>
-<header><div class="w"><div class="logo">📚</div><h1>Okudio <span>Okuma Dedektifi</span></h1><div class="badge">Faz 1</div></div></header>
+<header><div class="w"><div class="logo">📚</div><h1>Okudio <span>Okuma Dedektifi</span></h1><div class="badge">Faz 2</div></div></header>
 <main>
-<div class="card">
+<!-- INPUT CARD -->
+<div class="card" id="inputCard">
 <div class="card-title">Sesli Okuma Analizi</div>
-<div class="row" style="margin-bottom:14px">
+<div class="row" style="margin-bottom:12px">
 <div><label>Ad Soyad</label><input type="text" id="ogrAd" placeholder="Ogrenci adi"></div>
 <div><label>Sinif</label><select id="sinif"><option value="2">2. Sinif</option><option value="3">3. Sinif</option><option value="4">4. Sinif</option><option value="5">5. Sinif</option><option value="6">6. Sinif</option><option value="7">7. Sinif</option></select></div>
 <div><label>Tarih</label><input type="text" id="tarih" readonly></div>
@@ -65,121 +70,154 @@ textarea{width:100%;height:130px;border:1px solid var(--border);border-radius:va
 <div>
 <label>Ses Kaydi</label>
 <div class="tabs"><button class="tab on" id="t1" onclick="sm('u')">📁 Yukle</button><button class="tab" id="t2" onclick="sm('r')">🎙️ Kayit</button></div>
-<div class="dz" id="dz"><div style="font-size:24px;margin-bottom:4px">📁</div><strong style="color:var(--accent)">Dosya sec</strong> veya surukle<div id="fn" style="display:none;font-weight:600;color:var(--ok);margin-top:6px"></div><input type="file" id="fi" accept="audio/*,.webm"></div>
-<div class="ra" id="ra"><button class="rb" id="rrb" onclick="tg()"><div class="dot"></div></button><div class="rs" id="rrs">🎤 Bas ve oku!</div><div class="rd" id="rdd"><div style="font-weight:600;color:var(--ok)">✅ Hazir</div><audio controls id="aud"></audio></div></div>
+<div class="dz" id="dz"><div style="font-size:22px;margin-bottom:4px">📁</div><strong style="color:var(--accent)">Dosya sec</strong><div id="fn" style="display:none;font-weight:600;color:var(--ok);margin-top:4px;font-size:12px"></div><input type="file" id="fi" accept="audio/*,.webm"></div>
+<div class="ra" id="ra"><button class="rb" id="rrb" onclick="tg()"><div class="dot"></div></button><div class="rs" id="rrs">🎤 Bas ve oku!</div><div class="rd" id="rdd"><div style="font-weight:600;color:var(--ok);font-size:12px">✅ Hazir</div><audio controls id="aud"></audio></div></div>
 </div>
 <div>
-<div style="display:flex;align-items:center;justify-content:space-between"><label>Referans Metin</label><button class="btn btn-s" onclick="genText()" id="genBtn" style="font-size:11px;padding:4px 10px;margin-bottom:5px">🎲 Otomatik Olustur</button></div>
-<textarea id="ta" placeholder="Cocugun okumasi gereken metni yapistirin veya otomatik olusturun..."></textarea>
+<div style="display:flex;align-items:center;justify-content:space-between"><label>Referans Metin</label><button class="btn btn-s" onclick="genText()" id="genBtn" style="font-size:10px;padding:3px 8px;margin-bottom:4px">🎲 Otomatik</button></div>
+<textarea id="ta" placeholder="Cocugun okumasi gereken metin..."></textarea>
 </div>
 </div>
-<button class="btn btn-p" id="go" disabled style="width:100%;padding:14px;font-size:15px;margin-top:16px">🚀 Analizi Baslat</button>
+<div id="asamaInfo" style="display:none;margin-top:10px;padding:8px 12px;background:var(--asoft);border-radius:7px;font-size:12px;color:var(--accent);font-weight:600"></div>
+<button class="btn btn-p" id="go" disabled style="width:100%;padding:12px;font-size:14px;margin-top:12px">🚀 Analizi Baslat</button>
 <div class="err" id="err"></div>
 </div>
-<div class="retry" id="rtb"><div style="font-size:40px;margin-bottom:8px">🤔</div><div id="rtx" style="font-size:13px;color:var(--muted);margin-bottom:12px"></div><button class="btn btn-s" onclick="rr()">🔄 Tekrar</button></div>
-<div class="ld" id="ld"><div class="ldc"><div class="sp"></div><div id="ls" style="font-size:14px;color:var(--muted)">🎤 Google dinliyor...</div></div></div>
 
+<div class="retry" id="rtb"><div style="font-size:36px;margin-bottom:6px">🤔</div><div id="rtx" style="font-size:12px;color:var(--muted);margin-bottom:10px"></div><button class="btn btn-s" onclick="rr()">🔄 Tekrar</button></div>
+<div class="ld" id="ld"><div class="ldc"><div class="sp"></div><div id="ls" style="font-size:13px;color:var(--muted)">🎤 Google STT...</div></div></div>
+
+<!-- RESULTS -->
 <div class="out" id="out">
-<div class="rh"><div class="rt">📋 Sonuclar</div></div>
 <div class="stu" id="stuInfo"></div>
 
-<!-- Donut Charts -->
-<div class="sec"><div class="sec-h">📊 Performans</div><div class="sec-b">
-<div class="donut-row" id="donuts"></div>
-<div style="text-align:center"><div class="level-badge" id="lvl"></div></div>
-</div></div>
+<!-- Progress tracker -->
+<div class="progress-track" id="progTrack"><div class="progress-title">📈 Ilerleme</div><div class="round-bars" id="roundBars"></div></div>
 
-<!-- Degerlendirme -->
+<!-- Completion or Next Stage -->
+<div class="complete" id="compBox" style="display:none"><h2>🎉 Tebrikler!</h2><p id="compMsg"></p></div>
+<div class="next-stage" id="nextBox" style="display:none"><p id="nextMsg"></p><button class="btn btn-warn" onclick="nextStage()">📖 Sonraki Asama</button></div>
+
+<!-- Donuts -->
+<div class="sec"><div class="sec-h">📊 Performans</div><div class="sec-b"><div class="donut-row" id="donuts"></div><div style="text-align:center"><div class="level-badge" id="lvl"></div></div></div></div>
 <div class="sec"><div class="sec-h">📝 Degerlendirme</div><div class="sec-b" id="ped"></div></div>
-
-<!-- MEB Kaba -->
 <div class="sec" id="kds" style="display:none"><div class="sec-h">📋 Kaba Degerlendirme</div><div class="sec-b" id="kdb"></div></div>
-
-<!-- Prozodik -->
 <div class="sec" id="pos" style="display:none"><div class="sec-h">🎭 Prozodik Olcek</div><div class="sec-b" id="pob"></div></div>
-
-<!-- Metin -->
-<div class="sec"><div class="sec-h">🔍 Metin Karsilastirma</div><div class="sec-b"><div class="ct" id="cct"></div><div class="leg"><span><span class="ldot" style="background:#B2F2BB"></span> Dogru</span><span><span class="ldot" style="background:#FFC9C9"></span> Hatali</span><span><span class="ldot" style="background:#FFEC99"></span> Atlanmis</span></div><div style="margin-top:10px;font-size:11px;color:var(--muted);padding:10px;background:var(--asoft);border-radius:6px" id="sttx"></div></div></div>
-
-<!-- Hatali -->
+<div class="sec"><div class="sec-h">🔍 Metin Karsilastirma</div><div class="sec-b"><div class="ct" id="cct"></div><div class="leg"><span><span class="ldot" style="background:#B2F2BB"></span> Dogru</span><span><span class="ldot" style="background:#FFC9C9"></span> Hatali</span><span><span class="ldot" style="background:#FFEC99"></span> Atlanmis</span></div><div style="margin-top:8px;font-size:10px;color:var(--muted);padding:8px;background:var(--asoft);border-radius:5px" id="sttx"></div></div></div>
 <div class="sec" id="hks" style="display:none"><div class="sec-h">📖 Hatali Kelimeler</div><div class="sec-b" id="hkb"></div></div>
-
-<!-- Akustik -->
 <div class="sec"><div class="sec-h">🎵 Akustik</div><div class="sec-b"><div class="row" id="pgd"></div></div></div>
-
 <div class="sec"><div class="sec-h">💪 Guclu</div><div class="sec-b"><ul class="il g" id="gy"></ul></div></div>
 <div class="sec"><div class="sec-h">🎯 Gelisim</div><div class="sec-b"><ul class="il o" id="ga"></ul></div></div>
 <div class="sec"><div class="sec-h">💡 Oneriler</div><div class="sec-b"><ul class="il b" id="on"></ul></div></div>
 </div>
 </main>
-
 <script>
 document.getElementById('tarih').value=new Date().toLocaleDateString('tr-TR');
 var dz=document.getElementById('dz'),fi=document.getElementById('fi'),go=document.getElementById('go'),ta=document.getElementById('ta'),ld=document.getElementById('ld'),ls=document.getElementById('ls'),err=document.getElementById('err'),out=document.getElementById('out'),rtb=document.getElementById('rtb');
-var sf=null,lad=null,mr=null,rc=[],rst=null,rti=null,dur=0;
+var sf=null,mr=null,rc=[],rst=null,rti=null,dur=0;
+
+// Session state
+var asama=1, rounds=[], lastHatali=[];
 
 function sm(m){document.getElementById('t1').classList.toggle('on',m==='u');document.getElementById('t2').classList.toggle('on',m==='r');dz.style.display=m==='u'?'':'none';document.getElementById('ra').classList.toggle('on',m==='r')}
 
 async function tg(){var b=document.getElementById('rrb'),s=document.getElementById('rrs'),d=document.getElementById('rdd');if(mr&&mr.state==='recording'){mr.stop();b.classList.remove('rec');clearInterval(rti);dur=(Date.now()-rst)/1000;return}try{var st=await navigator.mediaDevices.getUserMedia({audio:true});rc=[];mr=new MediaRecorder(st);mr.ondataavailable=function(e){if(e.data.size>0)rc.push(e.data)};mr.onstop=function(){st.getTracks().forEach(function(t){t.stop()});if(dur<5){s.innerHTML='⚠️ Cok kisa!';d.classList.remove('on');return}var bl=new Blob(rc,{type:'audio/webm'});sf=new File([bl],'kayit.webm',{type:'audio/webm'});document.getElementById('aud').src=URL.createObjectURL(bl);d.classList.add('on');s.innerHTML='✅ '+Math.round(dur)+'sn';ck()};mr.start();b.classList.add('rec');d.classList.remove('on');rst=Date.now();rti=setInterval(function(){var e=Math.floor((Date.now()-rst)/1000);s.innerHTML='<span class="t">'+String(Math.floor(e/60)).padStart(2,'0')+':'+String(e%60).padStart(2,'0')+'</span> 🔴'},1000)}catch(e){s.innerHTML='😕 Mikrofon izni yok!'}}
 
-function rr(){rtb.classList.remove('on');out.classList.remove('on');sf=null;document.getElementById('rdd').classList.remove('on');go.disabled=true;sm('r');window.scrollTo({top:0,behavior:'smooth'})}
+function rr(){rtb.classList.remove('on');out.classList.remove('on');go.disabled=true;sf=null;document.getElementById('rdd').classList.remove('on');sm('r');window.scrollTo({top:0,behavior:'smooth'})}
 
 dz.addEventListener('click',function(){fi.click()});dz.addEventListener('dragover',function(e){e.preventDefault()});dz.addEventListener('drop',function(e){e.preventDefault();if(e.dataTransfer.files.length)hf(e.dataTransfer.files[0])});fi.addEventListener('change',function(){if(fi.files.length)hf(fi.files[0])});
 function hf(f){sf=f;dz.classList.add('ok');document.getElementById('fn').style.display='block';document.getElementById('fn').textContent='✅ '+f.name;ck()}
 ta.addEventListener('input',ck);function ck(){go.disabled=!(sf&&ta.value.trim())}
 
-// Otomatik metin
-async function genText(){
-    var btn=document.getElementById('genBtn');btn.disabled=true;btn.textContent='⏳...';
-    try{var r=await fetch('/metin-olustur',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sinif:document.getElementById('sinif').value})});var d=await r.json();ta.value=d.metin;ck()}catch(e){alert(e.message)}
-    btn.disabled=false;btn.textContent='🎲 Otomatik Olustur'}
+async function genText(){var btn=document.getElementById('genBtn');btn.disabled=true;btn.textContent='⏳';try{var r=await fetch('/metin-olustur',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sinif:document.getElementById('sinif').value})});var d=await r.json();ta.value=d.metin;ck()}catch(e){alert(e.message)}btn.disabled=false;btn.textContent='🎲 Otomatik'}
 
-// Donut chart SVG
-function donut(val,label,color){
-    var pct=Math.max(0,Math.min(100,val));var r=50,c=2*Math.PI*r;var dash=c*pct/100;
-    return '<div class="donut-item"><svg width="110" height="110" viewBox="0 0 120 120"><circle cx="60" cy="60" r="'+r+'" fill="none" stroke="#E9ECEF" stroke-width="10"/><circle cx="60" cy="60" r="'+r+'" fill="none" stroke="'+color+'" stroke-width="10" stroke-dasharray="'+dash+' '+c+'" stroke-linecap="round" transform="rotate(-90 60 60)" style="transition:stroke-dasharray .6s"/></svg><div style="margin-top:-80px;position:relative;z-index:1"><div style="font-family:DM Serif Display;font-size:26px;color:'+color+'">'+val+'</div></div><div class="donut-label" style="position:relative;margin-top:32px">'+label+'</div></div>'
+// Sonraki asama
+async function nextStage(){
+    document.getElementById('nextBox').style.display='none';
+    document.getElementById('compBox').style.display='none';
+    out.classList.remove('on');
+    ld.classList.add('on');ls.innerHTML='📖 Yeni metin hazirlaniyor...';
+    try{
+        var r=await fetch('/asama-metin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sinif:document.getElementById('sinif').value,hatali_kelimeler:lastHatali,asama:asama})});
+        var d=await r.json();
+        ld.classList.remove('on');
+        ta.value=d.metin;
+        sf=null;
+        document.getElementById('fn').style.display='none';
+        dz.classList.remove('ok');
+        document.getElementById('rdd').classList.remove('on');
+        document.getElementById('rrs').innerHTML='🎤 Bas ve oku!';
+        document.getElementById('asamaInfo').style.display='block';
+        document.getElementById('asamaInfo').innerHTML='📖 Asama '+asama+' — Zorlanilan kelimeler: <b>'+lastHatali.slice(0,8).join(', ')+'</b>';
+        go.disabled=true;
+        ck();
+        window.scrollTo({top:0,behavior:'smooth'});
+    }catch(e){ld.classList.remove('on');alert(e.message)}
 }
 
-// Analiz
+function donut(val,label,color){
+    var pct=Math.max(0,Math.min(100,val));var r=46,c=2*Math.PI*r;var dash=c*pct/100;
+    return '<div class="donut-item"><svg width="100" height="100" viewBox="0 0 120 120"><circle cx="60" cy="60" r="'+r+'" fill="none" stroke="#E9ECEF" stroke-width="8"/><circle cx="60" cy="60" r="'+r+'" fill="none" stroke="'+color+'" stroke-width="8" stroke-dasharray="'+dash+' '+c+'" stroke-linecap="round" transform="rotate(-90 60 60)" style="transition:stroke-dasharray .6s"/></svg><div style="margin-top:-72px;position:relative;z-index:1"><div style="font-family:DM Serif Display;font-size:22px;color:'+color+'">'+val+'</div></div><div class="donut-label" style="position:relative;margin-top:28px">'+label+'</div></div>';
+}
+
+function renderProgress(){
+    var h='';var maxH=55;
+    rounds.forEach(function(r,i){
+        var pct=r.dogruluk;var ht=Math.max(8,pct/100*maxH);
+        var cl=pct>=95?'var(--ok)':pct>=70?'var(--warn)':'var(--bad)';
+        h+='<div style="flex:1;text-align:center"><div style="height:'+maxH+'px;display:flex;align-items:flex-end"><div class="round-bar" style="width:100%;height:'+ht+'px;background:'+cl+';position:relative"><span class="round-val" style="color:'+cl+'">%'+pct+'</span></div></div><div class="round-num">'+r.asama+'. Asama</div></div>';
+    });
+    document.getElementById('roundBars').innerHTML=h;
+}
+
 go.addEventListener('click',async function(){
     err.style.display='none';rtb.classList.remove('on');out.classList.remove('on');ld.classList.add('on');go.disabled=true;
     [{t:'🎤 Google STT...',d:0},{t:'🎵 Prozodi...',d:3000},{t:'🧠 Claude...',d:7000}].forEach(function(s){setTimeout(function(){ls.innerHTML=s.t},s.d)});
-    var fd=new FormData();fd.append('ses_dosyasi',sf);fd.append('referans_metin',ta.value.trim());fd.append('ogrenci_adi',document.getElementById('ogrAd').value.trim());fd.append('sinif',document.getElementById('sinif').value);
+    var fd=new FormData();fd.append('ses_dosyasi',sf);fd.append('referans_metin',ta.value.trim());fd.append('ogrenci_adi',document.getElementById('ogrAd').value.trim());fd.append('sinif',document.getElementById('sinif').value);fd.append('asama',String(asama));
     try{
         var rp=await fetch('/analiz',{method:'POST',body:fd});var dt=await rp.json();ld.classList.remove('on');
         if(dt.hata){err.textContent='😕 '+dt.hata;err.style.display='block';go.disabled=false;return}
         if(dt.yeniden_kayit){document.getElementById('rtx').textContent=dt.sebep;rtb.classList.add('on');go.disabled=false;return}
-        render(dt);lad=dt;out.classList.add('on');out.scrollIntoView({behavior:'smooth'})
+        // Track round
+        rounds.push({asama:asama,dogruluk:dt.karsilastirma.dogruluk_yuzdesi,wpm:dt.rapor.wpm||0});
+        lastHatali=dt.hatali_liste||[];
+        render(dt);
+        renderProgress();
+        // Complete or next?
+        if(dt.tamamlandi){
+            document.getElementById('compBox').style.display='block';
+            document.getElementById('compMsg').textContent=document.getElementById('ogrAd').value+' '+rounds.length+' asamada %'+dt.karsilastirma.dogruluk_yuzdesi+' dogruluga ulasti!';
+            document.getElementById('nextBox').style.display='none';
+        }else{
+            document.getElementById('nextBox').style.display='block';
+            document.getElementById('nextMsg').textContent='Dogruluk: %'+dt.karsilastirma.dogruluk_yuzdesi+' — Hedefe (%95) ulasmak icin '+lastHatali.length+' kelimeyle tekrar calisalim!';
+            document.getElementById('compBox').style.display='none';
+            asama++;
+        }
+        out.classList.add('on');out.scrollIntoView({behavior:'smooth'});
     }catch(e){ld.classList.remove('on');err.innerHTML='😕 '+e.message;err.style.display='block'}
-    go.disabled=false
+    go.disabled=false;
 });
 
 function render(d){
     var r=d.rapor||{},p=d.prozodi||{},k=d.karsilastirma||{};
-    document.getElementById('stuInfo').innerHTML='👤 <strong>'+(d.ogrenci_adi||'')+'</strong> · '+d.sinif+'. Sinif · '+document.getElementById('tarih').value;
-    var vc=function(v){return v>=70?'var(--ok)':v>=40?'var(--warn)':'var(--bad)'};
-    var gs=r.genel_skor||0,ds=k.dogruluk_yuzdesi||0,as2=r.akicilik_skoru||0,ps=r.prozodi_skoru||0;
-    document.getElementById('donuts').innerHTML=donut(gs,'Genel',gs>=70?'#2B8A3E':gs>=40?'#E67700':'#C92A2A')+donut(Math.round(ds),'Dogruluk',ds>=95?'#2B8A3E':ds>=90?'#E67700':'#C92A2A')+donut(as2,'Akicilik',as2>=70?'#2B8A3E':as2>=40?'#E67700':'#C92A2A')+donut(ps,'Prozodi',ps>=70?'#2B8A3E':ps>=40?'#E67700':'#C92A2A');
+    document.getElementById('stuInfo').innerHTML='👤 <strong>'+(d.ogrenci_adi||'')+'</strong> · '+d.sinif+'. Sinif · Asama '+d.asama+' · '+document.getElementById('tarih').value;
+    var gs=r.genel_skor||0,ds=Math.round(k.dogruluk_yuzdesi||0),as2=r.akicilik_skoru||0,ps=r.prozodi_skoru||0;
+    var gc=function(v){return v>=70?'#2B8A3E':v>=40?'#E67700':'#C92A2A'};
+    document.getElementById('donuts').innerHTML=donut(gs,'Genel',gc(gs))+donut(ds,'Dogruluk',ds>=95?'#2B8A3E':ds>=90?'#E67700':'#C92A2A')+donut(as2,'Akicilik',gc(as2))+donut(ps,'Prozodi',gc(ps));
     var lv=document.getElementById('lvl'),sv=(r.seviye||'').toLowerCase();lv.style.background=sv.indexOf('baslangic')>-1?'var(--badbg)':sv.indexOf('yeterli')>-1||sv.indexOf('ileri')>-1?'var(--okbg)':'var(--warnbg)';lv.style.color=sv.indexOf('baslangic')>-1?'var(--bad)':sv.indexOf('yeterli')>-1||sv.indexOf('ileri')>-1?'var(--ok)':'var(--warn)';lv.textContent=(r.seviye||'')+(r.wpm?' · '+r.wpm+' kelime/dk':'');
-    // Progress bars
     var bc=function(v){return v>=70?'var(--ok)':v>=40?'var(--warn)':'var(--bad)'};
     var ms=[{l:'Akicilik',v:as2,t:r.akicilik_ozeti||''},{l:'Prozodi',v:ps,t:r.prozodi_ozeti||''}];
-    var ph='';ms.forEach(function(m){ph+='<div class="pb"><div class="pb-h"><span>'+m.l+'</span><span style="color:'+bc(m.v)+'">'+m.v+'/100</span></div><div class="pb-bar"><div class="pb-f" style="width:'+m.v+'%;background:'+bc(m.v)+'"></div></div><div class="pb-txt">'+m.t+'</div></div>'});
+    var ph='';ms.forEach(function(m){ph+='<div class="pb"><div class="pb-h"><span>'+m.l+'</span><span style="color:'+bc(m.v)+'">'+m.v+'</span></div><div class="pb-bar"><div class="pb-f" style="width:'+m.v+'%;background:'+bc(m.v)+'"></div></div><div class="pb-txt">'+m.t+'</div></div>'});
     document.getElementById('ped').innerHTML=ph;
-    // Kaba degerlendirme
     var kd=r.kaba_degerlendirme;
-    if(kd){document.getElementById('kds').style.display='block';document.getElementById('kdb').innerHTML='<table class="mt"><tr><th>Metrik</th><th>Deger</th></tr><tr><td>Toplam Sozcuk</td><td><b>'+kd.toplam+'</b></td></tr><tr><td>Dogru</td><td><b style="color:var(--ok)">'+kd.dogru+'</b></td></tr><tr><td>Yanlis</td><td><b style="color:var(--bad)">'+kd.yanlis+'</b></td></tr><tr><td>Atlanan</td><td><b>'+kd.atlanan+'</b></td></tr><tr><td>WPM</td><td><b style="color:var(--accent)">'+kd.wpm+'</b></td></tr></table>'}
-    // Prozodik
+    if(kd){document.getElementById('kds').style.display='block';document.getElementById('kdb').innerHTML='<table class="mt"><tr><th>Metrik</th><th>Deger</th></tr><tr><td>Toplam</td><td><b>'+kd.toplam+'</b></td></tr><tr><td>Dogru</td><td><b style="color:var(--ok)">'+kd.dogru+'</b></td></tr><tr><td>Yanlis</td><td><b style="color:var(--bad)">'+kd.yanlis+'</b></td></tr><tr><td>Atlanan</td><td><b>'+kd.atlanan+'</b></td></tr><tr><td>WPM</td><td><b style="color:var(--accent)">'+kd.wpm+'</b></td></tr></table>'}
     var po=r.prozodik_olcek;
-    if(po&&po.length){document.getElementById('pos').style.display='block';var poh='<div style="margin-bottom:10px"><b>Toplam: <span style="color:var(--accent);font-family:DM Serif Display;font-size:20px">'+(r.prozodik_toplam||0)+'/32</span></b></div><table class="mt"><tr><th>Madde</th><th style="width:100px">Puan</th></tr>';po.forEach(function(m){var pn=m.puan||0,cl=pn>=3?'var(--ok)':pn>=2?'var(--warn)':'var(--bad)';var dots='';for(var i=0;i<4;i++)dots+='<span class="po-dot'+(i<pn?' on':'')+'" style="'+(i<pn?'background:'+cl:'')+'">'+'</span>';poh+='<tr><td>'+m.madde+'</td><td><div class="po-bar">'+dots+'<span style="margin-left:6px;font-weight:600;font-size:12px;color:'+cl+'">'+pn+'/4</span></div></td></tr>'});poh+='</table>';document.getElementById('pob').innerHTML=poh}
-    // Renk metin (sunucudan gelen karsilastirma)
-    var kk=k.kelimeler||[];var ch='';kk.forEach(function(w){var c=w.durum==='dogru'?'g':w.durum==='hatali'?'r':'y';ch+='<span class="'+c+'">'+w.kelime+'</span> '});document.getElementById('cct').innerHTML=ch||'—';
-    document.getElementById('sttx').innerHTML='<b>Google STT:</b> '+(d.transkript||'—');
-    // Hatali kelimeler
+    if(po&&po.length){document.getElementById('pos').style.display='block';var poh='<div style="margin-bottom:8px"><b>Toplam: <span style="color:var(--accent);font-family:DM Serif Display;font-size:18px">'+(r.prozodik_toplam||0)+'/32</span></b></div><table class="mt"><tr><th>Madde</th><th style="width:90px">Puan</th></tr>';po.forEach(function(m){var pn=m.puan||0,cl=pn>=3?'var(--ok)':pn>=2?'var(--warn)':'var(--bad)';var dots='';for(var i=0;i<4;i++)dots+='<span class="po-dot'+(i<pn?' on':'')+'" style="'+(i<pn?'background:'+cl:'')+'">'+'</span>';poh+='<tr><td>'+m.madde+'</td><td><div class="po-bar">'+dots+'<span style="margin-left:4px;font-weight:600;font-size:11px;color:'+cl+'">'+pn+'/4</span></div></td></tr>'});poh+='</table>';document.getElementById('pob').innerHTML=poh}
+    var kk=k.kelimeler||[];var ch='';kk.forEach(function(w){var c=w.durum==='dogru'?'g':w.durum==='hatali'?'r':'y';ch+='<span class="'+c+'">'+w.kelime+'</span> '});document.getElementById('cct').innerHTML=ch||'-';
+    document.getElementById('sttx').innerHTML='<b>Google STT:</b> '+(d.transkript||'-');
     var hk=r.hatali_kelimeler||[];if(hk.length){document.getElementById('hks').style.display='block';var hh='';hk.forEach(function(h){hh+='<div class="hk"><b>'+h.kelime+'</b> → '+h.okunan+' <span class="ok">✓ '+h.dogru_telaffuz+'</span><br><span style="color:var(--muted)">📖 '+h.anlami+' · '+h.hata_turu+'</span></div>'});document.getElementById('hkb').innerHTML=hh}else{document.getElementById('hks').style.display='none'}
-    // Akustik
-    var items=[{l:'Pitch',v:(p.pitch.ortalama_hz||'—')+'Hz',n:p.pitch.monotonluk||''},{l:'Tonlama',v:(p.pitch.std_hz||'—')+'Hz',n:'std'},{l:'Vurgu',v:(p.enerji.std_db||'—')+'dB',n:p.enerji.vurgu_durumu||''},{l:'Sure',v:(p.sure.toplam_sn||'—')+'sn',n:'Konusma:'+(p.sure.konusma_sn||'?')+'sn'},{l:'Duraksama',v:p.sure.duraksama_sayisi||0,n:'Uzun:'+p.sure.uzun_duraksama},{l:'Akicilik',v:p.sure.akicilik||'—',n:'%'+(p.sure.sessizlik_orani||'?')+' sessiz'}];
-    var ah='';items.forEach(function(i){ah+='<div style="padding:12px;background:var(--alt);border-radius:8px;flex:1;min-width:130px"><div style="font-size:10px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:3px">'+i.l+'</div><div style="font-family:DM Serif Display;font-size:18px">'+i.v+'</div><div style="font-size:10px;color:var(--muted);margin-top:2px">'+i.n+'</div></div>'});
+    var items=[{l:'Pitch',v:(p.pitch.ortalama_hz||'-')+'Hz',n:p.pitch.monotonluk||''},{l:'Tonlama',v:(p.pitch.std_hz||'-')+'Hz',n:'std'},{l:'Vurgu',v:(p.enerji.std_db||'-')+'dB',n:p.enerji.vurgu_durumu||''},{l:'Sure',v:(p.sure.toplam_sn||'-')+'sn',n:'Kns:'+(p.sure.konusma_sn||'?')+'sn'},{l:'Duraksama',v:p.sure.duraksama_sayisi||0,n:'Uzun:'+p.sure.uzun_duraksama},{l:'Akicilik',v:p.sure.akicilik||'-',n:'%'+(p.sure.sessizlik_orani||'?')}];
+    var ah='';items.forEach(function(i){ah+='<div style="padding:10px;background:var(--alt);border-radius:7px;flex:1;min-width:110px"><div style="font-size:9px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:2px">'+i.l+'</div><div style="font-family:DM Serif Display;font-size:16px">'+i.v+'</div><div style="font-size:9px;color:var(--muted)">'+i.n+'</div></div>'});
     document.getElementById('pgd').innerHTML=ah;
     rl('gy',r.guclu_yonler);rl('ga',r.gelisim_alanlari);rl('on',r.oneriler);
 }
