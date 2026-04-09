@@ -1,5 +1,6 @@
 """
-Okudio Okuma Dedektifi — Faz 3.1
+Okudio Okuma Dedektifi — Faz 3.2
+Google STT (Speech Adaptation) + Parselmouth + Claude
 """
 from pydub import AudioSegment
 import os, io, json, tempfile, datetime, re, requests, base64
@@ -25,15 +26,15 @@ login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
 SINIF_REF = {
-    "2": {"wpm_min":40,"wpm_max":60,"dogruluk_min":95,"kelime":"40-55","zorluk":"Cok basit cumleler, 4-6 kelimelik cumleler, gunluk bilinen kelimeler"},
+    "2": {"wpm_min":40,"wpm_max":60,"dogruluk_min":95,"kelime":"40-55","zorluk":"Cok basit cumleler, 4-6 kelimelik, gunluk bilinen kelimeler"},
     "3": {"wpm_min":70,"wpm_max":90,"dogruluk_min":95,"kelime":"55-75","zorluk":"Basit cumleler, 6-8 kelimelik, biraz daha fazla sifat ve zarf"},
-    "4": {"wpm_min":90,"wpm_max":110,"dogruluk_min":97,"kelime":"75-95","zorluk":"Orta zorluk, bilesik cumleler, 8-10 kelimelik cumleler"},
-    "5": {"wpm_min":110,"wpm_max":130,"dogruluk_min":98,"kelime":"95-115","zorluk":"Karisik cumleler, soyut kavramlar, 10-12 kelimelik"},
-    "6": {"wpm_min":130,"wpm_max":145,"dorluk_min":99,"kelime":"115-135","zorluk":"Uzun ve karisik cumleler, akademik kelimeler"},
+    "4": {"wpm_min":90,"wpm_max":110,"dogruluk_min":97,"kelime":"75-95","zorluk":"Orta zorluk, bilesik cumleler, 8-10 kelimelik"},
+    "5": {"wpm_min":110,"wpm_max":130,"dogruluk_min":98,"kelime":"95-115","zorluk":"Karisik cumleler, soyut kavramlar"},
+    "6": {"wpm_min":130,"wpm_max":145,"dogruluk_min":99,"kelime":"115-135","zorluk":"Uzun ve karisik cumleler, akademik kelimeler"},
     "7": {"wpm_min":145,"wpm_max":160,"dogruluk_min":99,"kelime":"135-155","zorluk":"Edebi dil, mecazlar, uzun paragraflar"},
 }
 
-# ─── MODELS ───
+# ═══ MODELS ═══
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
@@ -67,26 +68,73 @@ class ReadingSession(db.Model):
 @login_manager.user_loader
 def load_user(id): return User.query.get(int(id))
 
-# ─── GOOGLE STT ───
-def google_stt_analiz(ses_dosya_yolu):
+
+# ═══ GOOGLE STT + SPEECH ADAPTATION ═══
+def google_stt_analiz(ses_dosya_yolu, referans_metin=""):
+    """Google Cloud STT — referans metindeki kelimeler phrase hint olarak gonderilir"""
     with open(ses_dosya_yolu, "rb") as f:
         audio_b64 = base64.b64encode(f.read()).decode("utf-8")
-    resp = requests.post(f"https://speech.googleapis.com/v1p1beta1/speech:recognize?key={GOOGLE_API_KEY}",
-        json={"config": {"encoding": "LINEAR16", "sampleRateHertz": 16000, "languageCode": "tr-TR", "enableWordTimeOffsets": True, "enableWordConfidence": True, "model": "default", "useEnhanced": True}, "audio": {"content": audio_b64}}, timeout=120)
-    data = resp.json()
-    if "error" in data or "results" not in data: return "", []
-    transkript = ""; kelimeler = []
-    for result in data["results"]:
-        alt = result["alternatives"][0]; transkript += alt.get("transcript", "") + " "
-        for w in alt.get("words", []):
-            kelimeler.append({"kelime": w["word"], "baslangic": round(float(w.get("startTime", "0s").replace("s", "")), 2), "bitis": round(float(w.get("endTime", "0s").replace("s", "")), 2), "confidence": round(w.get("confidence", 0), 3)})
-    return transkript.strip(), kelimeler
 
-# ─── IMPROVED COMPARISON (2-pass) ───
+    # Referans metinden benzersiz kelimeleri cikar (phrase hints)
+    phrases = list(set(re.sub(r'[^\w\s]', '', referans_metin).lower().split()))[:300]
+
+    config = {
+        "encoding": "LINEAR16",
+        "sampleRateHertz": 16000,
+        "languageCode": "tr-TR",
+        "enableWordTimeOffsets": True,
+        "enableWordConfidence": True,
+        "model": "default",
+        "useEnhanced": True,
+    }
+
+    # Speech Adaptation — referans kelimeleri Google'a onceden soyle
+    if phrases:
+        config["speechContexts"] = [{"phrases": phrases, "boost": 15}]
+        print(f"  Speech Adaptation: {len(phrases)} kelime hint olarak gonderildi")
+
+    resp = requests.post(
+        f"https://speech.googleapis.com/v1p1beta1/speech:recognize?key={GOOGLE_API_KEY}",
+        json={"config": config, "audio": {"content": audio_b64}},
+        timeout=120
+    )
+    data = resp.json()
+
+    if "error" in data:
+        print(f"  STT HATA: {data['error']}")
+        return "", []
+    if "results" not in data:
+        print("  STT: sonuc yok")
+        return "", []
+
+    transkript = ""
+    kelimeler = []
+    for result in data["results"]:
+        alt = result["alternatives"][0]
+        transkript += alt.get("transcript", "") + " "
+        for w in alt.get("words", []):
+            start = w.get("startTime", "0s").replace("s", "")
+            end = w.get("endTime", "0s").replace("s", "")
+            kelimeler.append({
+                "kelime": w["word"],
+                "baslangic": round(float(start), 2),
+                "bitis": round(float(end), 2),
+                "confidence": round(w.get("confidence", 0), 3)
+            })
+
+    transkript = transkript.strip()
+    avg_conf = np.mean([k['confidence'] for k in kelimeler]) if kelimeler else 0
+    print(f"  STT: {transkript[:80]}...")
+    print(f"  {len(kelimeler)} kelime, ort confidence: {avg_conf:.2f}")
+    return transkript, kelimeler
+
+
+# ═══ 2-PASS WORD COMPARISON ═══
 def lev_sim(a, b):
     if a == b: return 1.0
     if not a or not b: return 0.0
     la, lb = len(a), len(b)
+    if la > 20 or lb > 20: return 1.0 if a == b else 0.0
     m = [[0]*(lb+1) for _ in range(la+1)]
     for i in range(la+1): m[i][0] = i
     for j in range(lb+1): m[0][j] = j
@@ -101,7 +149,7 @@ def kelime_karsilastir(referans_metin, stt_kelimeler):
     stt_used = [False] * len(stt_clean)
     sonuc = [None] * len(ref_words)
 
-    # Pass 1: Sequential greedy match
+    # Pass 1: Sequential greedy match (window 20)
     stt_idx = 0
     for i, ref_w in enumerate(ref_words):
         best_sim = 0; best_j = -1
@@ -118,7 +166,7 @@ def kelime_karsilastir(referans_metin, stt_kelimeler):
             sonuc[i] = {"kelime": ref_w, "durum": "hatali", "confidence": stt_kelimeler[best_j]["confidence"], "stt": stt_kelimeler[best_j]["kelime"]}
             stt_idx = best_j + 1
 
-    # Pass 2: Global search for unmatched (skipped) words
+    # Pass 2: Global search for remaining unmatched words
     for i, ref_w in enumerate(ref_words):
         if sonuc[i] is not None: continue
         best_sim = 0; best_j = -1
@@ -134,9 +182,17 @@ def kelime_karsilastir(referans_metin, stt_kelimeler):
 
     dogru = sum(1 for s in sonuc if s["durum"] == "dogru")
     toplam = len(ref_words)
-    return {"kelimeler": sonuc, "toplam": toplam, "dogru": dogru, "hatali": sum(1 for s in sonuc if s["durum"] == "hatali"), "atlanmis": sum(1 for s in sonuc if s["durum"] == "atlanmis"), "dogruluk_yuzdesi": round(dogru / toplam * 100, 1) if toplam > 0 else 0}
+    return {
+        "kelimeler": sonuc,
+        "toplam": toplam,
+        "dogru": dogru,
+        "hatali": sum(1 for s in sonuc if s["durum"] == "hatali"),
+        "atlanmis": sum(1 for s in sonuc if s["durum"] == "atlanmis"),
+        "dogruluk_yuzdesi": round(dogru / toplam * 100, 1) if toplam > 0 else 0
+    }
 
-# ─── PROZODI ───
+
+# ═══ PROZODI (Parselmouth) ═══
 def prozodi_analiz(ses_dosya_yolu):
     import parselmouth, librosa
     ses = parselmouth.Sound(ses_dosya_yolu); ts = ses.get_total_duration()
@@ -145,16 +201,17 @@ def prozodi_analiz(ses_dosya_yolu):
     intensity = ses.to_intensity(); iv = intensity.values.T.flatten(); iv = iv[iv>40]
     ed = {"ortalama_db": round(float(np.mean(iv)),1), "std_db": round(float(np.std(iv)),1), "vurgu": "Yetersiz" if float(np.std(iv))<3.5 else "Normal" if float(np.std(iv))<7 else "Guclu"} if len(iv)>0 else {"ortalama_db":0,"std_db":0,"vurgu":"?"}
     y, sr = librosa.load(ses_dosya_yolu, sr=None); sk = librosa.effects.split(y, top_db=30)
-    ks=0;dc=0;ul=0
+    ks=0; dc=0; ul=0
     for i, k in enumerate(sk):
         ks += (k[1]-k[0])/sr
         if i > 0:
             ds = k[0]/sr - sk[i-1][1]/sr
-            if ds > 0.15: dc+=1; ul+=1 if ds>1.0 else 0
-    ss=ts-ks; so=(ss/ts)*100 if ts>0 else 0
-    return {"pitch":pd,"enerji":ed,"sure":{"toplam":round(ts,1),"konusma":round(ks,1),"sessizlik":round(so,1),"duraksama":dc,"uzun":ul,"akicilik":"Akici" if so<20 else "Normal" if so<35 else "Kesik"}}
+            if ds > 0.15: dc += 1; ul += 1 if ds > 1.0 else 0
+    ss = ts - ks; so = (ss/ts)*100 if ts > 0 else 0
+    return {"pitch": pd, "enerji": ed, "sure": {"toplam": round(ts,1), "konusma": round(ks,1), "sessizlik": round(so,1), "duraksama": dc, "uzun": ul, "akicilik": "Akici" if so<20 else "Normal" if so<35 else "Kesik"}}
 
-# ─── CLAUDE ───
+
+# ═══ CLAUDE ANALIZ ═══
 def claude_analiz(ref, kar, pz, sinif, ad, asama=1):
     import anthropic
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
@@ -169,76 +226,105 @@ SADECE JSON:
 {{"genel_skor":0-100,"akicilik_skoru":0-100,"prozodi_skoru":0-100,"seviye":"Baslangic/Gelisen/Yeterli/Ileri","wpm":N,"kaba":{{"toplam":{kar['toplam']},"dogru":{kar['dogru']},"yanlis":{kar['hatali']},"atlanan":{kar['atlanmis']},"wpm":N}},"prozodik_olcek":[{{"m":"Duygu","p":0-4}},{{"m":"Konusma","p":0-4}},{{"m":"Vurgu","p":0-4}},{{"m":"Noktalama","p":0-4}},{{"m":"Anlam","p":0-4}},{{"m":"Bekleme","p":0-4}},{{"m":"Akici","p":0-4}},{{"m":"Gruplama","p":0-4}}],"pt":0-32,"ao":"1 cumle","po":"1 cumle","hk":[{{"k":"x","o":"y","t":"he-ce","a":"anlam","ht":"sub/omi/met"}}],"gy":["2"],"ga":["2"],"on":["3"]}}"""
     response = client.messages.create(model="claude-sonnet-4-20250514", max_tokens=2000, messages=[{"role": "user", "content": prompt}])
     raw = response.content[0].text.strip()
-    for p in ["```json","```"]:
-        if raw.startswith(p): raw=raw[len(p):]
-    if raw.endswith("```"): raw=raw[:-3]
+    for p in ["```json", "```"]:
+        if raw.startswith(p): raw = raw[len(p):]
+    if raw.endswith("```"): raw = raw[:-3]
     try: return json.loads(raw.strip())
-    except: return {"hata":"Parse hatasi"}
+    except: return {"hata": "Parse hatasi"}
 
-# ─── ROUTES ───
+
+# ═══ AUTH ROUTES ═══
 @app.route('/')
 def index():
     if current_user.is_authenticated:
-        return redirect(url_for('admin_panel' if current_user.role=='admin' else 'student_panel'))
+        return redirect(url_for('admin_panel' if current_user.role == 'admin' else 'student_panel'))
     return redirect(url_for('login'))
 
-@app.route('/login', methods=['GET','POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated: return redirect(url_for('index'))
-    if request.method=='POST':
+    if request.method == 'POST':
         user = User.query.filter_by(username=request.form['username']).first()
         if user and user.check_password(request.form['password']):
             login_user(user); return redirect(url_for('index'))
-        flash('Hatali giris','error')
+        flash('Hatali giris', 'error')
     return render_template('login.html')
 
 @app.route('/logout')
 @login_required
 def logout(): logout_user(); return redirect(url_for('login'))
 
+
+# ═══ ADMIN ROUTES ═══
 @app.route('/admin')
 @login_required
 def admin_panel():
-    if current_user.role!='admin': return redirect(url_for('student_panel'))
+    if current_user.role != 'admin': return redirect(url_for('student_panel'))
     students = User.query.filter_by(role='student').order_by(User.name).all()
     sd = []
     for s in students:
         last = ReadingSession.query.filter_by(user_id=s.id).order_by(ReadingSession.created_at.desc()).first()
         total = ReadingSession.query.filter_by(user_id=s.id).count()
-        sd.append({"user":s,"last":last,"total":total})
+        sd.append({"user": s, "last": last, "total": total})
     return render_template('admin.html', students=sd)
 
 @app.route('/admin/ogrenci-ekle', methods=['POST'])
 @login_required
 def ogrenci_ekle():
-    if current_user.role!='admin': return redirect(url_for('index'))
-    u=request.form.get('username','').strip();p=request.form.get('password','').strip();n=request.form.get('name','').strip();s=request.form.get('sinif','2')
-    if not u or not p or not n: flash('Tum alanlari doldurun','error'); return redirect(url_for('admin_panel'))
-    if User.query.filter_by(username=u).first(): flash('Kullanici var','error'); return redirect(url_for('admin_panel'))
-    user=User(username=u,name=n,sinif=s,role='student'); user.set_password(p)
-    db.session.add(user); db.session.commit(); flash(f'{n} eklendi','success')
+    if current_user.role != 'admin': return redirect(url_for('index'))
+    u = request.form.get('username', '').strip()
+    p = request.form.get('password', '').strip()
+    n = request.form.get('name', '').strip()
+    s = request.form.get('sinif', '2')
+    if not u or not p or not n:
+        flash('Tum alanlari doldurun', 'error'); return redirect(url_for('admin_panel'))
+    if User.query.filter_by(username=u).first():
+        flash('Kullanici var', 'error'); return redirect(url_for('admin_panel'))
+    user = User(username=u, name=n, sinif=s, role='student')
+    user.set_password(p)
+    db.session.add(user); db.session.commit()
+    flash(f'{n} eklendi', 'success')
     return redirect(url_for('admin_panel'))
 
 @app.route('/admin/ogrenci-sil/<int:uid>', methods=['POST'])
 @login_required
 def ogrenci_sil(uid):
-    if current_user.role!='admin': return redirect(url_for('index'))
-    user=User.query.get_or_404(uid); ReadingSession.query.filter_by(user_id=uid).delete()
-    db.session.delete(user); db.session.commit(); flash('Silindi','success')
+    if current_user.role != 'admin': return redirect(url_for('index'))
+    user = User.query.get_or_404(uid)
+    ReadingSession.query.filter_by(user_id=uid).delete()
+    db.session.delete(user); db.session.commit()
+    flash('Silindi', 'success')
     return redirect(url_for('admin_panel'))
 
 @app.route('/admin/ogrenci/<int:uid>')
 @login_required
 def ogrenci_detay(uid):
-    if current_user.role!='admin': return redirect(url_for('index'))
-    return render_template('ogrenci_detay.html', student=User.query.get_or_404(uid), sessions=ReadingSession.query.filter_by(user_id=uid).order_by(ReadingSession.created_at.desc()).all())
+    if current_user.role != 'admin': return redirect(url_for('index'))
+    return render_template('ogrenci_detay.html',
+        student=User.query.get_or_404(uid),
+        sessions=ReadingSession.query.filter_by(user_id=uid).order_by(ReadingSession.created_at.desc()).all())
 
+@app.route('/admin/oturum/<int:sid>')
+@login_required
+def oturum_detay(sid):
+    if current_user.role != 'admin': return redirect(url_for('index'))
+    sess = ReadingSession.query.get_or_404(sid)
+    student = User.query.get(sess.user_id)
+    rapor = json.loads(sess.rapor_json) if sess.rapor_json else {}
+    hatali = json.loads(sess.hatali_json) if sess.hatali_json else []
+    return render_template('oturum_detay.html', sess=sess, student=student, rapor=rapor, hatali=hatali)
+
+
+# ═══ STUDENT ROUTES ═══
 @app.route('/ogrenci')
 @login_required
 def student_panel():
-    if current_user.role=='admin': return redirect(url_for('admin_panel'))
-    return render_template('student.html', sessions=ReadingSession.query.filter_by(user_id=current_user.id).order_by(ReadingSession.created_at.desc()).limit(20).all())
+    if current_user.role == 'admin': return redirect(url_for('admin_panel'))
+    return render_template('student.html',
+        sessions=ReadingSession.query.filter_by(user_id=current_user.id).order_by(ReadingSession.created_at.desc()).limit(20).all())
 
+
+# ═══ API ROUTES ═══
 @app.route('/metin-olustur', methods=['POST'])
 @login_required
 def metin_olustur():
@@ -246,10 +332,11 @@ def metin_olustur():
     sinif = request.json.get('sinif', current_user.sinif or '2')
     sr = SINIF_REF.get(sinif, SINIF_REF["2"])
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-    response = client.messages.create(model="claude-sonnet-4-20250514", max_tokens=400, messages=[{"role": "user", "content": f"""{sinif}. sinif Turkce okuma metni yaz.
+    response = client.messages.create(model="claude-sonnet-4-20250514", max_tokens=400,
+        messages=[{"role": "user", "content": f"""{sinif}. sinif Turkce okuma metni yaz.
 {sr['kelime']} kelime. {sr['zorluk']}.
-Cocuklara uygun ilgi cekici konu (hayvanlar, doga, macera, bilim, uzay, dostluk).
-Her seferinde FARKLI konu. BASLIK YAZMA. Sadece metni yaz, hicbir aciklama ekleme."""}])
+Cocuklara uygun, ilgi cekici konu (hayvanlar, doga, macera, bilim, uzay, dostluk).
+Her seferinde FARKLI konu sec. BASLIK YAZMA. Sadece metni yaz, aciklama ekleme."""}])
     return jsonify({"metin": response.content[0].text.strip()})
 
 @app.route('/asama-metin', methods=['POST'])
@@ -260,43 +347,89 @@ def asama_metin():
     hatali = request.json.get('hatali_kelimeler', [])
     sr = SINIF_REF.get(sinif, SINIF_REF["2"])
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-    response = client.messages.create(model="claude-sonnet-4-20250514", max_tokens=400, messages=[{"role": "user", "content": f"""{sinif}. sinif okuma metni. MUTLAKA su kelimeleri icersin: {', '.join(hatali[:10])}. {sr['kelime']} kelime. {sr['zorluk']}. BASLIK YAZMA. Sadece metin."""}])
+    response = client.messages.create(model="claude-sonnet-4-20250514", max_tokens=400,
+        messages=[{"role": "user", "content": f"""{sinif}. sinif okuma metni. MUTLAKA su kelimeleri icersin: {', '.join(hatali[:10])}.
+{sr['kelime']} kelime. {sr['zorluk']}. BASLIK YAZMA. Sadece metin."""}])
     return jsonify({"metin": response.content[0].text.strip()})
 
 @app.route('/analiz', methods=['POST'])
 @login_required
 def analiz():
     try:
-        if 'ses_dosyasi' not in request.files: return jsonify({"hata":"Dosya yok"}),400
-        sf=request.files['ses_dosyasi'];rm=request.form.get('referans_metin','').strip()
-        asama=int(request.form.get('asama','1'))
-        if not rm: return jsonify({"hata":"Metin yok"}),400
-        sx=os.path.splitext(sf.filename)[1] or '.wav'
-        with tempfile.NamedTemporaryFile(delete=False,suffix=sx) as tmp: sf.save(tmp.name); tp=tmp.name
-        wp=tp+"_c.wav"
+        if 'ses_dosyasi' not in request.files: return jsonify({"hata": "Dosya yok"}), 400
+        sf = request.files['ses_dosyasi']
+        rm = request.form.get('referans_metin', '').strip()
+        asama = int(request.form.get('asama', '1'))
+        if not rm: return jsonify({"hata": "Metin yok"}), 400
+
+        sx = os.path.splitext(sf.filename)[1] or '.wav'
+        with tempfile.NamedTemporaryFile(delete=False, suffix=sx) as tmp:
+            sf.save(tmp.name); tp = tmp.name
+        wp = tp + "_c.wav"
+
         try:
-            AudioSegment.from_file(tp).set_frame_rate(16000).set_channels(1).set_sample_width(2).export(wp,format="wav")
-            tr,sk=google_stt_analiz(wp)
-            if not tr or len(sk)<3: return jsonify({"basarili":False,"yeniden_kayit":True,"sebep":"Ses algilanamadi."})
-            kar=kelime_karsilastir(rm,sk)
-            pz=prozodi_analiz(wp)
-            rp=claude_analiz(rm,kar,pz,current_user.sinif or '2',current_user.name,asama)
-            hl=list(set([k["kelime"] for k in kar["kelimeler"] if k["durum"]!="dogru"]))
-            tam=kar["dogruluk_yuzdesi"]>=95
-            sess=ReadingSession(user_id=current_user.id,asama=asama,referans_metin=rm,transkript=tr,dogruluk=kar["dogruluk_yuzdesi"],akicilik=rp.get("akicilik_skoru",0),prozodi=rp.get("prozodi_skoru",0),genel_skor=rp.get("genel_skor",0),wpm=rp.get("wpm",0),hatali_json=json.dumps(hl,ensure_ascii=False),rapor_json=json.dumps(rp,ensure_ascii=False),tamamlandi=tam)
-            db.session.add(sess);db.session.commit()
-            return jsonify({"basarili":True,"ogrenci_adi":current_user.name,"sinif":current_user.sinif,"asama":asama,"referans_metin":rm,"transkript":tr,"stt_kelimeler":sk,"karsilastirma":kar,"prozodi":pz,"rapor":rp,"hatali_liste":hl,"tamamlandi":tam})
+            # WAV'a cevir (16kHz mono)
+            AudioSegment.from_file(tp).set_frame_rate(16000).set_channels(1).set_sample_width(2).export(wp, format="wav")
+
+            print(f"\n  === {current_user.name} ({current_user.sinif}. sinif) Asama {asama} ===")
+
+            # K1: Google STT (referans metin ile Speech Adaptation)
+            print("  K1: Google STT + Speech Adaptation...")
+            tr, sk = google_stt_analiz(wp, rm)
+            if not tr or len(sk) < 3:
+                return jsonify({"basarili": False, "yeniden_kayit": True, "sebep": "Ses algilanamadi."})
+
+            # K2: Kelime karsilastirma (2-pass)
+            print("  K2: Karsilastirma...")
+            kar = kelime_karsilastir(rm, sk)
+            print(f"  Dogruluk: %{kar['dogruluk_yuzdesi']} ({kar['dogru']}/{kar['toplam']})")
+
+            # K3: Prozodi
+            print("  K3: Prozodi...")
+            pz = prozodi_analiz(wp)
+
+            # K4: Claude pedagojik analiz
+            print("  K4: Claude...")
+            rp = claude_analiz(rm, kar, pz, current_user.sinif or '2', current_user.name, asama)
+            print("  OK!")
+
+            hl = list(set([k["kelime"] for k in kar["kelimeler"] if k["durum"] != "dogru"]))
+            tam = kar["dogruluk_yuzdesi"] >= 95
+
+            # DB'ye kaydet
+            sess = ReadingSession(
+                user_id=current_user.id, asama=asama, referans_metin=rm, transkript=tr,
+                dogruluk=kar["dogruluk_yuzdesi"], akicilik=rp.get("akicilik_skoru", 0),
+                prozodi=rp.get("prozodi_skoru", 0), genel_skor=rp.get("genel_skor", 0),
+                wpm=rp.get("wpm", 0), hatali_json=json.dumps(hl, ensure_ascii=False),
+                rapor_json=json.dumps(rp, ensure_ascii=False), tamamlandi=tam
+            )
+            db.session.add(sess); db.session.commit()
+
+            return jsonify({
+                "basarili": True, "ogrenci_adi": current_user.name, "sinif": current_user.sinif,
+                "asama": asama, "referans_metin": rm, "transkript": tr,
+                "stt_kelimeler": sk, "karsilastirma": kar, "prozodi": pz,
+                "rapor": rp, "hatali_liste": hl, "tamamlandi": tam
+            })
+
         finally:
             if os.path.exists(tp): os.unlink(tp)
             if os.path.exists(wp): os.unlink(wp)
-    except Exception as e:
-        import traceback;traceback.print_exc();return jsonify({"hata":str(e)}),500
 
+    except Exception as e:
+        import traceback; traceback.print_exc()
+        return jsonify({"hata": str(e)}), 500
+
+
+# ═══ INIT ═══
 with app.app_context():
     db.create_all()
     if not User.query.filter_by(role='admin').first():
-        a=User(username='admin',name='Admin',role='admin',sinif='0');a.set_password('admin123')
-        db.session.add(a);db.session.commit();print("  Admin: admin/admin123")
+        a = User(username='admin', name='Admin', role='admin', sinif='0')
+        a.set_password('admin123')
+        db.session.add(a); db.session.commit()
+        print("  Admin: admin / admin123")
 
-if __name__=='__main__':
-    app.run(debug=True,port=8080,host='0.0.0.0')
+if __name__ == '__main__':
+    app.run(debug=True, port=8080, host='0.0.0.0')
