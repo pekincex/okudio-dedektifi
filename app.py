@@ -13,7 +13,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY", "")
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='templates/templates')
 app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY", "okudio-secret-key-2025")
 
 # DB — Railway PostgreSQL veya lokal SQLite
