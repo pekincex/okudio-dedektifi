@@ -3,7 +3,7 @@ flask-sqlalchemy
 flask-login
 gunicorn
 pydub
-parselmouth
+praat-parselmouth
 librosa
 numpy
 anthropic
