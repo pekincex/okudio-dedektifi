@@ -2,94 +2,68 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Okudio — {{ student.name }}</title>
+<title>{{ student.name }} — Okudio</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#F8F9FA;--surface:#FFF;--alt:#F1F3F5;--border:#DEE2E6;--text:#212529;--muted:#868E96;--accent:#228BE6;--ok:#2B8A3E;--okbg:#EBFBEE;--warn:#E67700;--bad:#C92A2A;--badbg:#FFF5F5;--r:12px}
-*{margin:0;padding:0;box-sizing:border-box}body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text)}
-header{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 0}header .w{max-width:960px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:12px}
-a{color:var(--accent);text-decoration:none;font-size:12px;font-weight:600}a:hover{text-decoration:underline}
-main{max-width:960px;margin:0 auto;padding:24px}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
-.card-title{font-family:'DM Serif Display',serif;font-size:18px;margin-bottom:14px}
-.stats{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap}.stat{flex:1;min-width:100px;text-align:center;padding:14px;background:var(--alt);border-radius:var(--r)}.stat-val{font-family:'DM Serif Display',serif;font-size:24px;color:var(--accent)}.stat-lbl{font-size:9px;color:var(--muted);text-transform:uppercase}
-.chart-area{width:100%;height:200px;display:flex;align-items:flex-end;gap:3px;padding:10px 0;border-bottom:1px solid var(--border)}
-.chart-bar{flex:1;min-width:8px;max-width:40px;border-radius:3px 3px 0 0;position:relative;transition:height .3s}
-.chart-label{text-align:center;font-size:8px;color:var(--muted);margin-top:4px;overflow:hidden}
-.chart-legend{display:flex;gap:16px;margin-top:10px;font-size:10px;color:var(--muted)}.chart-legend span{display:inline-flex;align-items:center;gap:3px}.ldot{width:8px;height:8px;border-radius:2px}
-table{width:100%;border-collapse:collapse;font-size:12px}th{text-align:left;padding:6px 8px;background:var(--text);color:#fff;font-size:10px;text-transform:uppercase}td{padding:6px 8px;border-bottom:1px solid var(--border)}tr:nth-child(even){background:var(--alt)}
-.score{display:inline-block;padding:2px 6px;border-radius:8px;font-weight:600;font-size:10px}.s-ok{background:var(--okbg);color:var(--ok)}.s-warn{background:#FFF9DB;color:var(--warn)}.s-bad{background:var(--badbg);color:var(--bad)}
+:root{--bg:#F8F9FA;--s:#FFF;--a:#F1F3F5;--b:#DEE2E6;--t:#212529;--m:#868E96;--ac:#228BE6;--as:#E7F5FF;--ok:#2B8A3E;--ob:#EBFBEE;--w:#E67700;--bad:#C92A2A;--bb:#FFF5F5;--r:10px;--sh:0 1px 2px rgba(0,0,0,.05)}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t);font-size:13px;line-height:1.5}
+header{background:var(--s);border-bottom:1px solid var(--b);padding:10px 0}header .w{max-width:1000px;margin:0 auto;padding:0 16px;display:flex;align-items:center;gap:8px}
+a{color:var(--ac);text-decoration:none;font-weight:600;font-size:11px}a:hover{text-decoration:underline}
+main{max-width:1000px;margin:0 auto;padding:16px}
+.card{background:var(--s);border:1px solid var(--b);border-radius:var(--r);padding:14px;margin-bottom:10px;box-shadow:var(--sh)}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}@media(max-width:700px){.g4{grid-template-columns:1fr 1fr}}
+.stat{text-align:center;padding:12px;background:var(--a);border-radius:var(--r)}.stat-v{font-family:'DM Serif Display';font-size:22px;color:var(--ac)}.stat-l{font-size:8px;color:var(--m);text-transform:uppercase;font-weight:600;margin-top:2px}
+.chart-wrap{position:relative;height:140px;border-bottom:1px solid var(--b);margin-bottom:8px}
+.chart-bar{position:absolute;bottom:0;border-radius:3px 3px 0 0;min-width:6px}
+.chart-label{position:absolute;bottom:-16px;font-size:7px;color:var(--m);transform:translateX(-50%);white-space:nowrap}
+.chart-val{position:absolute;font-size:8px;font-weight:700;transform:translateX(-50%)}
+.chart-line{position:absolute;left:0;right:0;border-top:1px dashed var(--ok)}
+.spacer{flex:1}
+table{width:100%;border-collapse:collapse;font-size:11px}th{text-align:left;padding:6px 8px;background:var(--t);color:#fff;font-size:8px;text-transform:uppercase}td{padding:6px 8px;border-bottom:1px solid var(--b)}tr:nth-child(even){background:var(--a)}
+tr.cl{cursor:pointer}tr.cl:hover{background:var(--as)}
+.badge{display:inline-block;padding:2px 6px;border-radius:8px;font-weight:600;font-size:9px}.b-ok{background:var(--ob);color:var(--ok)}.b-w{background:#FFF9DB;color:var(--w)}.b-bad{background:var(--bb);color:var(--bad)}
+.leg{display:flex;gap:10px;font-size:9px;color:var(--m);margin-top:4px}.leg span{display:inline-flex;align-items:center;gap:3px}.ldot{width:8px;height:8px;border-radius:2px}
 </style>
 </head>
 <body>
-<header><div class="w"><span style="font-size:16px">📚</span><span style="font-size:14px;font-weight:600">{{ student.name }}</span><span style="font-size:11px;color:var(--muted)">{{ student.sinif }}. sinif</span><span style="flex:1"></span><a href="/admin">← Admin Paneli</a></div></header>
+<header><div class="w">📚 <b>{{ student.name }}</b> <span style="font-size:10px;color:var(--m)">{{ student.sinif }}. sinif · @{{ student.username }}</span><span class="spacer"></span><a href="/admin">← Admin</a></div></header>
 <main>
-<div class="stats">
-<div class="stat"><div class="stat-val">{{ sessions|length }}</div><div class="stat-lbl">Oturum</div></div>
-<div class="stat"><div class="stat-val">{% if sessions %}{{ "%.0f"|format(sessions[0].dogruluk) }}%{% else %}-{% endif %}</div><div class="stat-lbl">Son Dogruluk</div></div>
-<div class="stat"><div class="stat-val">{% if sessions %}{{ sessions[0].wpm }}{% else %}-{% endif %}</div><div class="stat-lbl">Son WPM</div></div>
-<div class="stat"><div class="stat-val">{{ sessions|selectattr('tamamlandi')|list|length }}</div><div class="stat-lbl">Tamamlanan</div></div>
+<div class="g4">
+<div class="stat"><div class="stat-v">{{ sessions|length }}</div><div class="stat-l">Oturum</div></div>
+<div class="stat"><div class="stat-v" style="color:{% if sessions %}{{ '#2B8A3E' if sessions[0].dogruluk >= 95 else '#E67700' if sessions[0].dogruluk >= 70 else '#C92A2A' }}{% else %}var(--m){% endif %}">{% if sessions %}%{{ "%.0f"|format(sessions[0].dogruluk) }}{% else %}-{% endif %}</div><div class="stat-l">Son Dogruluk</div></div>
+<div class="stat"><div class="stat-v">{% if sessions %}{{ sessions[0].wpm }}{% else %}-{% endif %}</div><div class="stat-l">Son WPM</div></div>
+<div class="stat"><div class="stat-v" style="color:var(--ok)">{{ sessions|selectattr('tamamlandi')|list|length }}</div><div class="stat-l">Tamamlanan</div></div>
 </div>
-
-<div class="card">
-<div class="card-title">📈 Ilerleme Grafigi</div>
-<div class="chart-area" id="chartArea"></div>
-<div class="chart-legend"><span><span class="ldot" style="background:var(--ok)"></span> Dogruluk</span><span><span class="ldot" style="background:var(--accent)"></span> Genel Skor</span></div>
-</div>
-
-<div class="card">
-<div class="card-title">📋 Oturum Gecmisi</div>
-<table>
-<tr><th>Tarih</th><th>Asama</th><th>Dogruluk</th><th>Genel</th><th>WPM</th><th>Durum</th></tr>
-{% for s in sessions %}
-<tr>
-<td>{{ s.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+{% if sessions|length > 1 %}
+<div class="card"><div style="font-size:12px;font-weight:600;margin-bottom:8px">📈 Ilerleme</div><div class="chart-wrap" id="cw"></div><div style="height:18px"></div>
+<div class="leg"><span><span class="ldot" style="background:var(--ac)"></span>Dogruluk</span><span><span class="ldot" style="background:var(--ok);opacity:.25"></span>WPM</span><span style="color:var(--ok)">--- %95</span></div>
+{% if sessions %}<div style="font-size:9px;color:var(--m);margin-top:4px">Ort: <b>%{{ "%.1f"|format(sessions|map(attribute='dogruluk')|list|sum / sessions|length) }}</b> · WPM: <b>{{ "%.0f"|format(sessions|map(attribute='wpm')|list|sum / sessions|length) }}</b> · Max: <b>%{{ "%.0f"|format(sessions|map(attribute='dogruluk')|max) }}</b></div>{% endif %}
+</div>{% endif %}
+<div class="card"><div style="font-size:12px;font-weight:600;margin-bottom:8px">📋 Oturumlar ({{ sessions|length }})</div>
+<table><tr><th>Tarih</th><th>Asama</th><th>Dogruluk</th><th>WPM</th><th>Genel</th><th>Akicilik</th><th>Prozodi</th><th></th><th></th></tr>
+{% for s in sessions %}<tr class="cl" onclick="location='/admin/oturum/{{ s.id }}'">
+<td><b>{{ s.created_at.strftime('%d.%m.%Y') }}</b><br><span style="color:var(--m)">{{ s.created_at.strftime('%H:%M') }}</span></td>
 <td>{{ s.asama }}</td>
-<td><span class="score {{ 's-ok' if s.dogruluk >= 95 else 's-warn' if s.dogruluk >= 70 else 's-bad' }}">%{{ "%.0f"|format(s.dogruluk) }}</span></td>
-<td>{{ "%.0f"|format(s.genel_skor) }}</td>
-<td>{{ s.wpm }}</td>
+<td><span class="badge {{ 'b-ok' if s.dogruluk >= 95 else 'b-w' if s.dogruluk >= 70 else 'b-bad' }}">%{{ "%.0f"|format(s.dogruluk) }}</span></td>
+<td>{{ s.wpm }}</td><td>{{ "%.0f"|format(s.genel_skor) }}</td><td>{{ "%.0f"|format(s.akicilik) }}</td><td>{{ "%.0f"|format(s.prozodi) }}</td>
 <td>{% if s.tamamlandi %}✅{% else %}📖{% endif %}</td>
-</tr>
-{% endfor %}
-</table>
-</div>
+<td><span style="color:var(--ac);font-size:9px">→</span></td>
+</tr>{% endfor %}</table></div>
 </main>
 <script>
-// Render chart from session data
-var sessions = {{ sessions|map(attribute='dogruluk')|list|tojson }};
-var genels = {{ sessions|map(attribute='genel_skor')|list|tojson }};
-var dates = [{% for s in sessions %}"{{ s.created_at.strftime('%d.%m') }}"{% if not loop.last %},{% endif %}{% endfor %}];
-
-// Reverse for chronological order
-sessions.reverse(); genels.reverse(); dates.reverse();
-
-var area = document.getElementById('chartArea');
-if(sessions.length > 0) {
-    var maxH = 180;
-    for(var i = 0; i < sessions.length; i++) {
-        var col = document.createElement('div');
-        col.style.cssText = 'flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:8px';
-
-        var bar1 = document.createElement('div');
-        bar1.style.cssText = 'width:60%;height:' + (sessions[i]/100*maxH) + 'px;background:' + (sessions[i]>=95?'var(--ok)':sessions[i]>=70?'var(--warn)':'var(--bad)') + ';border-radius:2px 2px 0 0;min-height:4px';
-
-        var bar2 = document.createElement('div');
-        bar2.style.cssText = 'width:60%;height:' + (genels[i]/100*maxH) + 'px;background:var(--accent);border-radius:2px 2px 0 0;min-height:4px;opacity:.4';
-
-        var wrap = document.createElement('div');
-        wrap.style.cssText = 'display:flex;gap:1px;align-items:flex-end;height:'+maxH+'px';
-        wrap.appendChild(bar2); wrap.appendChild(bar1);
-
-        col.appendChild(wrap);
-        var lbl = document.createElement('div');
-        lbl.style.cssText = 'font-size:7px;color:var(--muted)';
-        lbl.textContent = dates[i] || '';
-        col.appendChild(lbl);
-        area.appendChild(col);
-    }
-} else {
-    area.innerHTML = '<div style="width:100%;text-align:center;color:var(--muted);padding:40px">Henuz veri yok</div>';
-}
+var S=[{% for s in sessions %}{"d":{{ s.dogruluk }},"w":{{ s.wpm }},"dt":"{{ s.created_at.strftime('%d.%m') }}"}{% if not loop.last %},{% endif %}{% endfor %}];
+S.reverse();
+var cw=document.getElementById('cw');
+if(cw&&S.length>1){var h=130,mw=cw.offsetWidth||800,n=S.length,bw=Math.min(28,Math.max(6,(mw-30)/n-3)),gap=(mw-n*bw)/(n+1);
+var ln=document.createElement('div');ln.className='chart-line';ln.style.bottom=(95/100*h)+'px';cw.appendChild(ln);
+var ll=document.createElement('span');ll.style.cssText='position:absolute;right:0;bottom:'+(95/100*h)+'px;font-size:7px;color:var(--ok);transform:translateY(-8px)';ll.textContent='%95';cw.appendChild(ll);
+var mxW=Math.max.apply(null,S.map(function(x){return x.w}))||100;
+for(var i=0;i<n;i++){var x=gap+i*(bw+gap),s=S[i];
+var b2=document.createElement('div');b2.className='chart-bar';b2.style.cssText='left:'+(x+bw*.15)+'px;width:'+(bw*.7)+'px;height:'+Math.max(2,s.w/mxW*h*.6)+'px;background:var(--ok);opacity:.12';
+var b1=document.createElement('div');b1.className='chart-bar';var bh=Math.max(4,s.d/100*h);b1.style.cssText='left:'+x+'px;width:'+bw+'px;height:'+bh+'px;background:'+(s.d>=95?'var(--ac)':s.d>=70?'var(--w)':'var(--bad)')+';opacity:.8';
+var v=document.createElement('div');v.className='chart-val';v.style.cssText='left:'+(x+bw/2)+'px;bottom:'+(bh+2)+'px;color:'+(s.d>=95?'var(--ac)':s.d>=70?'var(--w)':'var(--bad)');v.textContent='%'+Math.round(s.d);
+var lb=document.createElement('div');lb.className='chart-label';lb.style.left=(x+bw/2)+'px';lb.textContent=s.dt;
+cw.appendChild(b2);cw.appendChild(b1);cw.appendChild(v);cw.appendChild(lb)}}
 </script>
 </body>
 </html>
