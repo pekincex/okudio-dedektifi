@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Okudio — {{ student.name }}</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F8F9FA;--surface:#FFF;--alt:#F1F3F5;--border:#DEE2E6;--text:#212529;--muted:#868E96;--accent:#228BE6;--ok:#2B8A3E;--okbg:#EBFBEE;--warn:#E67700;--bad:#C92A2A;--badbg:#FFF5F5;--r:12px}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text)}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 0}header .w{max-width:960px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:12px}
+a{color:var(--accent);text-decoration:none;font-size:12px;font-weight:600}a:hover{text-decoration:underline}
+main{max-width:960px;margin:0 auto;padding:24px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.card-title{font-family:'DM Serif Display',serif;font-size:18px;margin-bottom:14px}
+.stats{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap}.stat{flex:1;min-width:100px;text-align:center;padding:14px;background:var(--alt);border-radius:var(--r)}.stat-val{font-family:'DM Serif Display',serif;font-size:24px;color:var(--accent)}.stat-lbl{font-size:9px;color:var(--muted);text-transform:uppercase}
+.chart-area{width:100%;height:200px;display:flex;align-items:flex-end;gap:3px;padding:10px 0;border-bottom:1px solid var(--border)}
+.chart-bar{flex:1;min-width:8px;max-width:40px;border-radius:3px 3px 0 0;position:relative;transition:height .3s}
+.chart-label{text-align:center;font-size:8px;color:var(--muted);margin-top:4px;overflow:hidden}
+.chart-legend{display:flex;gap:16px;margin-top:10px;font-size:10px;color:var(--muted)}.chart-legend span{display:inline-flex;align-items:center;gap:3px}.ldot{width:8px;height:8px;border-radius:2px}
+table{width:100%;border-collapse:collapse;font-size:12px}th{text-align:left;padding:6px 8px;background:var(--text);color:#fff;font-size:10px;text-transform:uppercase}td{padding:6px 8px;border-bottom:1px solid var(--border)}tr:nth-child(even){background:var(--alt)}
+.score{display:inline-block;padding:2px 6px;border-radius:8px;font-weight:600;font-size:10px}.s-ok{background:var(--okbg);color:var(--ok)}.s-warn{background:#FFF9DB;color:var(--warn)}.s-bad{background:var(--badbg);color:var(--bad)}
+</style>
+</head>
+<body>
+<header><div class="w"><span style="font-size:16px">📚</span><span style="font-size:14px;font-weight:600">{{ student.name }}</span><span style="font-size:11px;color:var(--muted)">{{ student.sinif }}. sinif</span><span style="flex:1"></span><a href="/admin">← Admin Paneli</a></div></header>
+<main>
+<div class="stats">
+<div class="stat"><div class="stat-val">{{ sessions|length }}</div><div class="stat-lbl">Oturum</div></div>
+<div class="stat"><div class="stat-val">{% if sessions %}{{ "%.0f"|format(sessions[0].dogruluk) }}%{% else %}-{% endif %}</div><div class="stat-lbl">Son Dogruluk</div></div>
+<div class="stat"><div class="stat-val">{% if sessions %}{{ sessions[0].wpm }}{% else %}-{% endif %}</div><div class="stat-lbl">Son WPM</div></div>
+<div class="stat"><div class="stat-val">{{ sessions|selectattr('tamamlandi')|list|length }}</div><div class="stat-lbl">Tamamlanan</div></div>
+</div>
+
+<div class="card">
+<div class="card-title">📈 Ilerleme Grafigi</div>
+<div class="chart-area" id="chartArea"></div>
+<div class="chart-legend"><span><span class="ldot" style="background:var(--ok)"></span> Dogruluk</span><span><span class="ldot" style="background:var(--accent)"></span> Genel Skor</span></div>
+</div>
+
+<div class="card">
+<div class="card-title">📋 Oturum Gecmisi</div>
+<table>
+<tr><th>Tarih</th><th>Asama</th><th>Dogruluk</th><th>Genel</th><th>WPM</th><th>Durum</th></tr>
+{% for s in sessions %}
+<tr>
+<td>{{ s.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+<td>{{ s.asama }}</td>
+<td><span class="score {{ 's-ok' if s.dogruluk >= 95 else 's-warn' if s.dogruluk >= 70 else 's-bad' }}">%{{ "%.0f"|format(s.dogruluk) }}</span></td>
+<td>{{ "%.0f"|format(s.genel_skor) }}</td>
+<td>{{ s.wpm }}</td>
+<td>{% if s.tamamlandi %}✅{% else %}📖{% endif %}</td>
+</tr>
+{% endfor %}
+</table>
+</div>
+</main>
+<script>
+// Render chart from session data
+var sessions = {{ sessions|map(attribute='dogruluk')|list|tojson }};
+var genels = {{ sessions|map(attribute='genel_skor')|list|tojson }};
+var dates = [{% for s in sessions %}"{{ s.created_at.strftime('%d.%m') }}"{% if not loop.last %},{% endif %}{% endfor %}];
+
+// Reverse for chronological order
+sessions.reverse(); genels.reverse(); dates.reverse();
+
+var area = document.getElementById('chartArea');
+if(sessions.length > 0) {
+    var maxH = 180;
+    for(var i = 0; i < sessions.length; i++) {
+        var col = document.createElement('div');
+        col.style.cssText = 'flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:8px';
+
+        var bar1 = document.createElement('div');
+        bar1.style.cssText = 'width:60%;height:' + (sessions[i]/100*maxH) + 'px;background:' + (sessions[i]>=95?'var(--ok)':sessions[i]>=70?'var(--warn)':'var(--bad)') + ';border-radius:2px 2px 0 0;min-height:4px';
+
+        var bar2 = document.createElement('div');
+        bar2.style.cssText = 'width:60%;height:' + (genels[i]/100*maxH) + 'px;background:var(--accent);border-radius:2px 2px 0 0;min-height:4px;opacity:.4';
+
+        var wrap = document.createElement('div');
+        wrap.style.cssText = 'display:flex;gap:1px;align-items:flex-end;height:'+maxH+'px';
+        wrap.appendChild(bar2); wrap.appendChild(bar1);
+
+        col.appendChild(wrap);
+        var lbl = document.createElement('div');
+        lbl.style.cssText = 'font-size:7px;color:var(--muted)';
+        lbl.textContent = dates[i] || '';
+        col.appendChild(lbl);
+        area.appendChild(col);
+    }
+} else {
+    area.innerHTML = '<div style="width:100%;text-align:center;color:var(--muted);padding:40px">Henuz veri yok</div>';
+}
+</script>
+</body>
+</html>
