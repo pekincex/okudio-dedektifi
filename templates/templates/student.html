@@ -6,15 +6,13 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#F8F9FA;--s:#FFF;--a:#F1F3F5;--b:#DEE2E6;--t:#212529;--m:#868E96;--ac:#228BE6;--as:#E7F5FF;--ok:#2B8A3E;--ob:#EBFBEE;--w:#E67700;--wb:#FFF9DB;--bad:#C92A2A;--bb:#FFF5F5;--r:10px;--sh:0 1px 2px rgba(0,0,0,.05)}
-*{margin:0;padding:0;box-sizing:border-box}body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t);line-height:1.5;font-size:13px}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t);font-size:13px;line-height:1.5}
 header{background:var(--s);border-bottom:1px solid var(--b);padding:10px 0}header .w{max-width:1000px;margin:0 auto;padding:0 16px;display:flex;align-items:center;gap:8px;font-size:13px}.spacer{flex:1}.logout{font-size:11px;color:var(--m);text-decoration:none}
 main{max-width:1000px;margin:0 auto;padding:16px 16px 60px}
 .card{background:var(--s);border:1px solid var(--b);border-radius:var(--r);padding:16px;box-shadow:var(--sh);margin-bottom:10px}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-@media(max-width:700px){.g2,.g3{grid-template-columns:1fr}}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}@media(max-width:700px){.g2,.g3{grid-template-columns:1fr}}
 label{display:block;font-size:9px;font-weight:700;color:var(--m);margin-bottom:2px;text-transform:uppercase;letter-spacing:.3px}
-input[type=text],select{width:100%;padding:6px 8px;border:1px solid var(--b);border-radius:6px;font:12px 'DM Sans';background:var(--a)}input:focus,select:focus{outline:none;border-color:var(--ac)}
+input[type=text],select{width:100%;padding:6px 8px;border:1px solid var(--b);border-radius:6px;font:12px 'DM Sans';background:var(--a)}
 textarea{width:100%;min-height:80px;border:1px solid var(--b);border-radius:var(--r);padding:8px;font:12px/1.6 'DM Sans';background:var(--a);resize:none;overflow:hidden}textarea:focus{outline:none;border-color:var(--ac);background:#fff}
 .btn{padding:5px 12px;border:none;border-radius:6px;font:11px/1 'DM Sans';font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:3px}.btn-p{background:var(--ac);color:#fff}.btn-s{background:var(--a);color:var(--t);border:1px solid var(--b)}.btn-w{background:var(--w);color:#fff}.btn:disabled{opacity:.4}
 .tabs{display:flex;gap:3px;margin-bottom:6px}.tab{flex:1;padding:4px;border:1px solid var(--b);border-radius:5px;background:var(--a);font-size:10px;cursor:pointer;text-align:center;color:var(--m)}.tab.on{background:var(--as);border-color:var(--ac);color:var(--ac);font-weight:600}
@@ -38,7 +36,7 @@ textarea{width:100%;min-height:80px;border:1px solid var(--b);border-radius:var(
 .il{list-style:none;padding:0}.il li{padding:4px 0 4px 14px;position:relative;font-size:11px;border-bottom:1px solid var(--b)}.il li:last-child{border:none}.il li::before{content:'';position:absolute;left:1px;top:9px;width:5px;height:5px;border-radius:50%}.il.g li::before{background:var(--ok)}.il.o li::before{background:var(--w)}.il.b li::before{background:var(--ac)}
 .prog{background:var(--s);border:1px solid var(--b);border-radius:var(--r);padding:10px;margin-bottom:8px;box-shadow:var(--sh)}
 .comp{background:var(--ob);border:2px solid var(--ok);border-radius:var(--r);padding:16px;text-align:center;margin-bottom:8px}.comp h2{font-family:'DM Serif Display';font-size:18px;color:var(--ok)}.comp p{font-size:11px;color:var(--m)}
-.nxt{background:var(--wb);border:1px solid #FFE066;border-radius:var(--r);padding:12px;text-align:center;margin-bottom:8px;font-size:11px;color:var(--w)}
+.nxt{background:var(--wb);border:1px solid #FFE066;border-radius:var(--r);padding:10px;text-align:center;margin-bottom:8px;font-size:11px;color:var(--w)}
 .hist-item{display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid var(--b);font-size:10px}.hist-item:last-child{border:none}.hist-bar{flex:1;height:5px;background:var(--a);border-radius:2px;overflow:hidden}.hist-fill{height:100%;border-radius:2px}
 .ak-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}@media(max-width:700px){.ak-grid{grid-template-columns:repeat(3,1fr)}}.ak-item{padding:6px;background:var(--a);border-radius:5px;text-align:center}.ak-l{font-size:7px;text-transform:uppercase;color:var(--m);font-weight:600}.ak-v{font-family:'DM Serif Display';font-size:14px}.ak-n{font-size:7px;color:var(--m)}
 </style>
@@ -46,63 +44,23 @@ textarea{width:100%;min-height:80px;border:1px solid var(--b);border-radius:var(
 <body>
 <header><div class="w">📚 <b>Okudio</b> <span style="color:var(--ac)">{{ current_user.name }}</span> <span style="font-size:10px;color:var(--m)">{{ current_user.sinif }}. sinif</span><span class="spacer"></span><a href="/logout" class="logout">Cikis →</a></div></header>
 <main>
-{% if sessions %}
-<div class="card" style="padding:10px 12px">
-<div style="font-size:11px;font-weight:600;margin-bottom:6px">📈 Gecmis</div>
-{% for s in sessions[:8] %}
-<div class="hist-item"><span style="width:55px;color:var(--m)">{{ s.created_at.strftime('%d.%m %H:%M') }}</span><div class="hist-bar"><div class="hist-fill" style="width:{{ s.dogruluk }}%;background:{{ '#2B8A3E' if s.dogruluk >= 95 else '#E67700' if s.dogruluk >= 70 else '#C92A2A' }}"></div></div><span style="width:30px;text-align:right;font-weight:700;color:{{ '#2B8A3E' if s.dogruluk >= 95 else '#E67700' if s.dogruluk >= 70 else '#C92A2A' }}">%{{ "%.0f"|format(s.dogruluk) }}</span></div>
-{% endfor %}
-</div>
-{% endif %}
-
-<div class="card" id="inputCard">
-<div class="g3" style="margin-bottom:8px"><div><label>Ad</label><input type="text" value="{{ current_user.name }}" readonly style="background:#fff"></div><div><label>Sinif</label><input type="text" value="{{ current_user.sinif }}. Sinif" readonly style="background:#fff"></div><div><label>Tarih</label><input type="text" id="tarih" readonly></div></div>
-<div class="g2">
-<div><label>Ses</label>
-<div class="tabs"><button class="tab on" id="t1" onclick="sm('u')">📁 Yukle</button><button class="tab" id="t2" onclick="sm('r')">🎙️ Kayit</button></div>
-<div class="dz" id="dz">📁 <strong style="color:var(--ac)">Dosya sec</strong><div id="fn" style="display:none;font-weight:600;color:var(--ok);margin-top:2px"></div><input type="file" id="fi" accept="audio/*,.webm"></div>
-<div class="ra" id="ra"><button class="rb" id="rrb" onclick="tg()"><div class="dot"></div></button><div class="rs" id="rrs">🎤 Bas ve oku</div><div class="rd" id="rdd"><div style="font-weight:600;color:var(--ok)">✅</div><audio controls id="aud"></audio></div></div>
-</div>
-<div><div style="display:flex;justify-content:space-between"><label>Metin</label><button class="btn btn-s" onclick="genText()" id="genBtn" style="font-size:8px;padding:1px 5px;margin-bottom:2px">🎲 Otomatik</button></div>
-<textarea id="ta" placeholder="Metin yapistirin veya otomatik olusturun..." oninput="autoResize(this)"></textarea></div>
-</div>
+{% if sessions %}<div class="card" style="padding:10px 12px"><div style="font-size:11px;font-weight:600;margin-bottom:6px">📈 Gecmis</div>{% for s in sessions[:8] %}<div class="hist-item"><span style="width:55px;color:var(--m)">{{ s.created_at.strftime('%d.%m %H:%M') }}</span><div class="hist-bar"><div class="hist-fill" style="width:{{ s.dogruluk }}%;background:{{ '#2B8A3E' if s.dogruluk >= 95 else '#E67700' if s.dogruluk >= 70 else '#C92A2A' }}"></div></div><span style="width:30px;text-align:right;font-weight:700;color:{{ '#2B8A3E' if s.dogruluk >= 95 else '#E67700' if s.dogruluk >= 70 else '#C92A2A' }}">%{{ "%.0f"|format(s.dogruluk) }}</span></div>{% endfor %}</div>{% endif %}
+<div class="card" id="inputCard"><div class="g3" style="margin-bottom:8px"><div><label>Ad</label><input type="text" value="{{ current_user.name }}" readonly style="background:#fff"></div><div><label>Sinif</label><input type="text" value="{{ current_user.sinif }}. Sinif" readonly style="background:#fff"></div><div><label>Tarih</label><input type="text" id="tarih" readonly></div></div>
+<div class="g2"><div><label>Ses</label><div class="tabs"><button class="tab on" id="t1" onclick="sm('u')">📁 Yukle</button><button class="tab" id="t2" onclick="sm('r')">🎙️ Kayit</button></div><div class="dz" id="dz">📁 <strong style="color:var(--ac)">Dosya sec</strong><div id="fn" style="display:none;font-weight:600;color:var(--ok);margin-top:2px"></div><input type="file" id="fi" accept="audio/*,.webm"></div><div class="ra" id="ra"><button class="rb" id="rrb" onclick="tg()"><div class="dot"></div></button><div class="rs" id="rrs">🎤 Bas ve oku</div><div class="rd" id="rdd"><div style="font-weight:600;color:var(--ok)">✅</div><audio controls id="aud"></audio></div></div></div>
+<div><div style="display:flex;justify-content:space-between"><label>Metin</label><button class="btn btn-s" onclick="genText()" id="genBtn" style="font-size:8px;padding:1px 5px;margin-bottom:2px">🎲 Otomatik</button></div><textarea id="ta" placeholder="Metin yapistirin veya otomatik olusturun..." oninput="autoResize(this)"></textarea></div></div>
 <div id="asamaInfo" style="display:none;margin-top:6px;padding:4px 8px;background:var(--as);border-radius:5px;font-size:10px;color:var(--ac);font-weight:600"></div>
-<button class="btn btn-p" id="go" disabled style="width:100%;padding:8px;font-size:12px;margin-top:8px">🚀 Baslat</button>
-<div class="err" id="err"></div>
-</div>
-
+<button class="btn btn-p" id="go" disabled style="width:100%;padding:8px;font-size:12px;margin-top:8px">🚀 Baslat</button><div class="err" id="err"></div></div>
 <div class="retry" id="rtb"><div id="rtx" style="font-size:10px;color:var(--m);margin-bottom:6px"></div><button class="btn btn-s" onclick="rr()">🔄 Tekrar</button></div>
 <div class="ld" id="ld"><div class="ldc"><div class="sp"></div><div id="ls" style="font-size:11px;color:var(--m)">🎤 Dinliyor...</div></div></div>
-
 <div class="out" id="out">
 <div class="prog" id="progTrack"><div style="font-size:10px;font-weight:600;margin-bottom:4px">Bu Oturum</div><div style="display:flex;gap:3px;align-items:flex-end;height:35px" id="roundBars"></div></div>
 <div class="comp" id="compBox" style="display:none"><h2>🎉 Tebrikler!</h2><p id="compMsg"></p></div>
 <div class="nxt" id="nextBox" style="display:none"><span id="nextMsg"></span> <button class="btn btn-w" onclick="nextStage()" style="margin-left:8px">📖 Sonraki</button></div>
-
-<!-- Donuts + Degerlendirme yan yana -->
-<div class="g2">
-<div class="sec"><div class="sec-h">📊 Performans</div><div class="sec-b"><div class="donut-row" id="donuts"></div><div style="text-align:center"><div class="lvl" id="lvl"></div></div></div></div>
-<div class="sec"><div class="sec-h">📝 Degerlendirme</div><div class="sec-b" id="ped"></div></div>
-</div>
-
-<!-- Kaba + Prozodik yan yana -->
-<div class="g2">
-<div class="sec" id="kds" style="display:none"><div class="sec-h">📋 Kaba Degerlendirme</div><div class="sec-b" id="kdb"></div></div>
-<div class="sec" id="pos" style="display:none"><div class="sec-h">🎭 Prozodik Olcek</div><div class="sec-b" id="pob"></div></div>
-</div>
-
+<div class="g2"><div class="sec"><div class="sec-h">📊 Performans</div><div class="sec-b"><div class="donut-row" id="donuts"></div><div style="text-align:center"><div class="lvl" id="lvl"></div></div></div></div><div class="sec"><div class="sec-h">📝 Degerlendirme</div><div class="sec-b" id="ped"></div></div></div>
+<div class="g2"><div class="sec" id="kds" style="display:none"><div class="sec-h">📋 Kaba</div><div class="sec-b" id="kdb"></div></div><div class="sec" id="pos" style="display:none"><div class="sec-h">🎭 Prozodik</div><div class="sec-b" id="pob"></div></div></div>
 <div class="sec"><div class="sec-h">🔍 Metin</div><div class="sec-b"><div class="ct" id="cct"></div><div class="leg"><span><span class="ldot" style="background:#B2F2BB"></span>Dogru</span><span><span class="ldot" style="background:#FFC9C9"></span>Hatali</span><span><span class="ldot" style="background:#FFEC99"></span>Atlanmis</span></div><div style="margin-top:4px;font-size:8px;color:var(--m);padding:4px 6px;background:var(--as);border-radius:3px" id="sttx"></div></div></div>
-
-<div class="g2">
-<div class="sec" id="hks" style="display:none"><div class="sec-h">📖 Hatali</div><div class="sec-b" id="hkb"></div></div>
-<div class="sec"><div class="sec-h">🎵 Akustik</div><div class="sec-b"><div class="ak-grid" id="pgd"></div></div></div>
-</div>
-
-<div class="g3">
-<div class="sec"><div class="sec-h">💪 Guclu</div><div class="sec-b"><ul class="il g" id="gy"></ul></div></div>
-<div class="sec"><div class="sec-h">🎯 Gelisim</div><div class="sec-b"><ul class="il o" id="ga"></ul></div></div>
-<div class="sec"><div class="sec-h">💡 Oneriler</div><div class="sec-b"><ul class="il b" id="on"></ul></div></div>
-</div>
+<div class="g2"><div class="sec" id="hks" style="display:none"><div class="sec-h">📖 Hatali</div><div class="sec-b" id="hkb"></div></div><div class="sec"><div class="sec-h">🎵 Akustik</div><div class="sec-b"><div class="ak-grid" id="pgd"></div></div></div></div>
+<div class="g3"><div class="sec"><div class="sec-h">💪 Guclu</div><div class="sec-b"><ul class="il g" id="gy"></ul></div></div><div class="sec"><div class="sec-h">🎯 Gelisim</div><div class="sec-b"><ul class="il o" id="ga"></ul></div></div><div class="sec"><div class="sec-h">💡 Oneriler</div><div class="sec-b"><ul class="il b" id="on"></ul></div></div></div>
 </div>
 </main>
 <script>
@@ -110,7 +68,6 @@ var SINIF='{{ current_user.sinif }}',AD='{{ current_user.name }}';
 document.getElementById('tarih').value=new Date().toLocaleDateString('tr-TR');
 var dz=document.getElementById('dz'),fi=document.getElementById('fi'),go=document.getElementById('go'),ta=document.getElementById('ta'),ld=document.getElementById('ld'),ls=document.getElementById('ls'),err=document.getElementById('err'),out=document.getElementById('out'),rtb=document.getElementById('rtb');
 var sf=null,mr=null,rc=[],rst=null,rti=null,dur=0,asama=1,rounds=[],lastH=[];
-
 function autoResize(el){el.style.height='auto';el.style.height=el.scrollHeight+'px'}
 function sm(m){document.getElementById('t1').classList.toggle('on',m==='u');document.getElementById('t2').classList.toggle('on',m==='r');dz.style.display=m==='u'?'':'none';document.getElementById('ra').classList.toggle('on',m==='r')}
 async function tg(){var b=document.getElementById('rrb'),s=document.getElementById('rrs'),d=document.getElementById('rdd');if(mr&&mr.state==='recording'){mr.stop();b.classList.remove('rec');clearInterval(rti);dur=(Date.now()-rst)/1000;return}try{var st=await navigator.mediaDevices.getUserMedia({audio:true});rc=[];mr=new MediaRecorder(st);mr.ondataavailable=function(e){if(e.data.size>0)rc.push(e.data)};mr.onstop=function(){st.getTracks().forEach(function(t){t.stop()});if(dur<5){s.innerHTML='⚠️ Kisa!';d.classList.remove('on');return}var bl=new Blob(rc,{type:'audio/webm'});sf=new File([bl],'k.webm',{type:'audio/webm'});document.getElementById('aud').src=URL.createObjectURL(bl);d.classList.add('on');s.innerHTML='✅ '+Math.round(dur)+'sn';ck()};mr.start();b.classList.add('rec');d.classList.remove('on');rst=Date.now();rti=setInterval(function(){var e=Math.floor((Date.now()-rst)/1000);s.innerHTML=String(Math.floor(e/60)).padStart(2,'0')+':'+String(e%60).padStart(2,'0')+' 🔴'},1000)}catch(e){s.innerHTML='😕 Izin yok'}}
@@ -122,37 +79,25 @@ async function genText(){var b=document.getElementById('genBtn');b.disabled=true
 async function nextStage(){document.getElementById('nextBox').style.display='none';out.classList.remove('on');ld.classList.add('on');ls.innerHTML='📖 Metin...';try{var r=await fetch('/asama-metin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sinif:SINIF,hatali_kelimeler:lastH,asama:asama})});var d=await r.json();ld.classList.remove('on');ta.value=d.metin;autoResize(ta);sf=null;document.getElementById('fn').style.display='none';dz.classList.remove('ok');document.getElementById('rdd').classList.remove('on');document.getElementById('asamaInfo').style.display='block';document.getElementById('asamaInfo').innerHTML='Asama '+asama+' — '+lastH.slice(0,6).join(', ');go.disabled=true;ck();window.scrollTo({top:0,behavior:'smooth'})}catch(e){ld.classList.remove('on');alert(e.message)}}
 function dn(v,l,c){var p=Math.max(0,Math.min(100,v)),r=36,ci=2*Math.PI*r,d=ci*p/100;return '<div class="donut-item"><svg width="80" height="80" viewBox="0 0 100 100"><circle cx="50" cy="50" r="'+r+'" fill="none" stroke="#E9ECEF" stroke-width="6"/><circle cx="50" cy="50" r="'+r+'" fill="none" stroke="'+c+'" stroke-width="6" stroke-dasharray="'+d+' '+ci+'" stroke-linecap="round" transform="rotate(-90 50 50)"/></svg><div style="margin-top:-58px;position:relative;z-index:1"><div style="font-family:DM Serif Display;font-size:18px;color:'+c+'">'+v+'</div></div><div class="donut-label" style="position:relative;margin-top:22px">'+l+'</div></div>'}
 function rProg(){var h='';rounds.forEach(function(r){var ht=Math.max(4,r.d/100*30);var cl=r.d>=95?'var(--ok)':r.d>=70?'var(--w)':'var(--bad)';h+='<div style="flex:1;text-align:center"><div style="height:30px;display:flex;align-items:flex-end"><div style="width:100%;height:'+ht+'px;background:'+cl+';border-radius:2px 2px 0 0;position:relative"><span style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);font-size:8px;font-weight:700;color:'+cl+'">%'+r.d+'</span></div></div><div style="font-size:7px;color:var(--m)">'+r.a+'</div></div>'});document.getElementById('roundBars').innerHTML=h}
-
-go.addEventListener('click',async function(){
-    err.style.display='none';rtb.classList.remove('on');out.classList.remove('on');ld.classList.add('on');go.disabled=true;
-    [{t:'🎤 STT...',d:0},{t:'🎵 Prozodi...',d:3000},{t:'🧠 Claude...',d:7000}].forEach(function(s){setTimeout(function(){ls.innerHTML=s.t},s.d)});
-    var fd=new FormData();fd.append('ses_dosyasi',sf);fd.append('referans_metin',ta.value.trim());fd.append('sinif',SINIF);fd.append('asama',String(asama));
-    try{var rp=await fetch('/analiz',{method:'POST',body:fd});var dt=await rp.json();ld.classList.remove('on');
-    if(dt.hata){err.textContent='😕 '+dt.hata;err.style.display='block';go.disabled=false;return}
-    if(dt.yeniden_kayit){document.getElementById('rtx').textContent=dt.sebep;rtb.classList.add('on');go.disabled=false;return}
-    rounds.push({a:asama,d:dt.karsilastirma.dogruluk_yuzdesi});lastH=dt.hatali_liste||[];
-    render(dt);rProg();
-    if(dt.tamamlandi){document.getElementById('compBox').style.display='block';document.getElementById('compMsg').textContent=AD+' '+rounds.length+' asamada %'+dt.karsilastirma.dogruluk_yuzdesi;document.getElementById('nextBox').style.display='none'}
-    else{document.getElementById('nextBox').style.display='block';document.getElementById('nextMsg').textContent='%'+dt.karsilastirma.dogruluk_yuzdesi+' — '+lastH.length+' kelime kaldi';document.getElementById('compBox').style.display='none';asama++}
-    out.classList.add('on');out.scrollIntoView({behavior:'smooth'})
-    }catch(e){ld.classList.remove('on');err.innerHTML='😕 '+e.message;err.style.display='block'}go.disabled=false});
-
-function render(d){
-    var r=d.rapor||{},p=d.prozodi||{},k=d.karsilastirma||{};
-    var gs=r.genel_skor||0,ds=Math.round(k.dogruluk_yuzdesi||0),as2=r.akicilik_skoru||0,ps=r.prozodi_skoru||0;
-    var gc=function(v){return v>=70?'#2B8A3E':v>=40?'#E67700':'#C92A2A'};
-    document.getElementById('donuts').innerHTML=dn(gs,'Genel',gc(gs))+dn(ds,'Dogruluk',ds>=95?'#2B8A3E':ds>=90?'#E67700':'#C92A2A')+dn(as2,'Akicilik',gc(as2))+dn(ps,'Prozodi',gc(ps));
-    var lv=document.getElementById('lvl'),sv=(r.seviye||'').toLowerCase();lv.style.background=sv.indexOf('baslangic')>-1?'var(--bb)':sv.indexOf('yeterli')>-1||sv.indexOf('ileri')>-1?'var(--ob)':'var(--wb)';lv.style.color=sv.indexOf('baslangic')>-1?'var(--bad)':sv.indexOf('yeterli')>-1||sv.indexOf('ileri')>-1?'var(--ok)':'var(--w)';lv.textContent=(r.seviye||'')+(r.wpm?' · '+r.wpm+' k/dk':'');
-    var bc=function(v){return v>=70?'var(--ok)':v>=40?'var(--w)':'var(--bad)'};
-    var ph='';[{l:'Akicilik',v:as2,t:r.ao||''},{l:'Prozodi',v:ps,t:r.po||''}].forEach(function(m){ph+='<div class="pb"><div class="pb-h"><span>'+m.l+'</span><span style="color:'+bc(m.v)+'">'+m.v+'</span></div><div class="pb-bar"><div class="pb-f" style="width:'+m.v+'%;background:'+bc(m.v)+'"></div></div><div class="pb-t">'+m.t+'</div></div>'});document.getElementById('ped').innerHTML=ph;
-    var kd=r.kaba;if(kd){document.getElementById('kds').style.display='block';document.getElementById('kdb').innerHTML='<table class="mt"><tr><th>Metrik</th><th>Deger</th></tr><tr><td>Toplam</td><td><b>'+kd.toplam+'</b></td></tr><tr><td>Dogru</td><td><b style="color:var(--ok)">'+kd.dogru+'</b></td></tr><tr><td>Yanlis</td><td><b style="color:var(--bad)">'+kd.yanlis+'</b></td></tr><tr><td>Atlanan</td><td><b>'+kd.atlanan+'</b></td></tr><tr><td>WPM</td><td><b style="color:var(--ac)">'+kd.wpm+'</b></td></tr></table>'}
-    var po=r.prozodik_olcek;if(po&&po.length){document.getElementById('pos').style.display='block';var poh='<div style="margin-bottom:4px;font-size:11px"><b>Toplam: <span style="color:var(--ac);font-family:DM Serif Display">'+(r.pt||0)+'/32</span></b></div><table class="mt"><tr><th>Madde</th><th style="width:70px">Puan</th></tr>';po.forEach(function(m){var pn=m.p||0,cl=pn>=3?'var(--ok)':pn>=2?'var(--w)':'var(--bad)';var dots='';for(var i=0;i<4;i++)dots+='<span class="po-d'+(i<pn?' on':'')+'" style="'+(i<pn?'background:'+cl:'')+'">'+'</span>';poh+='<tr><td>'+(m.m||'')+'</td><td><div class="po-bar">'+dots+'<span style="margin-left:2px;font-weight:700;font-size:9px;color:'+cl+'">'+pn+'/4</span></div></td></tr>'});poh+='</table>';document.getElementById('pob').innerHTML=poh}
-    var kk=k.kelimeler||[];var ch='';kk.forEach(function(w){ch+='<span class="'+(w.durum==='dogru'?'g':w.durum==='hatali'?'r':'y')+'">'+w.kelime+'</span> '});document.getElementById('cct').innerHTML=ch||'-';
-    document.getElementById('sttx').innerHTML='<b>STT:</b> '+(d.transkript||'-');
-    var hk=r.hk||[];if(hk.length){document.getElementById('hks').style.display='block';var hh='';hk.forEach(function(h){hh+='<div class="hk"><b style="color:var(--bad)">'+(h.k||'')+'</b> → '+(h.o||'')+' <span style="color:var(--ok);font-weight:600">✓ '+(h.t||'')+'</span><br><span style="color:var(--m)">'+(h.a||'')+' · '+(h.ht||'')+'</span></div>'});document.getElementById('hkb').innerHTML=hh}else{document.getElementById('hks').style.display='none'}
-    var ai=[{l:'Pitch',v:(p.pitch.ortalama_hz||'-')+'Hz',n:p.pitch.monotonluk||''},{l:'Tonlama',v:(p.pitch.std_hz||'-')+'Hz',n:'std'},{l:'Vurgu',v:(p.enerji.std_db||'-')+'dB',n:p.enerji.vurgu||''},{l:'Sure',v:(p.sure.toplam||'-')+'sn',n:'K:'+(p.sure.konusma||'?')+'sn'},{l:'Duraksama',v:p.sure.duraksama||0,n:'Uzn:'+p.sure.uzun},{l:'Akicilik',v:p.sure.akicilik||'-',n:'%'+(p.sure.sessizlik||'?')}];
-    var ah='';ai.forEach(function(i){ah+='<div class="ak-item"><div class="ak-l">'+i.l+'</div><div class="ak-v">'+i.v+'</div><div class="ak-n">'+i.n+'</div></div>'});document.getElementById('pgd').innerHTML=ah;
-    rl('gy',r.gy);rl('ga',r.ga);rl('on',r.on)}
+go.addEventListener('click',async function(){err.style.display='none';rtb.classList.remove('on');out.classList.remove('on');ld.classList.add('on');go.disabled=true;
+[{t:'🎤 STT...',d:0},{t:'🎵 Prozodi...',d:3000},{t:'🧠 Claude...',d:7000}].forEach(function(s){setTimeout(function(){ls.innerHTML=s.t},s.d)});
+var fd=new FormData();fd.append('ses_dosyasi',sf);fd.append('referans_metin',ta.value.trim());fd.append('sinif',SINIF);fd.append('asama',String(asama));
+try{var rp=await fetch('/analiz',{method:'POST',body:fd});var dt=await rp.json();ld.classList.remove('on');
+if(dt.hata){err.textContent='😕 '+dt.hata;err.style.display='block';go.disabled=false;return}
+if(dt.yeniden_kayit){document.getElementById('rtx').textContent=dt.sebep;rtb.classList.add('on');go.disabled=false;return}
+rounds.push({a:asama,d:dt.karsilastirma.dogruluk_yuzdesi});lastH=dt.hatali_liste||[];render(dt);rProg();
+if(dt.tamamlandi){document.getElementById('compBox').style.display='block';document.getElementById('compMsg').textContent=AD+' '+rounds.length+' asamada %'+dt.karsilastirma.dogruluk_yuzdesi;document.getElementById('nextBox').style.display='none'}
+else{document.getElementById('nextBox').style.display='block';document.getElementById('nextMsg').textContent='%'+dt.karsilastirma.dogruluk_yuzdesi+' — '+lastH.length+' kelime kaldi';document.getElementById('compBox').style.display='none';asama++}
+out.classList.add('on');out.scrollIntoView({behavior:'smooth'})}catch(e){ld.classList.remove('on');err.innerHTML='😕 '+e.message;err.style.display='block'}go.disabled=false});
+function render(d){var r=d.rapor||{},p=d.prozodi||{},k=d.karsilastirma||{};var gs=r.genel_skor||0,ds=Math.round(k.dogruluk_yuzdesi||0),as2=r.akicilik_skoru||0,ps=r.prozodi_skoru||0;var gc=function(v){return v>=70?'#2B8A3E':v>=40?'#E67700':'#C92A2A'};document.getElementById('donuts').innerHTML=dn(gs,'Genel',gc(gs))+dn(ds,'Dogruluk',ds>=95?'#2B8A3E':ds>=90?'#E67700':'#C92A2A')+dn(as2,'Akicilik',gc(as2))+dn(ps,'Prozodi',gc(ps));
+var lv=document.getElementById('lvl'),sv=(r.seviye||'').toLowerCase();lv.style.background=sv.indexOf('baslangic')>-1?'var(--bb)':sv.indexOf('yeterli')>-1||sv.indexOf('ileri')>-1?'var(--ob)':'var(--wb)';lv.style.color=sv.indexOf('baslangic')>-1?'var(--bad)':sv.indexOf('yeterli')>-1||sv.indexOf('ileri')>-1?'var(--ok)':'var(--w)';lv.textContent=(r.seviye||'')+(r.wpm?' · '+r.wpm+' k/dk':'');
+var bc=function(v){return v>=70?'var(--ok)':v>=40?'var(--w)':'var(--bad)'};var ph='';[{l:'Akicilik',v:as2,t:r.ao||''},{l:'Prozodi',v:ps,t:r.po||''}].forEach(function(m){ph+='<div class="pb"><div class="pb-h"><span>'+m.l+'</span><span style="color:'+bc(m.v)+'">'+m.v+'</span></div><div class="pb-bar"><div class="pb-f" style="width:'+m.v+'%;background:'+bc(m.v)+'"></div></div><div class="pb-t">'+m.t+'</div></div>'});document.getElementById('ped').innerHTML=ph;
+var kd=r.kaba;if(kd){document.getElementById('kds').style.display='block';document.getElementById('kdb').innerHTML='<table class="mt"><tr><th>Metrik</th><th>Deger</th></tr><tr><td>Toplam</td><td><b>'+kd.toplam+'</b></td></tr><tr><td>Dogru</td><td><b style="color:var(--ok)">'+kd.dogru+'</b></td></tr><tr><td>Yanlis</td><td><b style="color:var(--bad)">'+kd.yanlis+'</b></td></tr><tr><td>Atlanan</td><td><b>'+kd.atlanan+'</b></td></tr><tr><td>WPM</td><td><b style="color:var(--ac)">'+kd.wpm+'</b></td></tr></table>'}
+var po=r.prozodik_olcek;if(po&&po.length){document.getElementById('pos').style.display='block';var poh='<div style="margin-bottom:4px;font-size:11px"><b>Toplam: <span style="color:var(--ac);font-family:DM Serif Display">'+(r.pt||0)+'/32</span></b></div><table class="mt"><tr><th>Madde</th><th style="width:70px">Puan</th></tr>';po.forEach(function(m){var pn=m.p||0,cl=pn>=3?'var(--ok)':pn>=2?'var(--w)':'var(--bad)';var dots='';for(var i=0;i<4;i++)dots+='<span class="po-d'+(i<pn?' on':'')+'" style="'+(i<pn?'background:'+cl:'')+'">'+'</span>';poh+='<tr><td>'+(m.m||'')+'</td><td><div class="po-bar">'+dots+'<span style="margin-left:2px;font-weight:700;font-size:9px;color:'+cl+'">'+pn+'/4</span></div></td></tr>'});poh+='</table>';document.getElementById('pob').innerHTML=poh}
+var kk=k.kelimeler||[];var ch='';kk.forEach(function(w){ch+='<span class="'+(w.durum==='dogru'?'g':w.durum==='hatali'?'r':'y')+'">'+w.kelime+'</span> '});document.getElementById('cct').innerHTML=ch||'-';document.getElementById('sttx').innerHTML='<b>STT:</b> '+(d.transkript||'-');
+var hk=r.hk||[];if(hk.length){document.getElementById('hks').style.display='block';var hh='';hk.forEach(function(h){hh+='<div class="hk"><b style="color:var(--bad)">'+(h.k||'')+'</b> → '+(h.o||'')+' <span style="color:var(--ok);font-weight:600">✓ '+(h.t||'')+'</span><br><span style="color:var(--m)">'+(h.a||'')+' · '+(h.ht||'')+'</span></div>'});document.getElementById('hkb').innerHTML=hh}else{document.getElementById('hks').style.display='none'}
+var ai=[{l:'Pitch',v:(p.pitch.ortalama_hz||'-')+'Hz',n:p.pitch.monotonluk||''},{l:'Tonlama',v:(p.pitch.std_hz||'-')+'Hz',n:'std'},{l:'Vurgu',v:(p.enerji.std_db||'-')+'dB',n:p.enerji.vurgu||''},{l:'Sure',v:(p.sure.toplam||'-')+'sn',n:'K:'+(p.sure.konusma||'?')+'sn'},{l:'Duraksama',v:p.sure.duraksama||0,n:'Uzn:'+p.sure.uzun},{l:'Akicilik',v:p.sure.akicilik||'-',n:'%'+(p.sure.sessizlik||'?')}];var ah='';ai.forEach(function(i){ah+='<div class="ak-item"><div class="ak-l">'+i.l+'</div><div class="ak-v">'+i.v+'</div><div class="ak-n">'+i.n+'</div></div>'});document.getElementById('pgd').innerHTML=ah;
+rl('gy',r.gy);rl('ga',r.ga);rl('on',r.on)}
 function rl(id,items){var el=document.getElementById(id);el.innerHTML='';if(items&&items.length){items.forEach(function(i){el.innerHTML+='<li>'+i+'</li>'})}else{el.innerHTML='<li style="color:var(--m)">—</li>'}}
 </script>
 </body>
