@@ -65,7 +65,7 @@ def google_stt(wav_path, referans=""):
     with open(wav_path,"rb") as f: audio_b64=base64.b64encode(f.read()).decode("utf-8")
     phrases=list(set(re.sub(r'[^\w\s]','',referans).lower().split()))[:500] if referans else []
     config={"encoding":"LINEAR16","sampleRateHertz":16000,"languageCode":"tr-TR","enableWordTimeOffsets":True,"enableWordConfidence":True,"model":"default","useEnhanced":True}
-    if phrases: config["speechContexts"]=[{"phrases":phrases,"boost":15}]
+    if phrases: config["speechContexts"]=[{"phrases":phrases,"boost":5}]
     resp=requests.post(f"https://speech.googleapis.com/v1p1beta1/speech:recognize?key={GOOGLE_API_KEY}",json={"config":config,"audio":{"content":audio_b64}},timeout=120)
     data=resp.json()
     if "error" in data or "results" not in data: return "",[]
@@ -133,46 +133,38 @@ def kelime_karsilastir(referans, g_kl, w_kl):
     g_used=[False]*len(gc);w_used=[False]*len(wc)
     sonuc=[None]*len(ref_words)
 
-    # Pass 1: Sequential match against Google
-    gi=0
+    # Pass 1: Sequential match against Whisper (UNBIASED - no speech hints)
+    wi=0
     for i,rw in enumerate(ref_words):
         bs=0;bj=-1
-        for j in range(gi,min(len(gc),gi+20)):
-            if g_used[j]:continue
-            s=lev_sim(rw,gc[j])
-            if s>bs:bs=s;bj=j
-        if bs>=0.8 and bj>=0:
-            g_used[bj]=True
-            sonuc[i]={"kelime":rw,"durum":"dogru","conf":g_kl[bj]["conf"],"stt":g_kl[bj]["kelime"],"bas":g_kl[bj]["bas"],"bit":g_kl[bj]["bit"],"kaynak":"google"}
-            gi=bj+1
-        elif bs>=0.4 and bj>=0:
-            g_used[bj]=True
-            sonuc[i]={"kelime":rw,"durum":"hatali","conf":g_kl[bj]["conf"],"stt":g_kl[bj]["kelime"],"bas":g_kl[bj]["bas"],"bit":g_kl[bj]["bit"],"kaynak":"google"}
-            gi=bj+1
-
-    # Pass 2: Unmatched → check Whisper
-    for i,rw in enumerate(ref_words):
-        if sonuc[i] is not None:continue
-        bs=0;bj=-1
-        for j in range(len(wc)):
+        for j in range(wi,min(len(wc),wi+20)):
             if w_used[j]:continue
             s=lev_sim(rw,wc[j])
             if s>bs:bs=s;bj=j
-        if bs>=0.75 and bj>=0:
+        if bs>=0.93 and bj>=0:
             w_used[bj]=True
-            d="dogru" if bs>=0.9 else "hatali"
-            sonuc[i]={"kelime":rw,"durum":d,"conf":0.7,"stt":w_kl[bj]["kelime"],"bas":w_kl[bj]["bas"],"bit":w_kl[bj]["bit"],"kaynak":"whisper"}
+            sonuc[i]={"kelime":rw,"durum":"dogru","conf":0.8,"stt":w_kl[bj]["kelime"],"bas":w_kl[bj]["bas"],"bit":w_kl[bj]["bit"],"kaynak":"whisper"}
+            wi=bj+1
+        elif bs>=0.5 and bj>=0:
+            w_used[bj]=True
+            sonuc[i]={"kelime":rw,"durum":"hatali","conf":0.5,"stt":w_kl[bj]["kelime"],"bas":w_kl[bj]["bas"],"bit":w_kl[bj]["bit"],"kaynak":"whisper"}
+            wi=bj+1
+
+    # Pass 2: Unmatched → check Google (speech hints, for identification only)
+    for i,rw in enumerate(ref_words):
+        if sonuc[i] is not None:continue
+        bs=0;bj=-1
+        for j in range(len(gc)):
+            if g_used[j]:continue
+            s=lev_sim(rw,gc[j])
+            if s>bs:bs=s;bj=j
+        if bs>=0.93 and bj>=0:
+            g_used[bj]=True
+            sonuc[i]={"kelime":rw,"durum":"dogru","conf":g_kl[bj]["conf"],"stt":g_kl[bj]["kelime"],"bas":g_kl[bj]["bas"],"bit":g_kl[bj]["bit"],"kaynak":"google"}
+        elif bs>=0.5 and bj>=0:
+            g_used[bj]=True
+            sonuc[i]={"kelime":rw,"durum":"hatali","conf":g_kl[bj]["conf"],"stt":g_kl[bj]["kelime"],"bas":g_kl[bj]["bas"],"bit":g_kl[bj]["bit"],"kaynak":"google"}
         else:
-            # Pass 3: Global search in Google
-            bs2=0;bj2=-1
-            for j in range(len(gc)):
-                if g_used[j]:continue
-                s=lev_sim(rw,gc[j])
-                if s>bs2:bs2=s;bj2=j
-            if bs2>=0.7 and bj2>=0:
-                g_used[bj2]=True
-                sonuc[i]={"kelime":rw,"durum":"dogru" if bs2>=0.9 else "hatali","conf":g_kl[bj2]["conf"],"stt":g_kl[bj2]["kelime"],"bas":g_kl[bj2]["bas"],"bit":g_kl[bj2]["bit"],"kaynak":"google-global"}
-            else:
                 sonuc[i]={"kelime":rw,"durum":"atlanmis","conf":0,"stt":"","bas":0,"bit":0,"kaynak":""}
 
     dogru=sum(1 for s in sonuc if s["durum"]=="dogru")
@@ -617,14 +609,26 @@ def analiz():
             hatalar=hatalari_siniflandir(kar)
             print(f"  {len(hatalar)} hata siniflandirildi")
 
-            # K7: Pattern tespiti
-            print("  Pattern tespiti...")
-            patterns=pattern_tespit(hatalar)
-            print(f"  {len(patterns['patterns'])} pattern bulundu")
+            # K7: Pattern tespiti (TÜM GEÇMİŞ VERİLERDEN)
+            print("  Pattern tespiti (kumulatif)...")
+            gecmis_hatalar=[]
+            gecmis_sessions=ReadingSession.query.filter_by(user_id=current_user.id).order_by(ReadingSession.created_at.desc()).limit(20).all()
+            for gs in gecmis_sessions:
+                try:
+                    gh=json.loads(gs.hatali_json or '[]')
+                    for kelime in gh:
+                        gecmis_hatalar.append({"tip":"belirsiz","kelime":kelime,"ses":"","pozisyon":"","detay":""})
+                except: pass
+            patterns=pattern_tespit(hatalar, gecmis_hatalar)
+            print(f"  {len(patterns['patterns'])} pattern ({len(gecmis_hatalar)} gecmis hata dahil)")
 
             # K8: Pedagojik öneri
             ped_oneriler=pedagojik_oneri_uret(patterns, hatalar)
             print(f"  {len(ped_oneriler)} oneri uretildi")
+
+            # Günlük başarı sayısı
+            bugun=datetime.datetime.utcnow().date()
+            basarili_bugun=ReadingSession.query.filter(ReadingSession.user_id==current_user.id,ReadingSession.tamamlandi==True,db.func.date(ReadingSession.created_at)==bugun).count()
 
             # Radar data
             sr=SINIF_REF.get(current_user.sinif,SINIF_REF["2"])
@@ -635,7 +639,7 @@ def analiz():
             sess=ReadingSession(user_id=current_user.id,asama=asama,referans_metin=rm,transkript=tr,dogruluk=kar["dogruluk_yuzdesi"],akicilik=rp.get("akicilik_skoru",0),prozodi=rp.get("prozodi_skoru",0),genel_skor=rp.get("genel_skor",0),wpm=wpm,hatali_json=json.dumps(hl,ensure_ascii=False),rapor_json=json.dumps(rp,ensure_ascii=False),radar_json=json.dumps(radar),tamamlandi=tam)
             db.session.add(sess);db.session.commit()
 
-            return jsonify({"basarili":True,"ogrenci_adi":current_user.name,"sinif":current_user.sinif,"asama":asama,"referans_metin":rm,"transkript":tr,"karsilastirma":kar,"kelime_detay":kd,"prozodi":pz,"rapor":rp,"radar":radar,"hatali_liste":hl,"tamamlandi":tam,"hatalar":hatalar,"patterns":patterns,"ped_oneriler":ped_oneriler})
+            return jsonify({"basarili":True,"ogrenci_adi":current_user.name,"sinif":current_user.sinif,"asama":asama,"referans_metin":rm,"transkript":tr,"karsilastirma":kar,"kelime_detay":kd,"prozodi":pz,"rapor":rp,"radar":radar,"hatali_liste":hl,"tamamlandi":tam,"hatalar":hatalar,"patterns":patterns,"ped_oneriler":ped_oneriler,"basarili_bugun":basarili_bugun})
         finally:
             if os.path.exists(tp):os.unlink(tp)
             if os.path.exists(wp):os.unlink(wp)
