@@ -126,6 +126,14 @@ def lev_sim(a,b):
             m[i][j]=m[i-1][j-1] if a[i-1]==b[j-1] else min(m[i-1][j-1],m[i][j-1],m[i-1][j])+1
     return(max(la,lb)-m[la][lb])/max(la,lb)
 
+def dogru_esik(kelime):
+    """Kisa kelimeler icin tam eslesme, uzun kelimeler icin daha toleransli"""
+    n = len(kelime)
+    if n <= 2: return 1.0    # "de","ve","bu" → tam eslesmeli
+    if n <= 3: return 0.99   # "bir","iki" → neredeyse tam
+    if n <= 5: return 0.90   # "okul","masa" → 1 harf tolerans
+    return 0.88              # "kaydıraktan" → 1 harf tolerans
+
 def kelime_karsilastir(referans, g_kl, w_kl):
     ref_words=re.sub(r'[^\w\s]','',referans).lower().split()
     gc=[re.sub(r'[^\w\s]','',k["kelime"]).lower() for k in g_kl]
@@ -136,12 +144,13 @@ def kelime_karsilastir(referans, g_kl, w_kl):
     # Pass 1: Sequential match against Whisper (UNBIASED - no speech hints)
     wi=0
     for i,rw in enumerate(ref_words):
+        esik=dogru_esik(rw)
         bs=0;bj=-1
         for j in range(wi,min(len(wc),wi+20)):
             if w_used[j]:continue
             s=lev_sim(rw,wc[j])
             if s>bs:bs=s;bj=j
-        if bs>=0.93 and bj>=0:
+        if bs>=esik and bj>=0:
             w_used[bj]=True
             sonuc[i]={"kelime":rw,"durum":"dogru","conf":0.8,"stt":w_kl[bj]["kelime"],"bas":w_kl[bj]["bas"],"bit":w_kl[bj]["bit"],"kaynak":"whisper"}
             wi=bj+1
@@ -153,12 +162,13 @@ def kelime_karsilastir(referans, g_kl, w_kl):
     # Pass 2: Unmatched → check Google (speech hints, for identification only)
     for i,rw in enumerate(ref_words):
         if sonuc[i] is not None:continue
+        esik=dogru_esik(rw)
         bs=0;bj=-1
         for j in range(len(gc)):
             if g_used[j]:continue
             s=lev_sim(rw,gc[j])
             if s>bs:bs=s;bj=j
-        if bs>=0.93 and bj>=0:
+        if bs>=esik and bj>=0:
             g_used[bj]=True
             sonuc[i]={"kelime":rw,"durum":"dogru","conf":g_kl[bj]["conf"],"stt":g_kl[bj]["kelime"],"bas":g_kl[bj]["bas"],"bit":g_kl[bj]["bit"],"kaynak":"google"}
         elif bs>=0.5 and bj>=0:
@@ -413,14 +423,15 @@ def pedagojik_oneri_uret(patterns, hata_listesi):
                 "tip": "pozisyon", "icon": "📍"
             })
 
-    # Genel öneriler her zaman
-    oneriler.append({
-        "baslik": "📖 Tekrarlı Okuma",
-        "aciklama": "Aynı metni 3 kez okuyun. Her seferinde akıcılık ve doğruluk artar.",
-        "ornek": "1. okuma: tanıma, 2. okuma: akıcılık, 3. okuma: prozodi",
-        "hedef": "Otomatik kelime tanıma geliştirme",
-        "tip": "genel", "icon": "📖"
-    })
+    # Genel öneri sadece başka öneri yoksa VE hata varsa
+    if not oneriler and len(hata_listesi) > 0:
+        oneriler.append({
+            "baslik": "📖 Tekrarlı Okuma",
+            "aciklama": "Aynı metni 3 kez okuyun. Her seferinde akıcılık ve doğruluk artar.",
+            "ornek": "1. okuma: tanıma, 2. okuma: akıcılık, 3. okuma: prozodi",
+            "hedef": "Otomatik kelime tanıma geliştirme",
+            "tip": "genel", "icon": "📖"
+        })
 
     return oneriler
 def prozodi_analiz(wav_path):
