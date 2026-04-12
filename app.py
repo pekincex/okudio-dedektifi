@@ -1,6 +1,6 @@
 """
-Okudio Okuma Dedektifi — Faz 4
-Dual STT (Google+Whisper) + Kelime Bazli Ses Analizi + Radar Chart
+Akıcı Okuma Sistemi — Faz 4
+Dual STT (Google+Whisper) + Kelime Bazlı Ses Analizi + S.O.D.A. Artikülasyon
 """
 from pydub import AudioSegment
 import os, io, json, tempfile, datetime, re, requests, base64
@@ -14,7 +14,7 @@ GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY", "")
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
 
-app = Flask(__name__, template_folder='templates/templates')
+app = Flask(__name__, template_folder='templates/templates', static_folder='static')
 app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY", "okudio-2025")
 db_url = os.environ.get("DATABASE_URL", "sqlite:///okudio.db")
 if db_url.startswith("postgres://"): db_url = db_url.replace("postgres://", "postgresql://", 1)
