@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>{{ student.name }} — Okudio</title>
+<title>{{ student.name }} — Akıcı Okuma</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#F8F9FA;--s:#FFF;--a:#F1F3F5;--b:#DEE2E6;--t:#212529;--m:#868E96;--ac:#228BE6;--as:#E7F5FF;--ok:#2B8A3E;--ob:#EBFBEE;--w:#E67700;--bad:#C92A2A;--bb:#FFF5F5;--r:10px;--sh:0 1px 2px rgba(0,0,0,.05)}
@@ -26,7 +26,7 @@ tr.cl{cursor:pointer}tr.cl:hover{background:var(--as)}
 </style>
 </head>
 <body>
-<header><div class="w">📚 <b>{{ student.name }}</b> <span style="font-size:10px;color:var(--m)">{{ student.sinif }}. sinif · @{{ student.username }}</span><span class="spacer"></span><a href="/admin">← Admin</a></div></header>
+<header><div class="w"><img src="/static/logo.png" style="height:28px"> <b>{{ student.name }}</b> <span style="font-size:10px;color:var(--m)">{{ student.sinif }}. sınıf · @{{ student.username }}</span><span class="spacer"></span><a href="/admin">← Admin</a></div></header>
 <main>
 <div class="g4">
 <div class="stat"><div class="stat-v">{{ sessions|length }}</div><div class="stat-l">Oturum</div></div>
