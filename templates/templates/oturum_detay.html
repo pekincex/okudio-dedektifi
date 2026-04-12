@@ -27,7 +27,7 @@ main{max-width:1000px;margin:0 auto;padding:16px}
 </style>
 </head>
 <body>
-<header><div class="w">📚 <b>Oturum Raporu</b><span class="spacer"></span><a href="/admin/ogrenci/{{ student.id }}">← {{ student.name }}</a></div></header>
+<header><div class="w"><img src="/static/logo.png" style="height:28px"> <b>Oturum Raporu</b><span class="spacer"></span><a href="/admin/ogrenci/{{ student.id }}">← {{ student.name }}</a></div></header>
 <main>
 <div class="card"><div class="info"><span>👤 <b>{{ student.name }}</b></span><span>{{ student.sinif }}. Sinif</span><span>📅 {{ sess.created_at.strftime('%d.%m.%Y %H:%M') }}</span><span>🔄 {{ sess.asama }}. Asama</span><span>{% if sess.tamamlandi %}<span class="badge b-ok">✅ Tamamlandi</span>{% else %}<span class="badge b-w">📖 Devam</span>{% endif %}</span></div></div>
 <div class="g2">
