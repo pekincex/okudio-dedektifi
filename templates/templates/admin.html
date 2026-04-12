@@ -2,12 +2,12 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Okudio — Admin</title>
+<title>Akıcı Okuma — Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#F8F9FA;--s:#FFF;--a:#F1F3F5;--b:#DEE2E6;--t:#212529;--m:#868E96;--ac:#228BE6;--ok:#2B8A3E;--ob:#EBFBEE;--w:#E67700;--bad:#C92A2A;--bb:#FFF5F5;--r:10px}
 *{margin:0;padding:0;box-sizing:border-box}body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t);font-size:13px}
-header{background:var(--s);border-bottom:1px solid var(--b);padding:10px 0}header .w{max-width:1000px;margin:0 auto;padding:0 16px;display:flex;align-items:center;gap:8px}.spacer{flex:1}.logout{font-size:11px;color:var(--m);text-decoration:none}
+header{background:var(--s);border-bottom:1px solid var(--b);padding:10px 0}header .w{max-width:1000px;margin:0 auto;padding:0 16px;display:flex;align-items:center;gap:8px}.spacer{flex:1}.logout{font-size:11px;color:var(--m);text-decoration:none}.hlogo{height:28px;width:auto}
 main{max-width:1000px;margin:0 auto;padding:16px}
 .card{background:var(--s);border:1px solid var(--b);border-radius:var(--r);padding:16px;margin-bottom:10px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
 .card-title{font-family:'DM Serif Display';font-size:16px;margin-bottom:10px}
@@ -23,7 +23,7 @@ a{color:var(--ac);text-decoration:none;font-weight:600;font-size:11px}
 </style>
 </head>
 <body>
-<header><div class="w">📚 <b>Okudio Admin</b><span class="spacer"></span><a href="/logout" class="logout">Cikis →</a></div></header>
+<header><div class="w"><img src="/static/logo.png" class="hlogo"> <b>Akıcı Okuma Sistemi</b> <span style="font-size:10px;color:var(--m)">Admin</span><span class="spacer"></span><a href="/logout" class="logout">Çıkış →</a></div></header>
 <main>
 {% with messages = get_flashed_messages(with_categories=true) %}{% for cat, msg in messages %}<div class="flash flash-{{ cat }}">{{ msg }}</div>{% endfor %}{% endwith %}
 <div class="stats">
